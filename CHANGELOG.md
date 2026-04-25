@@ -1,0 +1,40 @@
+# Changelog
+
+## [2.4.0] - 2026-04-25
+- Added 6 industry payload examples (Telecom, Automotive, Banking, Logistics, Brewery, Optics).
+- Added cross-industry compatibility validator for biological and physical conflicts.
+
+## [2.3.0] - 2026-04-25
+- Extended rules engine with working-memory tracking and ELIGIBILITY rule type.
+- Added latency reporting for event-driven rule evaluation.
+
+## [2.2.0] - 2026-04-25
+- Extended pricing model to support FLAT_FEE, PER_UNIT, TIERED and ATTRIBUTE_BASED methods.
+- Added decision-matrix price book selection and waterfall override chaining.
+
+## [2.1.0] - 2026-04-25
+- Added UUID defaults and GIN/GIST indexing enhancements in DDL.
+- Added schema-driven UI field filtering (`configurable`) and validation extraction.
+
+## [2.0.0] - 2026-04-25
+- Added TMF620-inspired headless API scaffolding and inheritance chain helpers.
+- Added specification/resource/service model separation and BOM cardinality schema.
+
+## [1.3.0] - 2026-04-25
+- Added lifecycle/effective-dating helpers (`valid_from` / `valid_to`) and major/minor version operations.
+- Extended schema to ensure soft-delete and context-date query compatibility.
+- Added edge-case notes for time-travel and version overlap protection.
+
+## [1.2.0] - 2026-04-25
+- Added event-driven rules engine supporting REQUIRES, EXCLUDES and CONSTRAINS semantics.
+- Added UI integration hooks for disabled states and error rendering.
+
+## [1.1.0] - 2026-04-25
+- Added secure AST-based formula evaluator for attribute-based pricing.
+- Added price books and override waterfall resolution.
+- Added performance and regression coverage for pricing flow.
+
+## [1.0.0] - 2026-04-25
+- Implemented EPC core relational schema with JSONB dynamic attributes.
+- Implemented dynamic grouped form renderer with loading/empty/error states.
+- Added security helpers for dynamic JSON mutation and payload sanitization.
