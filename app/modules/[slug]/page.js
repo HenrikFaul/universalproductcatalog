@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getModuleBySlug } from '../../lib/catalogData';
+import { getModuleBySlug, getModuleSlugs } from '../../lib/catalogData';
+
+export function generateStaticParams() {
+  return getModuleSlugs().map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const module = getModuleBySlug(slug);
+  const resolvedParams = await params;
+  const module = getModuleBySlug(resolvedParams.slug);
   if (!module) {
     return { title: 'Module not found | Universal Product Catalog' };
   }
@@ -12,8 +16,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ModuleDetailsPage({ params }) {
-  const { slug } = await params;
-  const module = getModuleBySlug(slug);
+  const resolvedParams = await params;
+  const module = getModuleBySlug(resolvedParams.slug);
 
   if (!module) {
     notFound();
@@ -68,7 +72,7 @@ export default async function ModuleDetailsPage({ params }) {
         </div>
         <div className="tag-row large-tags">
           {module.relatedIndustries.map((industry) => (
-            <Link href={`/industries/${industry.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} className="tag actionable-tag" key={industry}>
+            <Link href={`/industries/${industry.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`} className="tag actionable-tag" key={industry}>
               {industry}
             </Link>
           ))}

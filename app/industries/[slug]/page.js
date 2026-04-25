@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getIndustryDetailsBySlug } from '../../lib/catalogData';
+import { getIndustryDetailsBySlug, getIndustrySlugs } from '../../lib/catalogData';
+
+export function generateStaticParams() {
+  return getIndustrySlugs().map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const industry = await getIndustryDetailsBySlug(slug);
+  const resolvedParams = await params;
+  const industry = await getIndustryDetailsBySlug(resolvedParams.slug);
   if (!industry) {
     return { title: 'Industry not found | Universal Product Catalog' };
   }
@@ -18,8 +22,8 @@ function formatValue(value) {
 }
 
 export default async function IndustryDetailsPage({ params }) {
-  const { slug } = await params;
-  const industry = await getIndustryDetailsBySlug(slug);
+  const resolvedParams = await params;
+  const industry = await getIndustryDetailsBySlug(resolvedParams.slug);
 
   if (!industry) {
     notFound();

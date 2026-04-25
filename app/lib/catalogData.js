@@ -1,5 +1,5 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import industryPayloads from '../../data/industryPayloads.json';
+import epcBundles from '../../data/epcBundles.json';
 
 export const modules = [
   {
@@ -133,25 +133,18 @@ function safeSlug(value) {
     .replace(/^-+|-+$/g, '');
 }
 
-async function readJson(relativePath) {
-  const filePath = path.join(process.cwd(), relativePath);
-  const raw = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(raw);
-}
-
 export async function getIndustryPayloads() {
-  return readJson('data/industryPayloads.json');
+  return industryPayloads;
 }
 
 export async function getEpcBundles() {
-  return readJson('data/epcBundles.json');
+  return epcBundles;
 }
 
 export async function getIndustrySummaries() {
-  const payloads = await getIndustryPayloads();
   const grouped = new Map();
 
-  for (const payload of payloads) {
+  for (const payload of industryPayloads) {
     const industry = payload.industry;
     const slug = safeSlug(industry);
     const current = grouped.get(slug) ?? {
@@ -188,16 +181,14 @@ export async function getIndustrySummaries() {
 }
 
 export async function getIndustryDetailsBySlug(slug) {
-  const payloads = await getIndustryPayloads();
-  const bundles = await getEpcBundles();
-  const matching = payloads.filter((item) => safeSlug(item.industry) === slug);
+  const matching = industryPayloads.filter((item) => safeSlug(item.industry) === slug);
   if (!matching.length) {
     return null;
   }
 
   const industry = matching[0].industry;
   const offeringCodes = new Set(matching.map((item) => item.offering));
-  const relatedBundles = bundles.filter((bundle) =>
+  const relatedBundles = epcBundles.filter((bundle) =>
     (bundle.components || []).some((component) => offeringCodes.has(component)),
   );
 
@@ -217,12 +208,19 @@ export function getModuleBySlug(slug) {
 }
 
 export async function getOverviewStats() {
-  const [payloads, bundles] = await Promise.all([getIndustryPayloads(), getEpcBundles()]);
-  const industries = new Set(payloads.map((item) => item.industry));
+  const industries = new Set(industryPayloads.map((item) => item.industry));
   return {
     moduleCount: modules.length,
     industryCount: industries.size,
-    payloadCount: payloads.length,
-    bundleCount: bundles.length,
+    payloadCount: industryPayloads.length,
+    bundleCount: epcBundles.length,
   };
+}
+
+export function getModuleSlugs() {
+  return modules.map((module) => module.slug);
+}
+
+export function getIndustrySlugs() {
+  return Array.from(new Set(industryPayloads.map((item) => safeSlug(item.industry)))).sort();
 }
