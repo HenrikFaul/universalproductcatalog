@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getIndustryDetailsBySlug, getIndustrySlugs } from '../../lib/catalogData';
+import { getIndustryDetailsBySlug, getIndustrySummaries } from '../../lib/catalogData';
 
 export function generateStaticParams() {
-  return getIndustrySlugs().map((slug) => ({ slug }));
+  return getIndustrySummaries().map((industry) => ({ slug: industry.slug }));
 }
 
-export async function generateMetadata({ params }) {
-  const resolvedParams = await params;
-  const industry = await getIndustryDetailsBySlug(resolvedParams.slug);
+export function generateMetadata({ params }) {
+  const industry = getIndustryDetailsBySlug(params.slug);
   if (!industry) {
     return { title: 'Industry not found | Universal Product Catalog' };
   }
@@ -21,9 +20,8 @@ function formatValue(value) {
   return String(value);
 }
 
-export default async function IndustryDetailsPage({ params }) {
-  const resolvedParams = await params;
-  const industry = await getIndustryDetailsBySlug(resolvedParams.slug);
+export default function IndustryDetailsPage({ params }) {
+  const industry = getIndustryDetailsBySlug(params.slug);
 
   if (!industry) {
     notFound();
@@ -43,8 +41,13 @@ export default async function IndustryDetailsPage({ params }) {
         <p className="eyebrow">Industry detail</p>
         <h1 className="section-title">{industry.industry}</h1>
         <p className="hero-text">
-          Repository-backed sample payloads and module mapping for this industry.
+          Repository-backed sample payloads, module mapping and builder recommendation for this industry.
         </p>
+        <div className="hero-actions">
+          <Link href="/industries" className="secondary-button">Back to industries</Link>
+          <Link href={`/catalogs/new?industry=${industry.recommendedTemplate?.slug || ''}`} className="secondary-button">Create catalog for this industry</Link>
+          <Link href="/catalogs/telecom-demo" className="secondary-button">See telecom demo catalog</Link>
+        </div>
       </section>
 
       <section className="detail-grid">
@@ -68,6 +71,40 @@ export default async function IndustryDetailsPage({ params }) {
           </div>
         </article>
       </section>
+
+      {industry.recommendedTemplate ? (
+        <section className="section-block">
+          <div className="section-heading-row">
+            <div>
+              <p className="eyebrow">Starter template</p>
+              <h2>Recommended universal starter structure</h2>
+            </div>
+          </div>
+          <div className="card">
+            <p>{industry.recommendedTemplate.focus}</p>
+            <div className="three-col-grid slim-grid">
+              <div>
+                <h3>Starter products</h3>
+                <ul className="bullet-list compact-list">
+                  {industry.recommendedTemplate.starterProducts.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h3>Starter services</h3>
+                <ul className="bullet-list compact-list">
+                  {industry.recommendedTemplate.starterServices.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h3>Starter resources</h3>
+                <ul className="bullet-list compact-list">
+                  {industry.recommendedTemplate.starterResources.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {industry.relatedBundles.length > 0 ? (
         <section className="section-block">

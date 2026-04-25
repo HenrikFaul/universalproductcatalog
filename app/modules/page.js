@@ -16,6 +16,10 @@ export default function ModulesPage() {
           to see what it does, which files implement it and which industries it
           supports.
         </p>
+        <div className="hero-actions">
+          <Link href="/catalogs/telecom-demo" className="secondary-button">Open telecom demo catalog</Link>
+          <Link href="/catalogs/new" className="secondary-button">Create new catalog</Link>
+        </div>
       </section>
 
       <section className="section-block">

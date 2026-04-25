@@ -1,23 +1,21 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getModuleBySlug, getModuleSlugs } from '../../lib/catalogData';
+import { getModuleBySlug, modules } from '../../lib/catalogData';
 
 export function generateStaticParams() {
-  return getModuleSlugs().map((slug) => ({ slug }));
+  return modules.map((module) => ({ slug: module.slug }));
 }
 
-export async function generateMetadata({ params }) {
-  const resolvedParams = await params;
-  const module = getModuleBySlug(resolvedParams.slug);
+export function generateMetadata({ params }) {
+  const module = getModuleBySlug(params.slug);
   if (!module) {
     return { title: 'Module not found | Universal Product Catalog' };
   }
   return { title: `${module.title} | Universal Product Catalog` };
 }
 
-export default async function ModuleDetailsPage({ params }) {
-  const resolvedParams = await params;
-  const module = getModuleBySlug(resolvedParams.slug);
+export default function ModuleDetailsPage({ params }) {
+  const module = getModuleBySlug(params.slug);
 
   if (!module) {
     notFound();
@@ -39,7 +37,8 @@ export default async function ModuleDetailsPage({ params }) {
         <p className="hero-text">{module.description}</p>
         <div className="hero-actions">
           <Link href="/modules" className="secondary-button">Back to modules</Link>
-          <Link href="/industries" className="secondary-button">Explore industries</Link>
+          <Link href="/catalogs/telecom-demo" className="secondary-button">Open telecom demo catalog</Link>
+          <Link href="/catalogs/new" className="secondary-button">Create new catalog</Link>
         </div>
       </section>
 
@@ -72,7 +71,7 @@ export default async function ModuleDetailsPage({ params }) {
         </div>
         <div className="tag-row large-tags">
           {module.relatedIndustries.map((industry) => (
-            <Link href={`/industries/${industry.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`} className="tag actionable-tag" key={industry}>
+            <Link href={`/industries/${industry.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} className="tag actionable-tag" key={industry}>
               {industry}
             </Link>
           ))}

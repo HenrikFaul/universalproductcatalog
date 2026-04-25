@@ -5,8 +5,8 @@ export const metadata = {
   title: 'Industries | Universal Product Catalog',
 };
 
-export default async function IndustriesPage() {
-  const industries = await getIndustrySummaries();
+export default function IndustriesPage() {
+  const industries = getIndustrySummaries();
 
   return (
     <main className="page-shell">
@@ -17,6 +17,9 @@ export default async function IndustriesPage() {
           These industry payloads are already present in the repository and can
           be used as starting points for configurable catalog structures.
         </p>
+        <div className="hero-actions">
+          <Link href="/catalogs/new" className="secondary-button">Create catalog from 20 industries</Link>
+        </div>
       </section>
 
       <section className="section-block">
