@@ -2,7 +2,7 @@ const modules = [
   {
     title: "EPC Metamodel",
     description:
-      "Product Specification, Product Offering, Resource Specification and Service Specification separation."
+      "Product Specification, Product Offering, Resource Specification, Service Specification and Characteristic separation."
   },
   {
     title: "Hybrid EAV + JSONB",
@@ -22,7 +22,7 @@ const modules = [
   {
     title: "Universal Industry Matrix",
     description:
-      "Validation-ready architecture for telecom, automotive, banking, logistics, manufacturing and other industries."
+      "Architecture prepared for telecom, automotive, banking, logistics, manufacturing and other complex industries."
   }
 ];
 
@@ -38,9 +38,9 @@ export default function HomePage() {
         </h1>
 
         <p className="hero-text">
-          This deployment shell validates that the repository is now a proper
-          Next.js application for Vercel while preserving the existing backend,
-          pricing, formula and rules-engine test logic.
+          This deployable Next.js shell validates that the repository can be
+          built on Vercel while preserving the existing backend, pricing,
+          formula and rules-engine logic.
         </p>
 
         <div className="hero-actions">
