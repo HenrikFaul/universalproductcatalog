@@ -38,3 +38,31 @@
 - [x] JSON mutation guard implemented (role-based + payload sanitizer).
 - [x] `CHANGELOG.md` updated append-only.
 - [x] Patch package generated (`docs/only-patch.diff`).
+
+## v3.5.0_24052001
+- [x] Biometric JSON payload (`SPEC-RISK-PROFILE`) added with ICD-10 array support.
+- [x] Actuarial AST-compatible premium helper implemented with runtime multipliers.
+- [x] Underwriting hard-decline and referral status flow implemented and tested.
+- [x] UI accessibility baseline preserved (contrast + mobile-safe control sizes).
+
+## v3.4.0_24051502
+- [x] SPH/CYL/Axis decimal-step payload added to JSONB-style industry payload set.
+- [x] 2D grid pricing lookup implemented with precision-safe indexing.
+- [x] Requires/Excludes-ready rules output supports immediate UI blocking workflows.
+- [x] Mobile thumb-zone target requirement met (44px minimum controls).
+
+## v3.3.0_24051501
+- [x] `SPEC-HOPS-PELLETS` payload added with alpha-acid validation bounds.
+- [x] Brewery quality-index formula helper implemented for AST-aligned pricing.
+- [x] Regression tests extended without breaking previous EPC modules.
+
+## v3.2.0_24051002
+- [x] Freight JSON payload added for weight/temperature/hazard dimensions.
+- [x] Cold-chain ABP formula helper added with runtime multipliers.
+- [x] Constraint action output supports additional truck allocation.
+
+## v3.1.0_24051001
+- [x] Mortgage core payload + bundle metadata added to hybrid EAV fixtures.
+- [x] PMT formula implemented in secure helper (no eval).
+- [x] JTM blocking logic implemented in eligibility rule processing.
+- [x] Changelog and lessons updated append-only.
