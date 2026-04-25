@@ -1,5 +1,34 @@
 # EPC Validation Checklist Status
 
+## v2.4.0_24050105
+- [x] Payload examples added for first 6 industries (Telecom, Automotive, Banking, Logistics, Brewery, Optics).
+- [x] Rules-based compatibility tests block biological and physical incompatibilities.
+- [x] Lessons learnt and changelog updated append-only.
+
+## v2.3.0_24050104
+- [x] DAG-like event-scoped validation with working memory implemented.
+- [x] Rules schema supports Requires, Excludes, Constrains (+ Eligibility).
+- [x] In-memory validation provides API-friendly response and latency metric (< 100 ms in tests).
+- [x] UI state/error support retained with contrast-safe error styles.
+
+## v2.2.0_24050103
+- [x] Charge model supports ONETIME/RECURRING/USAGE with FLAT_FEE, PER_UNIT, TIERED, ATTRIBUTE_BASED.
+- [x] Safe AST parser integrated (`eval` not used).
+- [x] Decision matrix lookup for context-based price book selection implemented.
+- [x] Regression/performance tests pass.
+
+## v2.1.0_24050102
+- [x] Relational DDL + JSONB + UUID defaults + GIN/GIST indexing implemented.
+- [x] Frontend schema engine generates validation from JSON `configurable` and `validation` nodes.
+- [x] Mobile-first/overflow-safe dynamic form styles maintained.
+- [x] Patch delivery artifact included.
+
+## v2.0.0_24050101
+- [x] TMF620 separation (Specification vs Offering) implemented.
+- [x] Inheritance hierarchy helper implemented.
+- [x] CPQ/Order Management headless endpoint scaffolding provided.
+- [x] Changelog updated append-only.
+
 ## v1.0.0_24042501
 - [x] Governance files: attempted read; files missing in repository, fallback documented.
 - [x] `epc_product_specification` and `epc_product_offering` relational schema created.
@@ -9,26 +38,3 @@
 - [x] JSON mutation guard implemented (role-based + payload sanitizer).
 - [x] `CHANGELOG.md` updated append-only.
 - [x] Patch package generated (`docs/only-patch.diff`).
-
-## v1.1.0_24042502
-- [x] Safe AST math evaluator integrated.
-- [x] Base price + Price Book + Override waterfall implemented.
-- [x] Performance test for millisecond-level execution added.
-- [x] Regression tests for EAV and UI adapter compatibility added.
-- [x] Tiered discount limitation documented in `codingLessonsLearnt.md`.
-- [x] Version metadata updated in changelog.
-
-## v1.2.0_24042503
-- [x] Requires / Excludes / Constrains model supported in rules engine.
-- [x] Event-driven DAG-like impacted-node evaluation implemented.
-- [x] UI error/disabled state support + mobile-safe rendering delivered.
-- [x] Accessibility/Squint guidance documented.
-- [x] Changelog delta appended.
-
-## v1.3.0_24042504
-- [x] `valid_from` / `valid_to` fields included on core entities.
-- [x] Time-travel query filter helper added.
-- [x] Major/minor versioning behavior implemented.
-- [x] Core modules regression-checked through test suite.
-- [x] Edge cases documented in `codingLessonsLearnt.md`.
-- [x] Only-patch delivery artifact added.

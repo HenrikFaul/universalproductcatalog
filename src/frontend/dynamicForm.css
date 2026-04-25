@@ -28,12 +28,18 @@
   color: #111;
 }
 
+.field-error {
+  color: #b00020;
+  font-weight: 600;
+}
+
 select, input {
   width: 100%;
   min-height: 40px;
   border: 1px solid #606a79;
   border-radius: 6px;
   padding: 8px;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {

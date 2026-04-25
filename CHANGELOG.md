@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.4.0] - 2026-04-25
+- Added 6 industry payload examples (Telecom, Automotive, Banking, Logistics, Brewery, Optics).
+- Added cross-industry compatibility validator for biological and physical conflicts.
+
+## [2.3.0] - 2026-04-25
+- Extended rules engine with working-memory tracking and ELIGIBILITY rule type.
+- Added latency reporting for event-driven rule evaluation.
+
+## [2.2.0] - 2026-04-25
+- Extended pricing model to support FLAT_FEE, PER_UNIT, TIERED and ATTRIBUTE_BASED methods.
+- Added decision-matrix price book selection and waterfall override chaining.
+
+## [2.1.0] - 2026-04-25
+- Added UUID defaults and GIN/GIST indexing enhancements in DDL.
+- Added schema-driven UI field filtering (`configurable`) and validation extraction.
+
+## [2.0.0] - 2026-04-25
+- Added TMF620-inspired headless API scaffolding and inheritance chain helpers.
+- Added specification/resource/service model separation and BOM cardinality schema.
+
 ## [1.3.0] - 2026-04-25
 - Added lifecycle/effective-dating helpers (`valid_from` / `valid_to`) and major/minor version operations.
 - Extended schema to ensure soft-delete and context-date query compatibility.

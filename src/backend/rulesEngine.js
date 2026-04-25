@@ -1,4 +1,5 @@
-export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event }) {
+export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event, workingMemory = new Map(), context = {} }) {
+  const start = performance.now();
   const selected = new Set(selectedOfferingIds);
   const impacted = rules.filter((rule) => rule.event_scope === event && (!changedNodeId || rule.source_offering_id === changedNodeId));
 
@@ -6,8 +7,19 @@ export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event
   const disabled = new Set();
 
   for (const rule of impacted) {
+    const cacheKey = `${event}:${rule.id || `${rule.source_offering_id}->${rule.target_offering_id}`}`;
+    workingMemory.set(cacheKey, { ts: Date.now(), source: rule.source_offering_id, target: rule.target_offering_id });
+
     const hasSource = selected.has(rule.source_offering_id);
     const hasTarget = selected.has(rule.target_offering_id);
+
+    if (rule.rule_type === 'ELIGIBILITY') {
+      const minAge = rule.condition_payload?.minAge;
+      const age = context.customerAge;
+      if (hasSource && typeof minAge === 'number' && typeof age === 'number' && age < minAge) {
+        errors.push({ code: 'ELIGIBILITY_DENIED', source: rule.source_offering_id, target: rule.target_offering_id });
+      }
+    }
 
     if (rule.rule_type === 'REQUIRES' && hasSource && !hasTarget) {
       errors.push({ code: 'REQUIRES_MISSING', source: rule.source_offering_id, target: rule.target_offering_id });
@@ -29,5 +41,6 @@ export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event
     }
   }
 
-  return { errors, disabled: [...disabled] };
+  const elapsedMs = performance.now() - start;
+  return { errors, disabled: [...disabled], latencyMs: elapsedMs, workingMemorySize: workingMemory.size };
 }
