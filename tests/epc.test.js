@@ -8,6 +8,9 @@ import { buildTimeTravelFilter, closeAndCreateMajorVersion, createMinorVersion }
 import { buildRenderableFields, validateDynamicValues } from '../src/frontend/schemaUiEngine.js';
 import { cpqAndOrderEndpoints, inheritanceChain, listProductOfferings, listProductSpecifications } from '../src/api/tmf620.js';
 import { validateIndustryCompatibility } from '../src/validation/industryCompatibility.js';
+import { calculateLtvRatio, calculatePmt, formatCurrencyHuf, resolvePremiumAccountMonthlyFee } from '../src/backend/financeEngine.js';
+import { calculateBreweryNetPrice, calculateColdChainPrice, lookupOpticalGridPrice } from '../src/backend/verticalPricing.js';
+import { calculateRiskPremium, evaluateUnderwriting } from '../src/backend/underwritingEngine.js';
 import payloads from '../data/industryPayloads.json' with { type: 'json' };
 
 test('formula engine evaluates ABP expression without eval', () => {
@@ -116,10 +119,102 @@ test('schema UI engine uses configurable + validation nodes', () => {
   assert.equal(errors.speed, 'Min 10');
 });
 
-test('industry payloads exist for first 6 domains and compatibility rules block invalid combos', () => {
-  assert.equal(payloads.length >= 6, true);
+test('industry payloads include the new vertical modules', () => {
+  assert.equal(payloads.length >= 11, true);
+  const mortgage = payloads.find((p) => p.offering === 'SPEC-MORTGAGE-LOAN');
+  assert.equal(Boolean(mortgage), true);
+  assert.equal(mortgage.dynamic_attributes.loanAmount.validation.min, 5000000);
+});
+
+test('industry compatibility rules still block invalid cross-domain combos', () => {
   const errs = validateIndustryCompatibility(['Craft Lager Batch', 'Hazmat Shipping', 'V8 Engine Package', 'Progressive Lens']);
   assert.equal(errs.length, 2);
+});
+
+test('mortgage pricing and policy helpers calculate PMT, LTV and conditional fee', () => {
+  const pmt = calculatePmt({ loanAmount: 20000000, annualRatePct: 7.2, termInMonths: 240 });
+  assert.equal(pmt > 150000, true);
+  assert.equal(pmt < 170000, true);
+
+  const ltv = calculateLtvRatio({ loanAmount: 20000000, collateralValue: 30000000 });
+  assert.equal(ltv, 66.6667);
+
+  assert.equal(resolvePremiumAccountMonthlyFee({ incomeHuf: 600000 }), 0);
+  assert.match(formatCurrencyHuf(1234567), /1\s?234\s?567/);
+});
+
+test('vertical pricing formulas work for logistics, brewery and optics matrix', () => {
+  const coldChain = calculateColdChainPrice({ distanceKm: 320, ratePerKm: 1.4, weightKg: 18000, ratePerKg: 0.12, tempMultiplier: 1.3, fuelMultiplier: 1.05 });
+  assert.equal(coldChain > 3500, true);
+
+  const brewery = calculateBreweryNetPrice({ volumeKg: 250, marketIndexPrice: 4.2, alphaPct: 11.5, alphaBasePct: 8.0, volumeDiscount: 0.93 });
+  assert.equal(brewery > 1000, true);
+
+  const optics = lookupOpticalGridPrice({
+    sphereSPH: -5.25,
+    cylinderCYL: -1.25,
+    matrix: [
+      { sphMin: -6.0, sphMax: -4.0, cylMin: -2.0, cylMax: -0.75, price: 18990 }
+    ]
+  });
+  assert.equal(optics, 18990);
+});
+
+test('rules engine supports JTM decline, required auto-add and logistics split actions', () => {
+  const out = evaluateRules({
+    event: 'ON_CHANGE',
+    changedNodeId: 'MORTGAGE',
+    selectedOfferingIds: ['MORTGAGE'],
+    context: { calculatedPmt: 220000, existingLoanPayments: 120000, netIncome: 600000, totalWeightKg: 26000 },
+    rules: [
+      {
+        id: 'jtm',
+        source_offering_id: 'MORTGAGE',
+        target_offering_id: 'CUSTOMER',
+        rule_type: 'ELIGIBILITY',
+        event_scope: 'ON_CHANGE',
+        condition_payload: { jtmLimit: 0.5, errorCode: 'DECLINE_REASON_JTM_LIMIT' }
+      },
+      {
+        id: 'req',
+        source_offering_id: 'MORTGAGE',
+        target_offering_id: 'OFFER-HOME-INSURANCE-BASIC',
+        rule_type: 'REQUIRES',
+        event_scope: 'ON_CHANGE',
+        condition_payload: { autoAdd: ['OFFER-HOME-INSURANCE-BASIC', 'COLLATERAL-REAL-ESTATE'] }
+      },
+      {
+        id: 'split',
+        source_offering_id: 'MORTGAGE',
+        target_offering_id: 'TRUCK',
+        rule_type: 'CONSTRAINS',
+        event_scope: 'ON_CHANGE',
+        condition_payload: { maxWeightKg: 24000, actionCode: 'ADDITIONAL_TRUCK_ALLOCATION' }
+      }
+    ]
+  });
+
+  assert.equal(out.errors.some((e) => e.code === 'DECLINE_REASON_JTM_LIMIT'), true);
+  assert.equal(out.requiredAdditions.includes('COLLATERAL-REAL-ESTATE'), true);
+  assert.equal(out.actions[0].code, 'ADDITIONAL_TRUCK_ALLOCATION');
+});
+
+test('underwriting engine handles decline, referral and risk premium', () => {
+  const declined = evaluateUnderwriting({ preExistingConditions: ['C34'], sumAssuredHuf: 50000000 });
+  assert.equal(declined.status, 'DECLINED');
+
+  const pending = evaluateUnderwriting({ preExistingConditions: ['I10'], sumAssuredHuf: 120000000 });
+  assert.equal(pending.status, 'PENDING_MEDICAL_EXAM');
+  assert.deepEqual(pending.requireServices, ['SRV-MED-DIAGNOSTICS']);
+
+  const premium = calculateRiskPremium({
+    basePremium: 20000,
+    biometricMultipliers: [1.5, 1.1],
+    riders: [
+      { priceFactor: 0.00008, sumAssured: 50000000 }
+    ]
+  });
+  assert.equal(premium, 37000);
 });
 
 test('pricing performance runs in milliseconds without memory leak behavior', () => {

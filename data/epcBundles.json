@@ -1,0 +1,44 @@
+[
+  {
+    "code": "OFFER-HOME-BUYER-BUNDLE",
+    "components": [
+      "SPEC-MORTGAGE-LOAN",
+      "OFFER-PREMIUM-CURRENT-ACCOUNT",
+      "OFFER-HOME-INSURANCE-BASIC"
+    ],
+    "requires": ["COLLATERAL-REAL-ESTATE"]
+  },
+  {
+    "code": "OFFER-COLD-CHAIN-LOGISTICS",
+    "components": [
+      "OFFER-REFRIGERATED-TRANSPORT",
+      "OFFER-COLD-STORAGE",
+      "OFFER-CARGO-INSURANCE"
+    ]
+  },
+  {
+    "code": "OFFER-CRAFT-BREWERY-STARTER",
+    "components": [
+      "SPEC-HOPS-PELLETS",
+      "SPEC-LIQUID-YEAST",
+      "SPEC-FERMENTATION-TANK"
+    ]
+  },
+  {
+    "code": "BUNDLE-CUSTOM-EYEWEAR",
+    "components": [
+      "SPEC-FRAME-CHASSIS",
+      "SPEC-PRESCRIPTION-LENS-LEFT",
+      "SPEC-PRESCRIPTION-LENS-RIGHT",
+      "SPEC-COAT-ANTI-REFLECTIVE"
+    ]
+  },
+  {
+    "code": "OFFER-LIFE-HEALTH-PREMIUM-POLICY",
+    "components": [
+      "SPEC-COV-DEATH",
+      "SPEC-COV-CRITICAL-ILLNESS",
+      "SRV-MED-OUTPATIENT"
+    ]
+  }
+]
