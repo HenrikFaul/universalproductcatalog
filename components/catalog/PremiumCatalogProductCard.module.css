@@ -1,0 +1,272 @@
+.card {
+  display: grid;
+  gap: var(--spacing-6);
+  padding: var(--spacing-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-5);
+  flex-wrap: wrap;
+}
+
+.headerIntro {
+  display: grid;
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-primary-strong);
+  font: var(--font-weight-semibold) var(--text-caption) / var(--line-height-snug) var(--font-family-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font: var(--font-weight-bold) var(--text-h2) / var(--line-height-tight) var(--font-family-sans);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding-inline: var(--spacing-3);
+  border-radius: var(--radius-pill);
+  font: var(--font-weight-medium) var(--text-caption) / 1 var(--font-family-sans);
+  border: 1px solid transparent;
+}
+
+.successPill {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+  border-color: var(--color-success-soft-border);
+}
+
+.infoPill {
+  color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-soft-border);
+}
+
+.description {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font: var(--font-weight-regular) var(--text-body) / var(--line-height-normal) var(--font-family-sans);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  appearance: none;
+  min-height: 2.75rem;
+  padding-inline: var(--spacing-4);
+  border-radius: var(--radius-pill);
+  font: var(--font-weight-semibold) var(--text-body-sm) / 1 var(--font-family-sans);
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    background var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+  cursor: pointer;
+}
+
+.primaryButton {
+  border: 0;
+  color: var(--color-text-inverse);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  box-shadow: var(--shadow-xs);
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.secondaryButton {
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+.secondaryButton:hover {
+  background: var(--color-surface-soft);
+  border-color: var(--color-border-strong);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-3);
+}
+
+.metricCard {
+  display: grid;
+  gap: var(--spacing-1);
+  padding: var(--spacing-4);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.metricLabel {
+  color: var(--color-text-muted);
+  font: var(--font-weight-medium) var(--text-caption) / var(--line-height-snug) var(--font-family-sans);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.metricValue {
+  color: var(--color-text-primary);
+  font: var(--font-weight-semibold) var(--text-title) / var(--line-height-snug) var(--font-family-sans);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 1fr);
+  gap: var(--spacing-5);
+}
+
+.mainCard,
+.asideCard {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-5);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.asideCard {
+  background: linear-gradient(180deg, var(--color-surface), var(--color-surface-emphasis));
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font: var(--font-weight-semibold) var(--text-title) / var(--line-height-snug) var(--font-family-sans);
+}
+
+.keyValueGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-4);
+  margin: 0;
+}
+
+.keyValueRow,
+.timelineRow {
+  display: grid;
+  gap: var(--spacing-1);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.key {
+  color: var(--color-text-muted);
+  font: var(--font-weight-medium) var(--text-caption) / var(--line-height-snug) var(--font-family-sans);
+}
+
+.value {
+  margin: 0;
+  color: var(--color-text-primary);
+  font: var(--font-weight-medium) var(--text-body) / var(--line-height-normal) var(--font-family-sans);
+}
+
+.subsection {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.subsectionTitle {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font: var(--font-weight-semibold) var(--text-body-sm) / var(--line-height-snug) var(--font-family-sans);
+}
+
+.chipRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding-inline: var(--spacing-3);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-soft-border);
+  font: var(--font-weight-medium) var(--text-caption) / 1 var(--font-family-sans);
+}
+
+.timeline {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+@media (max-width: 900px) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: var(--spacing-5);
+  }
+
+  .metrics,
+  .keyValueGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    flex: 1 1 100%;
+  }
+}

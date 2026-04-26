@@ -1,0 +1,113 @@
+:root {
+  color-scheme: light;
+
+  /* Surface system */
+  --color-canvas: hsl(220 33% 98%);
+  --color-canvas-subtle: hsl(220 20% 96%);
+  --color-surface: hsl(0 0% 100%);
+  --color-surface-muted: hsl(220 25% 97%);
+  --color-surface-soft: hsl(220 40% 99%);
+  --color-surface-emphasis: hsl(247 100% 99%);
+
+  /* Text system */
+  --color-text-primary: hsl(222 47% 11%);
+  --color-text-secondary: hsl(220 18% 33%);
+  --color-text-muted: hsl(220 10% 46%);
+  --color-text-disabled: hsl(220 9% 62%);
+  --color-text-inverse: hsl(0 0% 100%);
+
+  /* Border + dividers */
+  --color-border-subtle: hsl(220 20% 91%);
+  --color-border-strong: hsl(220 17% 84%);
+  --color-divider: hsl(220 18% 92%);
+  --color-focus-ring: hsl(276 84% 56% / 0.16);
+
+  /* Brand */
+  --color-primary: hsl(275 77% 55%);
+  --color-primary-strong: hsl(264 78% 50%);
+  --color-primary-soft: hsl(272 100% 97%);
+  --color-primary-soft-border: hsl(272 56% 86%);
+
+  --color-accent: hsl(211 92% 55%);
+  --color-accent-strong: hsl(218 89% 51%);
+  --color-accent-soft: hsl(214 100% 97%);
+  --color-accent-soft-border: hsl(214 72% 87%);
+
+  /* Status */
+  --color-success: hsl(145 63% 33%);
+  --color-success-soft: hsl(144 53% 94%);
+  --color-success-soft-border: hsl(145 40% 83%);
+
+  --color-warning: hsl(37 92% 46%);
+  --color-warning-soft: hsl(40 100% 95%);
+  --color-warning-soft-border: hsl(39 78% 84%);
+
+  --color-danger: hsl(354 72% 52%);
+  --color-danger-soft: hsl(354 100% 96%);
+  --color-danger-soft-border: hsl(354 70% 86%);
+
+  --color-neutral-pill: hsl(220 18% 96%);
+  --color-neutral-pill-border: hsl(220 16% 87%);
+
+  /* Typography */
+  --font-family-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --text-display: clamp(2.5rem, 2.05rem + 1.4vw, 3.75rem);
+  --text-h1: 2rem;
+  --text-h2: 1.5rem;
+  --text-h3: 1.125rem;
+  --text-title: 1rem;
+  --text-body-lg: 1rem;
+  --text-body: 0.9375rem;
+  --text-body-sm: 0.875rem;
+  --text-caption: 0.75rem;
+  --text-micro: 0.6875rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.5;
+
+  /* 8pt spacing system */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.5rem;
+  --spacing-6: 2rem;
+  --spacing-7: 2.5rem;
+  --spacing-8: 3rem;
+  --spacing-9: 4rem;
+  --spacing-10: 5rem;
+
+  /* Radius */
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px hsl(220 25% 18% / 0.03);
+  --shadow-sm: 0 10px 24px hsl(220 24% 18% / 0.06);
+  --shadow-md: 0 18px 42px hsl(220 24% 18% / 0.08);
+  --shadow-lg: 0 28px 64px hsl(220 24% 18% / 0.12);
+  --shadow-focus: 0 0 0 4px var(--color-focus-ring);
+
+  /* Motion */
+  --motion-fast: 140ms;
+  --motion-base: 180ms;
+  --motion-slow: 260ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout */
+  --content-max-width: 90rem;
+  --sidebar-width: 16rem;
+  --topbar-height: 4.5rem;
+}
