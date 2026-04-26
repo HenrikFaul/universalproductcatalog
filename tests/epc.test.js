@@ -11,6 +11,7 @@ import { validateIndustryCompatibility } from '../src/validation/industryCompati
 import { calculateLtvRatio, calculatePmt, formatCurrencyHuf, resolvePremiumAccountMonthlyFee } from '../src/backend/financeEngine.js';
 import { calculateBreweryNetPrice, calculateColdChainPrice, lookupOpticalGridPrice } from '../src/backend/verticalPricing.js';
 import { calculateRiskPremium, evaluateUnderwriting } from '../src/backend/underwritingEngine.js';
+import { __resetTmfEntityStoreForTests, createEntity, listEntities } from '../src/backend/tmfEntityStore.js';
 import payloads from '../data/industryPayloads.json' with { type: 'json' };
 
 test('formula engine evaluates ABP expression without eval', () => {
@@ -231,4 +232,35 @@ test('pricing performance runs in milliseconds without memory leak behavior', ()
   }
   const elapsedMs = Number(process.hrtime.bigint() - begin) / 1e6;
   assert.equal(elapsedMs < 100, true);
+});
+
+
+test('tmf entity store supports filters, fields and pagination', () => {
+  __resetTmfEntityStoreForTests();
+  createEntity('product', { name: 'Residential Internet', product_type: 'SERVICE', lifecycle_status: 'ACTIVE' });
+  createEntity('product', { name: 'Business Internet', product_type: 'SERVICE', lifecycle_status: 'DRAFT' });
+
+  const params = new URLSearchParams('lifecycle_status=ACTIVE&fields=id,name&limit=10&offset=0');
+  const out = listEntities('product', params);
+
+  assert.equal(out.total, 1);
+  assert.equal(out.items[0].name, 'Residential Internet');
+  assert.equal(Object.hasOwn(out.items[0], 'lifecycle_status'), false);
+});
+
+test('tmf relationship store blocks cyclic bundle/requires links', () => {
+  __resetTmfEntityStoreForTests();
+  const a = createEntity('productOffering', { name: 'Offer A' });
+  const b = createEntity('productOffering', { name: 'Offer B' });
+  createEntity('productOfferingRelationship', {
+    source_offering_id: a.id,
+    target_offering_id: b.id,
+    relationship_type: 'BUNDLE',
+  });
+
+  assert.throws(() => createEntity('productOfferingRelationship', {
+    source_offering_id: b.id,
+    target_offering_id: a.id,
+    relationship_type: 'REQUIRES',
+  }));
 });

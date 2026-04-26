@@ -126,3 +126,9 @@ export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event
     workingMemorySize: workingMemory.size
   };
 }
+
+## 2026-04-26 – TMF620 grand unification baseline (v4.0.0)
+- Added a new Supabase migration (`20260426153000_tmf620_grand_unification.sql`) that introduces the full 12-entity EPC/TMF620 data model with UUID keys, relationship bridge tables, enum domains, JSONB characteristic storage, and GIN indexes.
+- Added TMF entity runtime definitions and a headless in-memory entity store with pagination, filtering, field projection, lifecycle-aware soft delete, and relationship-cycle protection.
+- Added Next.js API routes for `/api/tmf-api/productCatalogManagement/v4/:entity` and `/api/tmf-api/productCatalogManagement/v4/:entity/:id` supporting CRUD semantics and 400/404/409 error contracts.
+- Added automated tests to verify query feature behavior and enforce anti-cycle validation on product offering relationships.
