@@ -247,6 +247,24 @@ function buildPaletteItems(productSpecifications, nodeIndex, bundleEdges) {
   });
 }
 
+function laneForNodeTypes(parentType, childType) {
+  if (parentType === 'product' && childType === 'product') return 'bundle';
+  if (parentType === 'product' && childType === 'service') return 'service';
+  if (parentType === 'service' && childType === 'resource') return 'resource';
+  return null;
+}
+
+function buildServiceMappingFromEdges(edges) {
+  const serviceEdges = edges.filter((edge) => edge.lane === 'service');
+  const resourceEdges = edges.filter((edge) => edge.lane === 'resource');
+
+  return serviceEdges.map((edge) => ({
+    productSpec: edge.parent,
+    serviceSpec: edge.child,
+    resourceSpecs: resourceEdges.filter((item) => item.parent === edge.child).map((item) => item.child),
+  }));
+}
+
 function computeLogicalBounds(nodes) {
   if (!nodes.length) {
     return { width: CANVAS_WIDTH, height: CANVAS_HEIGHT };
@@ -391,17 +409,34 @@ export default function HierarchyBuilderClient({
   const selectedNode = nodeLookup.get(selectedNodeId) || null;
   const selectedNodeIncoming = bundleEdges.filter((edge) => edge.child === selectedNodeId);
   const selectedNodeOutgoing = edges.filter((edge) => edge.parent === selectedNodeId);
-  const paletteItems = useMemo(() => buildPaletteItems(productSpecifications, nodeIndex, bundleEdges), [bundleEdges, nodeIndex, productSpecifications]);
+  const paletteItems = useMemo(() => ([
+    ...productSpecifications.map((item) => ({ ...item, type: 'product' })),
+    ...serviceSpecifications.map((item) => ({ ...item, type: 'service' })),
+    ...resourceSpecifications.map((item) => ({ ...item, type: 'resource' })),
+  ].map((item) => {
+    const node = nodeIndex.get(item.code);
+    const outgoing = edges.filter((edge) => edge.parent === item.code).length;
+    const incoming = edges.filter((edge) => edge.child === item.code).length;
+    return {
+      code: item.code,
+      type: item.type,
+      label: item.name,
+      characteristicCount: node?.characteristicCount || 0,
+      outgoing,
+      incoming,
+    };
+  })), [edges, nodeIndex, productSpecifications, resourceSpecifications, serviceSpecifications]);
 
   async function persist(nextEdges) {
     setSaving(true);
     setSaveError('');
     try {
       const bundleOnlyEdges = nextEdges.filter((item) => item.lane === 'bundle').map(({ id, ...rest }) => rest);
+      const serviceMappingFromEdges = buildServiceMappingFromEdges(nextEdges);
       const response = await fetch(`/api/catalogs/${catalogSlug}/hierarchy`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: bundleOnlyEdges }),
+        body: JSON.stringify({ items: bundleOnlyEdges, serviceMapping: serviceMappingFromEdges }),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || !payload.ok) {
@@ -435,11 +470,18 @@ export default function HierarchyBuilderClient({
       setSaveError('A node cannot be linked to itself.');
       return false;
     }
-    if (wouldCreateCycle(bundleEdges, parent, child)) {
+    const parentNode = nodeLookup.get(parent);
+    const childNode = nodeLookup.get(child);
+    const lane = laneForNodeTypes(parentNode?.type, childNode?.type);
+    if (!lane) {
+      setSaveError('Unsupported hierarchy relation type. Allowed: product→product, product→service, service→resource.');
+      return false;
+    }
+    if (lane === 'bundle' && wouldCreateCycle(bundleEdges, parent, child)) {
       setSaveError('That drop would create a bundle cycle. Choose another parent/child pair.');
       return false;
     }
-    const duplicate = bundleEdges.find((edge) => edge.parent === parent && edge.child === child);
+    const duplicate = edges.find((edge) => edge.parent === parent && edge.child === child && edge.lane === lane);
     if (duplicate) {
       setSelectedEdgeId(duplicate.id);
       setSaveError('The selected relationship already exists.');
@@ -448,7 +490,7 @@ export default function HierarchyBuilderClient({
 
     const nextEdges = [
       ...edges,
-      normalizeEdge({ parent, child, min: options.min, max: options.max, defaultQty: options.defaultQty, lane: 'bundle' }),
+      normalizeEdge({ parent, child, min: options.min, max: options.max, defaultQty: options.defaultQty, lane }),
     ];
     const saved = await persist(nextEdges);
     if (saved) setSelectedNodeId(child);
@@ -476,7 +518,7 @@ export default function HierarchyBuilderClient({
   }
 
   function handleNodePointerDown(event, node) {
-    if (node.type !== 'product' || !stageRef.current) return;
+    if (!stageRef.current) return;
     if (event.target.closest('[data-node-action="remove"]')) return;
 
     const rect = stageRef.current.getBoundingClientRect();
@@ -538,9 +580,14 @@ export default function HierarchyBuilderClient({
       };
     }
 
+    const parentType = parentCode ? nodeLookup.get(parentCode)?.type : 'product';
+    const childType = nodeLookup.get(draggedCode)?.type;
+    const defaultLane = laneForNodeTypes(parentType, childType) || 'bundle';
+
     openRelationBuilder({
       parent: parentCode,
       child: draggedCode,
+      lane: defaultLane,
       source: parentCode ? 'node-drop' : 'canvas-drop',
       prelinkedTarget: parentCode,
       ...dropPoint,
@@ -621,6 +668,7 @@ export default function HierarchyBuilderClient({
                 >
                   <div className={styles.paletteItemTop}>
                     <span className={styles.paletteItemCode}>{item.code}</span>
+                    <span className={styles.paletteBadge}>{item.type}</span>
                     <span className={styles.paletteBadge}>{item.characteristicCount} char</span>
                   </div>
                   <strong>{item.label}</strong>
@@ -699,7 +747,7 @@ export default function HierarchyBuilderClient({
                     <strong>{selectedEdge.parent} → {selectedEdge.child}</strong>
                     <span className={styles.mutedText}>Min {selectedEdge.min} · Max {selectedEdge.max ?? '∞'} · Default {selectedEdge.defaultQty}</span>
                   </div>
-                  {selectedEdge.lane === 'bundle' ? (
+                  {['bundle', 'service', 'resource'].includes(selectedEdge.lane) ? (
                     <>
                       <div className={styles.compactGrid}>
                         <Input label="Parent" value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))} />
@@ -715,9 +763,7 @@ export default function HierarchyBuilderClient({
                         <Button variant="danger" onClick={() => setDeleteTarget(selectedEdge)}>Delete edge</Button>
                       </div>
                     </>
-                  ) : (
-                    <p className={styles.mutedText}>Service and resource edges are derived from the service mapping layer. They are visible here for full structure clarity but remain read-only.</p>
-                  )}
+                  ) : null}
                 </>
               ) : <p className={styles.mutedText}>Select a relationship from the graph or overview panel.</p>}
 
@@ -729,14 +775,14 @@ export default function HierarchyBuilderClient({
                 <label className={styles.filterField}>
                   <span>Parent product</span>
                   <select value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))}>
-                    {productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                    {[...productSpecifications, ...serviceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
                   </select>
                 </label>
                 <label className={styles.filterField}>
-                  <span>Child product</span>
+                  <span>Child node</span>
                   <select value={draft.child} onChange={(event) => setDraft((prev) => ({ ...prev, child: event.target.value }))}>
                     <option value="">Select child…</option>
-                    {productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                    {[...productSpecifications, ...serviceSpecifications, ...resourceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
                   </select>
                 </label>
                 <div className={styles.compactGrid}>
@@ -821,7 +867,7 @@ export default function HierarchyBuilderClient({
               <div className={styles.laneLabel} style={{ left: 'var(--studio-resource-lane-left)' }}>Resources</div>
 
               {nodes.map((node) => {
-                const removableBundleEdge = node.type === 'product' ? bundleEdges.find((edge) => edge.child === node.code) : null;
+                const removableBundleEdge = edges.find((edge) => edge.child === node.code);
                 return (
                   <div
                     key={node.code}
@@ -891,7 +937,7 @@ export default function HierarchyBuilderClient({
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         title="Delete hierarchy edge"
-        description="This removes the selected bundle relationship from the persisted hierarchy graph."
+        description="This removes the selected relationship from the persisted hierarchy graph."
         actions={(
           <>
             <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</Button>
@@ -910,7 +956,7 @@ export default function HierarchyBuilderClient({
         open={Boolean(relationModal)}
         onClose={closeRelationBuilder}
         title="Create bundle relationship"
-        description="Choose the parent, child and bundle quantities before the relationship is added to the visual hierarchy."
+        description="Choose the parent, child and quantities before the relationship is added to the visual hierarchy."
         actions={(
           <>
             <Button variant="ghost" onClick={closeRelationBuilder}>Cancel</Button>
@@ -928,14 +974,14 @@ export default function HierarchyBuilderClient({
               <span>Parent product</span>
               <select value={relationModal.parent} onChange={(event) => setRelationModal((prev) => ({ ...prev, parent: event.target.value }))}>
                 <option value="">Select parent…</option>
-                {productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                {[...productSpecifications, ...serviceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
               </select>
             </label>
             <label className={styles.filterField}>
               <span>Child product</span>
               <select value={relationModal.child} onChange={(event) => setRelationModal((prev) => ({ ...prev, child: event.target.value }))}>
                 <option value="">Select child…</option>
-                {productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                {[...productSpecifications, ...serviceSpecifications, ...resourceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
               </select>
             </label>
             <div className={styles.compactGrid}>

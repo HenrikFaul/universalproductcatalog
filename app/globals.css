@@ -1,12 +1,12 @@
 :root {
-  color-scheme: dark;
-  --background: #0f172a;
-  --surface: #111827;
-  --border: rgba(148, 163, 184, 0.24);
-  --text: #e5e7eb;
-  --muted: #94a3b8;
-  --accent: #38bdf8;
-  --success: #22c55e;
+  color-scheme: light;
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #2563eb;
+  --success: #15803d;
 }
 
 * {
@@ -21,10 +21,7 @@ html {
 body {
   min-height: 100%;
   margin: 0;
-  background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 32rem),
-    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.12), transparent 28rem),
-    var(--background);
+  background: var(--background);
   color: var(--text);
   font-family:
     Inter,
@@ -36,6 +33,50 @@ body {
     sans-serif;
 }
 
+.app-frame {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  padding: 1.5rem 1rem;
+  background: #ffffff;
+  border-right: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.app-brand {
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+}
+
+.app-nav {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.app-nav a {
+  border-radius: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 0.65rem 0.75rem;
+}
+
+.app-nav a:hover {
+  background: #eff6ff;
+  color: var(--accent);
+}
+
+.app-content {
+  padding: 1.5rem 2rem 3rem;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -44,7 +85,7 @@ a {
 code {
   border: 1px solid var(--border);
   border-radius: 0.5rem;
-  background: rgba(15, 23, 42, 0.7);
+  background: #f1f5f9;
   padding: 0.15rem 0.35rem;
   font-size: 0.9em;
 }
@@ -161,6 +202,19 @@ h1 {
 }
 
 @media (max-width: 620px) {
+  .app-frame {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .app-content {
+    padding: 1rem;
+  }
+
   .page-shell {
     width: min(100% - 1rem, 1120px);
     padding: 1rem 0;

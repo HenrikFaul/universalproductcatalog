@@ -1,30 +1,31 @@
 :root {
-  --color-bg-app: hsl(222 47% 8%);
-  --color-bg-surface: hsl(222 40% 12%);
-  --color-bg-elevated: hsl(222 33% 16%);
-  --color-bg-overlay: hsl(222 35% 6% / 0.72);
-  --color-border-subtle: hsl(220 24% 24%);
-  --color-border-strong: hsl(220 24% 34%);
-  --color-text-primary: hsl(210 20% 96%);
-  --color-text-secondary: hsl(214 16% 72%);
-  --color-text-muted: hsl(214 14% 58%);
-  --color-primary: hsl(199 96% 58%);
-  --color-primary-strong: hsl(199 98% 50%);
-  --color-primary-soft: hsl(199 100% 14%);
-  --color-success: hsl(145 63% 42%);
-  --color-success-soft: hsl(145 58% 14%);
-  --color-warning: hsl(38 92% 54%);
-  --color-warning-soft: hsl(38 88% 16%);
-  --color-danger: hsl(0 78% 61%);
-  --color-danger-soft: hsl(0 66% 16%);
-  --color-focus-ring: hsl(199 96% 58% / 0.32);
+  color-scheme: light;
+  --color-bg-app: hsl(220 33% 98%);
+  --color-bg-surface: hsl(0 0% 100%);
+  --color-bg-elevated: hsl(220 40% 99%);
+  --color-bg-overlay: hsl(220 25% 18% / 0.18);
+  --color-border-subtle: hsl(220 20% 91%);
+  --color-border-strong: hsl(220 17% 84%);
+  --color-text-primary: hsl(222 47% 11%);
+  --color-text-secondary: hsl(220 18% 33%);
+  --color-text-muted: hsl(220 10% 46%);
+  --color-primary: hsl(214 90% 52%);
+  --color-primary-strong: hsl(214 90% 47%);
+  --color-primary-soft: hsl(214 100% 97%);
+  --color-success: hsl(145 63% 33%);
+  --color-success-soft: hsl(144 53% 94%);
+  --color-warning: hsl(37 92% 46%);
+  --color-warning-soft: hsl(40 100% 95%);
+  --color-danger: hsl(354 72% 52%);
+  --color-danger-soft: hsl(354 100% 96%);
+  --color-focus-ring: hsl(214 90% 52% / 0.18);
 
-  --color-studio-canvas: hsl(222 34% 10%);
-  --color-studio-canvas-elevated: hsl(220 28% 12%);
-  --color-studio-spot-primary: hsl(199 96% 58% / 0.08);
-  --color-studio-spot-success: hsl(145 63% 42% / 0.06);
-  --color-studio-lane-primary: hsl(199 96% 58% / 0.18);
-  --color-studio-lane-success: hsl(145 63% 42% / 0.16);
+  --color-studio-canvas: hsl(215 45% 97%);
+  --color-studio-canvas-elevated: hsl(0 0% 100%);
+  --color-studio-spot-primary: hsl(214 90% 52% / 0.08);
+  --color-studio-spot-success: hsl(145 63% 33% / 0.08);
+  --color-studio-lane-primary: hsl(214 90% 52% / 0.2);
+  --color-studio-lane-success: hsl(145 63% 33% / 0.2);
 
   --space-0: 0;
   --space-1: 0.25rem;
@@ -42,9 +43,9 @@
   --radius-xl: 1.5rem;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px hsl(222 40% 4% / 0.24);
-  --shadow-md: 0 12px 24px hsl(222 50% 4% / 0.24);
-  --shadow-lg: 0 20px 48px hsl(222 50% 4% / 0.38);
+  --shadow-sm: 0 8px 22px hsl(220 24% 18% / 0.06);
+  --shadow-md: 0 16px 36px hsl(220 24% 18% / 0.08);
+  --shadow-lg: 0 24px 56px hsl(220 24% 18% / 0.12);
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;

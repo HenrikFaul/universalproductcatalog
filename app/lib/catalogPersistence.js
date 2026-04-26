@@ -254,17 +254,23 @@ export async function updatePersistedCharacteristics(slug, characteristicDefinit
   return rowToCatalog(rows[0]);
 }
 
-export async function updatePersistedHierarchy(slug, hierarchy) {
+export async function updatePersistedHierarchy(slug, hierarchy, serviceMapping) {
   const existing = (await ensurePersistedSeedForSlug(slug)) || (await getPersistedCatalogBySlug(slug));
   if (!existing) {
     throw new Error(`Catalog ${slug} was not found.`);
   }
 
+  const payload = {
+    hierarchy: ensureArray(hierarchy),
+  };
+
+  if (serviceMapping !== undefined) {
+    payload.service_mapping = ensureArray(serviceMapping);
+  }
+
   const rows = await supabaseRest(`${TABLE_NAME}?slug=eq.${encodeURIComponent(slug)}`, {
     method: 'PATCH',
-    body: JSON.stringify({
-      hierarchy: ensureArray(hierarchy),
-    }),
+    body: JSON.stringify(payload),
   });
 
   return rowToCatalog(rows[0]);
