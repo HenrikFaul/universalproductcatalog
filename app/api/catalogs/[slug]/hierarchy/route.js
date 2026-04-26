@@ -29,7 +29,7 @@ export async function GET(_request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const payload = await request.json();
-    const updated = await updatePersistedHierarchy(params.slug, payload.items || []);
+    const updated = await updatePersistedHierarchy(params.slug, payload.items || [], payload.serviceMapping);
     return NextResponse.json({
       ok: true,
       item: updated,
