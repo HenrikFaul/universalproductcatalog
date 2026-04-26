@@ -1,461 +1,266 @@
-'use client';
+use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Button from '../../../../../components/ui/Button';
 import Card from '../../../../../components/ui/Card';
 import Input from '../../../../../components/ui/Input';
 import Modal from '../../../../../components/ui/Modal';
 import styles from './HierarchyBuilderClient.module.css';
 
-const VIEW_ALL = 'all';
-
-function clampNumber(value, fallback) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
+function normalizeEdge(edge) {
+  return {
+    id: edge.id || `${edge.parent}-${edge.child}-${edge.lane || 'bundle'}`,
+    parent: edge.parent,
+    child: edge.child,
+    min: Number.isFinite(Number(edge.min)) ? Number(edge.min) : 0,
+    max: edge.max === null || edge.max === '' ? null : Number(edge.max),
+    defaultQty: Number.isFinite(Number(edge.defaultQty)) ? Number(edge.defaultQty) : 0,
+    lane: edge.lane || 'bundle',
+  };
 }
 
-function buildStorageKey(slug) {
-  return `upc:catalog:${slug}:hierarchy-v1`;
-}
+function buildNodeIndex(productSpecifications, serviceSpecifications, resourceSpecifications, characteristicDefinitions) {
+  const characteristicCount = characteristicDefinitions.reduce((accumulator, item) => {
+    const next = { ...accumulator };
+    next[item.appliesTo] = (next[item.appliesTo] || 0) + 1;
+    return next;
+  }, {});
 
-function enrichNodes(nodes, edges, offeringMap, characteristicCounts) {
-  const incoming = new Map();
-  const outgoing = new Map();
-
-  for (const edge of edges) {
-    if (!incoming.has(edge.target)) incoming.set(edge.target, []);
-    if (!outgoing.has(edge.source)) outgoing.set(edge.source, []);
-    incoming.get(edge.target).push(edge);
-    outgoing.get(edge.source).push(edge);
-  }
-
-  return nodes.map((node) => ({
-    ...node,
-    incomingCount: (incoming.get(node.id) || []).length,
-    outgoingCount: (outgoing.get(node.id) || []).length,
-    offeringCount: (offeringMap[node.code] || []).length,
-    characteristicCount: characteristicCounts[node.code] || 0,
-  }));
-}
-
-function computeDepths(nodes, edges) {
-  const nodeIds = new Set(nodes.map((node) => node.id));
-  const incomingCount = {};
-  const outgoing = {};
-
-  for (const id of nodeIds) {
-    incomingCount[id] = 0;
-    outgoing[id] = [];
-  }
-
-  for (const edge of edges) {
-    if (!(edge.source in outgoing) || !(edge.target in incomingCount)) continue;
-    outgoing[edge.source].push(edge.target);
-    incomingCount[edge.target] += 1;
-  }
-
-  const queue = Object.keys(incomingCount).filter((id) => incomingCount[id] === 0);
-  const depth = {};
-  for (const id of queue) depth[id] = 0;
-
-  while (queue.length) {
-    const current = queue.shift();
-    const nextNodes = outgoing[current] || [];
-    for (const next of nextNodes) {
-      depth[next] = Math.max(depth[next] ?? 0, (depth[current] ?? 0) + 1);
-      incomingCount[next] -= 1;
-      if (incomingCount[next] === 0) queue.push(next);
-    }
-  }
-
-  return depth;
-}
-
-function formatLane(edge) {
-  if (edge.lane === 'product') return 'Bundle structure';
-  if (edge.lane === 'decomposition') return 'Service decomposition';
-  return edge.lane;
+  return new Map([
+    ...productSpecifications.map((item) => [item.code, {
+      code: item.code,
+      label: item.name,
+      type: 'product',
+      subtitle: item.category || 'Product specification',
+      characteristicCount: characteristicCount[item.code] || 0,
+    }]),
+    ...serviceSpecifications.map((item) => [item.code, {
+      code: item.code,
+      label: item.name,
+      type: 'service',
+      subtitle: item.summary || 'Service specification',
+      characteristicCount: characteristicCount[item.code] || 0,
+    }]),
+    ...resourceSpecifications.map((item) => [item.code, {
+      code: item.code,
+      label: item.name,
+      type: 'resource',
+      subtitle: item.summary || 'Resource specification',
+      characteristicCount: characteristicCount[item.code] || 0,
+    }]),
+  ]);
 }
 
 export default function HierarchyBuilderClient({
   catalogSlug,
   catalogTitle,
-  nodes,
-  edges,
-  offeringMap,
-  characteristicCounts,
+  initialHierarchy,
+  productSpecifications,
+  serviceSpecifications,
+  resourceSpecifications,
+  serviceMapping,
+  characteristicDefinitions,
 }) {
-  const storageKey = useMemo(() => buildStorageKey(catalogSlug), [catalogSlug]);
-  const [draftEdges, setDraftEdges] = useState(edges);
-  const [selectedNodeId, setSelectedNodeId] = useState(nodes[0]?.id ?? null);
-  const [viewLane, setViewLane] = useState(VIEW_ALL);
-  const [search, setSearch] = useState('');
+  const nodeIndex = useMemo(
+    () => buildNodeIndex(productSpecifications, serviceSpecifications, resourceSpecifications, characteristicDefinitions),
+    [characteristicDefinitions, productSpecifications, resourceSpecifications, serviceSpecifications],
+  );
+
+  const serviceLaneEdges = useMemo(
+    () => serviceMapping.flatMap((row) => [
+      { parent: row.productSpec, child: row.serviceSpec, min: 1, max: 1, defaultQty: 1, lane: 'service' },
+      ...(row.resourceSpecs || []).map((resourceCode) => ({ parent: row.serviceSpec, child: resourceCode, min: 0, max: 1, defaultQty: 0, lane: 'resource' })),
+    ]),
+    [serviceMapping],
+  );
+
+  const [edges, setEdges] = useState(() => [...initialHierarchy.map(normalizeEdge), ...serviceLaneEdges.map(normalizeEdge)]);
+  const [laneFilter, setLaneFilter] = useState('all');
+  const [selectedEdgeId, setSelectedEdgeId] = useState('');
+  const [draft, setDraft] = useState({ parent: productSpecifications[0]?.code || '', child: '', lane: 'bundle', min: 0, max: 1, defaultQty: 0 });
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [relationDraft, setRelationDraft] = useState({
-    source: nodes[0]?.id ?? '',
-    target: nodes[1]?.id ?? '',
-    relationType: 'Product component',
-    lane: 'product',
-    min: 0,
-    max: 1,
-    defaultQty: 0,
-  });
+  const [saveError, setSaveError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const visibleEdges = useMemo(
+    () => edges.filter((edge) => laneFilter === 'all' || edge.lane === laneFilter),
+    [edges, laneFilter],
+  );
+
+  const selectedEdge = visibleEdges.find((item) => item.id === selectedEdgeId) || visibleEdges[0] || null;
+
+  const productNodes = productSpecifications.map((item) => nodeIndex.get(item.code)).filter(Boolean);
+  const serviceNodes = serviceSpecifications.map((item) => nodeIndex.get(item.code)).filter(Boolean);
+  const resourceNodes = resourceSpecifications.map((item) => nodeIndex.get(item.code)).filter(Boolean);
+
+  async function persist(nextEdges) {
+    setSaving(true);
+    setSaveError('');
     try {
-      const stored = window.localStorage.getItem(storageKey);
-      if (!stored) return;
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed.edges) && parsed.edges.length) {
-        setDraftEdges(parsed.edges);
+      const bundleOnlyEdges = nextEdges.filter((item) => item.lane === 'bundle').map(({ id, ...rest }) => rest);
+      const response = await fetch(`/api/catalogs/${catalogSlug}/hierarchy`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: bundleOnlyEdges }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || 'Failed to persist the hierarchy graph.');
       }
-    } catch {
-      // ignore corrupted local draft
+      const persistedBundleEdges = (payload.items || []).map(normalizeEdge);
+      const next = [...persistedBundleEdges, ...serviceLaneEdges.map(normalizeEdge)];
+      setEdges(next);
+      setSelectedEdgeId(next[0]?.id || '');
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setSaving(false);
     }
-  }, [storageKey]);
-
-  useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify({ edges: draftEdges }));
-  }, [draftEdges, storageKey]);
-
-  const enrichedNodes = useMemo(
-    () => enrichNodes(nodes, draftEdges, offeringMap, characteristicCounts),
-    [nodes, draftEdges, offeringMap, characteristicCounts],
-  );
-
-  const filteredEdges = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
-    return draftEdges.filter((edge) => {
-      if (viewLane !== VIEW_ALL && edge.lane !== viewLane) return false;
-      if (!normalizedSearch) return true;
-      return [edge.source, edge.target, edge.relationType].some((value) =>
-        String(value).toLowerCase().includes(normalizedSearch),
-      );
-    });
-  }, [draftEdges, search, viewLane]);
-
-  const visibleNodeIds = useMemo(() => {
-    const ids = new Set();
-    for (const edge of filteredEdges) {
-      ids.add(edge.source);
-      ids.add(edge.target);
-    }
-    if (!filteredEdges.length) {
-      for (const node of enrichedNodes) ids.add(node.id);
-    }
-    return ids;
-  }, [filteredEdges, enrichedNodes]);
-
-  const visibleNodes = useMemo(
-    () => enrichedNodes.filter((node) => visibleNodeIds.has(node.id)),
-    [enrichedNodes, visibleNodeIds],
-  );
-
-  const depths = useMemo(() => computeDepths(visibleNodes, filteredEdges), [visibleNodes, filteredEdges]);
-
-  const columns = useMemo(() => {
-    const buckets = new Map();
-    for (const node of visibleNodes) {
-      const depth = depths[node.id] ?? 0;
-      const list = buckets.get(depth) ?? [];
-      list.push(node);
-      buckets.set(depth, list);
-    }
-    return Array.from(buckets.entries())
-      .sort((a, b) => a[0] - b[0])
-      .map(([depth, list]) => ({
-        depth,
-        title: depth === 0 ? 'Entry layer' : `Level ${depth}`,
-        nodes: list.sort((a, b) => a.label.localeCompare(b.label)),
-      }));
-  }, [visibleNodes, depths]);
-
-  const selectedNode = enrichedNodes.find((node) => node.id === selectedNodeId) ?? enrichedNodes[0] ?? null;
-
-  const selectedIncoming = useMemo(
-    () => draftEdges.filter((edge) => edge.target === selectedNode?.id),
-    [draftEdges, selectedNode],
-  );
-  const selectedOutgoing = useMemo(
-    () => draftEdges.filter((edge) => edge.source === selectedNode?.id),
-    [draftEdges, selectedNode],
-  );
-
-  const allNodeOptions = enrichedNodes.map((node) => ({
-    value: node.id,
-    label: `${node.label} (${node.code})`,
-  }));
-
-  function handleReset() {
-    setDraftEdges(edges);
-    window.localStorage.removeItem(storageKey);
   }
 
-  function handleCreateRelation(event) {
-    event.preventDefault();
-    if (!relationDraft.source || !relationDraft.target || relationDraft.source === relationDraft.target) return;
-
-    const newEdge = {
-      id: `custom:${relationDraft.source}:${relationDraft.target}:${Date.now()}`,
-      source: relationDraft.source,
-      target: relationDraft.target,
-      relationType: relationDraft.relationType,
-      lane: relationDraft.lane,
-      min: clampNumber(relationDraft.min, 0),
-      max: relationDraft.max === '' ? null : clampNumber(relationDraft.max, 1),
-      defaultQty: clampNumber(relationDraft.defaultQty, 0),
-    };
-
-    setDraftEdges((current) => [newEdge, ...current]);
+  async function addEdge() {
+    if (!draft.parent || !draft.child) {
+      setSaveError('Choose both a parent and a child node.');
+      return;
+    }
+    const nextEdges = [
+      ...edges,
+      normalizeEdge({ ...draft, id: `${draft.parent}-${draft.child}-${draft.lane}` }),
+    ];
+    await persist(nextEdges);
   }
 
-  function handleDeleteRelation() {
+  async function removeEdge() {
     if (!deleteTarget) return;
-    setDraftEdges((current) => current.filter((edge) => edge.id !== deleteTarget.id));
+    const nextEdges = edges.filter((item) => item.id !== deleteTarget.id);
+    await persist(nextEdges);
     setDeleteTarget(null);
   }
 
+  function resetToDefault() {
+    void persist(initialHierarchy.map(normalizeEdge));
+  }
+
+  function renderNode(node) {
+    if (!node) return null;
+    return (
+      <button
+        key={node.code}
+        type="button"
+        className={styles.nodeCard}
+        onClick={() => {
+          const firstRelatedEdge = visibleEdges.find((edge) => edge.parent === node.code || edge.child === node.code);
+          if (firstRelatedEdge) setSelectedEdgeId(firstRelatedEdge.id);
+        }}
+      >
+        <span className={styles.nodeType}>{node.type}</span>
+        <strong>{node.label}</strong>
+        <code>{node.code}</code>
+        <span className={styles.nodeMeta}>{node.subtitle}</span>
+        <span className={styles.nodeMeta}>{node.characteristicCount} characteristic(s)</span>
+      </button>
+    );
+  }
+
   return (
-    <section className={styles.shell}>
-      <div className={styles.topRow}>
-        <Card
-          title="Hierarchy control"
-          description="Choose which structure lane to inspect, filter the canvas and open the current node in the inspector."
-          className={styles.controlCard}
-          actions={<Button variant="ghost" onClick={handleReset}>Reset draft</Button>}
-        >
-          <div className={styles.controlsGrid}>
-            <Input
-              label="Search hierarchy"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="PS_WIRED_INTERNET / RS_ONT / Product → Service"
-            />
-
-            <label className={styles.filterField}>
-              <span className={styles.filterLabel}>Lane</span>
-              <select className={styles.select} value={viewLane} onChange={(event) => setViewLane(event.target.value)}>
-                <option value="all">All relations</option>
-                <option value="product">Bundle structure</option>
-                <option value="decomposition">Service decomposition</option>
-              </select>
-            </label>
-          </div>
-        </Card>
-
-        <Card
-          title="Live structure stats"
-          description={`${catalogTitle} visual hierarchy overview.`}
-          className={styles.metricsCard}
-        >
-          <div className={styles.metricsGrid}>
-            <div className={styles.metric}><strong>{enrichedNodes.length}</strong><span>Nodes</span></div>
-            <div className={styles.metric}><strong>{draftEdges.length}</strong><span>Relations</span></div>
-            <div className={styles.metric}><strong>{draftEdges.filter((edge) => edge.lane === 'product').length}</strong><span>Bundle links</span></div>
-            <div className={styles.metric}><strong>{draftEdges.filter((edge) => edge.lane === 'decomposition').length}</strong><span>Decomposition links</span></div>
-          </div>
-        </Card>
+    <div className={styles.wrapper}>
+      {saveError ? <p className="ds-field__error">{saveError}</p> : null}
+      <div className={styles.metricsRow}>
+        <Card title="Bundle edges" padding="md"><p className={styles.metricValue}>{edges.filter((item) => item.lane === 'bundle').length}</p></Card>
+        <Card title="Service edges" padding="md"><p className={styles.metricValue}>{edges.filter((item) => item.lane === 'service').length}</p></Card>
+        <Card title="Resource edges" padding="md"><p className={styles.metricValue}>{edges.filter((item) => item.lane === 'resource').length}</p></Card>
       </div>
 
-      <div className={styles.workspace}>
-        <Card title="Structure canvas" description="Node-based, depth-grouped visual structure for TMF620-style bundle and decomposition modeling." className={styles.canvasCard}>
-          <div className={styles.canvasLegend}>
-            <span className={`${styles.legendPill} ${styles.product}`}>Product specification</span>
-            <span className={`${styles.legendPill} ${styles.service}`}>Service specification</span>
-            <span className={`${styles.legendPill} ${styles.resource}`}>Resource specification</span>
-          </div>
-
-          <div className={styles.canvasScroller}>
-            <div className={styles.canvasColumns}>
-              {columns.map((column) => (
-                <section className={styles.canvasColumn} key={column.depth}>
-                  <header className={styles.columnHeader}>{column.title}</header>
-                  <div className={styles.nodeStack}>
-                    {column.nodes.map((node) => (
-                      <button
-                        type="button"
-                        key={node.id}
-                        className={`${styles.nodeCard} ${styles[node.kind.replace(/-/g, '')] || ''} ${selectedNodeId === node.id ? styles.nodeCardActive : ''}`}
-                        onClick={() => setSelectedNodeId(node.id)}
-                      >
-                        <div className={styles.nodeTopline}>
-                          <span className={styles.nodeKind}>{node.group}</span>
-                          <span className={styles.nodeStatus}>{node.status}</span>
-                        </div>
-                        <strong className={styles.nodeTitle}>{node.label}</strong>
-                        <code className={styles.nodeCode}>{node.code}</code>
-                        <p className={styles.nodeSummary}>{node.summary}</p>
-                        <div className={styles.nodeMetaRow}>
-                          <span>{node.offeringCount} offerings</span>
-                          <span>{node.characteristicCount} chars</span>
-                          <span>{node.outgoingCount} out</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              ))}
+      <div className={styles.mainGrid}>
+        <Card
+          title="Hierarchy canvas"
+          description={`Current catalog: ${catalogTitle}. The bundle lane is editable; service and resource decomposition are shown from service mappings.`}
+          actions={(
+            <div className={styles.actionRow}>
+              <label className={styles.filterField}><span>Lane</span><select value={laneFilter} onChange={(event) => setLaneFilter(event.target.value)}><option value="all">All lanes</option><option value="bundle">Bundle structure</option><option value="service">Product → Service</option><option value="resource">Service → Resource</option></select></label>
+              <Button variant="secondary" onClick={resetToDefault} loading={saving}>Reset bundle lane</Button>
             </div>
+          )}
+        >
+          <div className={styles.laneGrid}>
+            <section className={styles.laneColumn}>
+              <h3>Products</h3>
+              <div className={styles.nodeList}>{productNodes.map(renderNode)}</div>
+            </section>
+            <section className={styles.edgeColumn}>
+              <h3>Edges</h3>
+              <div className={styles.edgeList}>
+                {visibleEdges.map((edge) => (
+                  <button
+                    type="button"
+                    key={edge.id}
+                    className={`${styles.edgeRow} ${selectedEdge?.id === edge.id ? styles.edgeRowActive : ''}`}
+                    onClick={() => setSelectedEdgeId(edge.id)}
+                  >
+                    <span className={styles.edgeLane}>{edge.lane}</span>
+                    <span><code>{edge.parent}</code> → <code>{edge.child}</code></span>
+                  </button>
+                ))}
+              </div>
+            </section>
+            <section className={styles.laneColumn}>
+              <h3>Services & resources</h3>
+              <div className={styles.nodeList}>{serviceNodes.map(renderNode)}{resourceNodes.map(renderNode)}</div>
+            </section>
           </div>
         </Card>
 
-        <aside className={styles.sidebar}>
-          <Card
-            title="Selected node"
-            description={selectedNode ? `${selectedNode.label} details and connected relations.` : 'Choose a node from the canvas.'}
-            className={styles.sidebarCard}
-          >
-            {selectedNode ? (
+        <div className={styles.sideRail}>
+          <Card title="Selected relationship" description="Inspect the currently selected edge and remove only editable bundle relationships.">
+            {selectedEdge ? (
               <div className={styles.inspectorStack}>
-                <div className={styles.inspectorHero}>
-                  <div>
-                    <div className={styles.inspectorKind}>{selectedNode.group}</div>
-                    <h3 className={styles.inspectorTitle}>{selectedNode.label}</h3>
-                    <code className={styles.nodeCode}>{selectedNode.code}</code>
-                  </div>
-                  <span className={styles.nodeStatus}>{selectedNode.status}</span>
-                </div>
-
-                <dl className={styles.detailList}>
-                  <div><dt>Summary</dt><dd>{selectedNode.summary}</dd></div>
-                  <div><dt>Meta</dt><dd>{selectedNode.meta}</dd></div>
-                  <div><dt>Offerings</dt><dd>{selectedNode.offeringCount}</dd></div>
-                  <div><dt>Characteristics</dt><dd>{selectedNode.characteristicCount}</dd></div>
-                </dl>
-
-                {(offeringMap[selectedNode.code] || []).length ? (
-                  <div className={styles.inlineSection}>
-                    <h4 className={styles.subheading}>Offerings on this spec</h4>
-                    <div className={styles.pillWrap}>
-                      {offeringMap[selectedNode.code].map((offering) => (
-                        <span className={styles.tokenPill} key={offering.code}>{offering.name}</span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                <div className={styles.inlineSection}>
-                  <h4 className={styles.subheading}>Outgoing relations</h4>
-                  <div className={styles.edgeStack}>
-                    {selectedOutgoing.length ? selectedOutgoing.map((edge) => (
-                      <div className={styles.edgeRow} key={edge.id}>
-                        <div>
-                          <div className={styles.edgeTitle}>{edge.target}</div>
-                          <div className={styles.edgeMeta}>{edge.relationType} · {formatLane(edge)}</div>
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(edge)}>Delete</Button>
-                      </div>
-                    )) : <p className={styles.emptyText}>No outgoing relations.</p>}
-                  </div>
-                </div>
-
-                <div className={styles.inlineSection}>
-                  <h4 className={styles.subheading}>Incoming relations</h4>
-                  <div className={styles.edgeStack}>
-                    {selectedIncoming.length ? selectedIncoming.map((edge) => (
-                      <div className={styles.edgeRowMuted} key={edge.id}>
-                        <div className={styles.edgeTitle}>{edge.source}</div>
-                        <div className={styles.edgeMeta}>{edge.relationType} · {formatLane(edge)}</div>
-                      </div>
-                    )) : <p className={styles.emptyText}>No incoming relations.</p>}
-                  </div>
-                </div>
+                <div><strong>Parent</strong><div><code>{selectedEdge.parent}</code></div></div>
+                <div><strong>Child</strong><div><code>{selectedEdge.child}</code></div></div>
+                <div><strong>Lane</strong><div>{selectedEdge.lane}</div></div>
+                <div><strong>Cardinality</strong><div>{selectedEdge.min}..{selectedEdge.max ?? '∞'}</div></div>
+                <div><strong>Default quantity</strong><div>{selectedEdge.defaultQty}</div></div>
+                {selectedEdge.lane === 'bundle' ? (
+                  <Button variant="danger" onClick={() => setDeleteTarget(selectedEdge)}>Delete edge</Button>
+                ) : (
+                  <p className={styles.mutedText}>Service/resource edges are read-only because they come from the service mapping layer.</p>
+                )}
               </div>
-            ) : null}
+            ) : <p className={styles.mutedText}>Select an edge to inspect it.</p>}
           </Card>
 
-          <Card title="Create relation" description="Add a new bundle or decomposition relation without breaking the current static demo data." className={styles.sidebarCard}>
-            <form className={styles.formStack} onSubmit={handleCreateRelation}>
-              <label className={styles.filterField}>
-                <span className={styles.filterLabel}>Source node</span>
-                <select className={styles.select} value={relationDraft.source} onChange={(event) => setRelationDraft((current) => ({ ...current, source: event.target.value }))}>
-                  {allNodeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-              </label>
-
-              <label className={styles.filterField}>
-                <span className={styles.filterLabel}>Target node</span>
-                <select className={styles.select} value={relationDraft.target} onChange={(event) => setRelationDraft((current) => ({ ...current, target: event.target.value }))}>
-                  {allNodeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-              </label>
-
-              <Input label="Relation label" value={relationDraft.relationType} onChange={(event) => setRelationDraft((current) => ({ ...current, relationType: event.target.value }))} />
-
-              <div className={styles.dualGrid}>
-                <label className={styles.filterField}>
-                  <span className={styles.filterLabel}>Lane</span>
-                  <select className={styles.select} value={relationDraft.lane} onChange={(event) => setRelationDraft((current) => ({ ...current, lane: event.target.value }))}>
-                    <option value="product">Bundle structure</option>
-                    <option value="decomposition">Service decomposition</option>
-                  </select>
-                </label>
-                <Input label="Default qty" type="number" min="0" value={relationDraft.defaultQty} onChange={(event) => setRelationDraft((current) => ({ ...current, defaultQty: event.target.value }))} />
+          <Card title="Add bundle relationship" description="Create a new Bundle → Child relationship between product specifications.">
+            <div className={styles.formStack}>
+              <label className={styles.filterField}><span>Parent product</span><select value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))}>{productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}</select></label>
+              <label className={styles.filterField}><span>Child product</span><select value={draft.child} onChange={(event) => setDraft((prev) => ({ ...prev, child: event.target.value }))}><option value="">Select child…</option>{productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}</select></label>
+              <div className={styles.compactGrid}>
+                <Input label="Min" type="number" value={draft.min} onChange={(event) => setDraft((prev) => ({ ...prev, min: event.target.value }))} />
+                <Input label="Max" type="number" value={draft.max} onChange={(event) => setDraft((prev) => ({ ...prev, max: event.target.value }))} />
+                <Input label="Default qty" type="number" value={draft.defaultQty} onChange={(event) => setDraft((prev) => ({ ...prev, defaultQty: event.target.value }))} />
               </div>
-
-              <div className={styles.dualGrid}>
-                <Input label="Min" type="number" min="0" value={relationDraft.min} onChange={(event) => setRelationDraft((current) => ({ ...current, min: event.target.value }))} />
-                <Input label="Max" type="number" min="0" value={relationDraft.max} onChange={(event) => setRelationDraft((current) => ({ ...current, max: event.target.value }))} />
-              </div>
-
-              <Button type="submit">Add relation</Button>
-            </form>
+              <Button onClick={addEdge} loading={saving}>Add bundle edge</Button>
+            </div>
           </Card>
-        </aside>
-      </div>
-
-      <Card title="Relation register" description="Auditable relation list with bundle cardinalities and decomposition links." className={styles.registryCard}>
-        <div className={styles.registryScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Source</th>
-                <th>Target</th>
-                <th>Type</th>
-                <th>Lane</th>
-                <th>Cardinality</th>
-                <th>Default qty</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEdges.map((edge) => (
-                <tr key={edge.id}>
-                  <td><code>{edge.source}</code></td>
-                  <td><code>{edge.target}</code></td>
-                  <td>{edge.relationType}</td>
-                  <td>{formatLane(edge)}</td>
-                  <td>{edge.min ?? 0}..{edge.max ?? '∞'}</td>
-                  <td>{edge.defaultQty ?? 0}</td>
-                  <td><Button variant="ghost" size="sm" onClick={() => setDeleteTarget(edge)}>Delete</Button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
-      </Card>
+      </div>
 
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
-        title="Delete hierarchy relation"
-        description="This removes the selected relation from the current draft canvas. Static seed data remains untouched and can be restored with Reset draft."
+        title="Delete hierarchy edge"
+        description="This removes the selected bundle relationship from the persisted catalog graph."
         actions={(
           <>
-            <Button variant="secondary" onClick={() => setDeleteTarget(null)}>Cancel</Button>
-            <Button variant="danger" onClick={handleDeleteRelation}>Delete relation</Button>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="danger" onClick={removeEdge} loading={saving}>Delete edge</Button>
           </>
         )}
       >
         {deleteTarget ? (
-          <div className={styles.confirmBody}>
-            <div><strong>Source:</strong> <code>{deleteTarget.source}</code></div>
-            <div><strong>Target:</strong> <code>{deleteTarget.target}</code></div>
-            <div><strong>Type:</strong> {deleteTarget.relationType}</div>
-            <div><strong>Lane:</strong> {formatLane(deleteTarget)}</div>
-          </div>
+          <p>
+            Remove <code>{deleteTarget.parent}</code> → <code>{deleteTarget.child}</code> from <strong>{catalogTitle}</strong>?
+          </p>
         ) : null}
       </Modal>
-    </section>
+    </div>
   );
 }

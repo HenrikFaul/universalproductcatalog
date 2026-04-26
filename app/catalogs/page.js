@@ -1,13 +1,17 @@
 import Link from 'next/link';
-import { getCatalogTemplates, getDemoCatalogs } from '../lib/catalogData';
+import { getCatalogTemplates } from '../lib/catalogData';
+import { getPersistenceDiagnostics, resolveCatalogsForIndex } from '../lib/catalogPersistence';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Catalogs | Universal Product Catalog',
 };
 
-export default function CatalogsPage() {
-  const demoCatalogs = getDemoCatalogs();
+export default async function CatalogsPage() {
   const templates = getCatalogTemplates();
+  const { persisted, demoCatalogs } = await resolveCatalogsForIndex();
+  const diagnostics = getPersistenceDiagnostics();
 
   return (
     <main className="page-shell">
@@ -15,12 +19,45 @@ export default function CatalogsPage() {
         <p className="eyebrow">Catalogs</p>
         <h1 className="section-title">Product catalogs, starter structures and builder</h1>
         <p className="hero-text">
-          Here you can open the telecom demo catalog or start from one of twenty cross-industry starter templates.
+          Here you can open the telecom demo catalog, browse persisted custom catalogs and start from one of twenty cross-industry starter templates.
         </p>
         <div className="hero-actions">
           <Link href="/catalogs/new" className="primary-button">Create new catalog</Link>
         </div>
+        <p className="helper-text">
+          Persistence target: <code>{diagnostics.supabaseUrl}</code>
+          {' · '}
+          {diagnostics.persistenceEnabled ? 'Supabase write access detected' : 'No service-role backend wiring detected yet'}
+        </p>
       </section>
+
+      {persisted.length ? (
+        <section className="section-block">
+          <div className="section-heading-row">
+            <div>
+              <p className="eyebrow">Persisted catalogs</p>
+              <h2>Catalogs stored in Supabase</h2>
+            </div>
+          </div>
+          <div className="list-grid">
+            {persisted.map((catalog) => (
+              <Link href={`/catalogs/${catalog.slug}`} className="card interactive-card list-card" key={catalog.slug}>
+                <div className="card-topline">
+                  <h3>{catalog.title}</h3>
+                  <span className="status-pill">{catalog.industry}</span>
+                </div>
+                <p>{catalog.description}</p>
+                <div className="tag-row">
+                  <span className="tag">{catalog.productSpecifications.length} product specs</span>
+                  <span className="tag">{catalog.productOfferings.length} offerings</span>
+                  <span className="tag">{catalog.characteristicDefinitions.length} characteristics</span>
+                </div>
+                <span className="text-link">Open persisted catalog →</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="section-block">
         <div className="section-heading-row">
@@ -42,7 +79,7 @@ export default function CatalogsPage() {
                 <span className="tag">{catalog.productOfferings.length} offerings</span>
                 <span className="tag">{catalog.characteristicDefinitions.length} characteristics</span>
               </div>
-              <span className="text-link">Open catalog →</span>
+              <span className="text-link">Open demo catalog →</span>
             </Link>
           ))}
         </div>

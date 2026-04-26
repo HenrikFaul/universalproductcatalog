@@ -1,21 +1,19 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getDemoCatalogBySlug, getDemoCatalogs } from '../../lib/catalogData';
+import { resolveCatalogBySlug } from '../../lib/catalogPersistence';
 
-export function generateStaticParams() {
-  return getDemoCatalogs().map((catalog) => ({ slug: catalog.slug }));
-}
+export const dynamic = 'force-dynamic';
 
-export function generateMetadata({ params }) {
-  const catalog = getDemoCatalogBySlug(params.slug);
+export async function generateMetadata({ params }) {
+  const catalog = await resolveCatalogBySlug(params.slug);
   if (!catalog) {
     return { title: 'Catalog not found | Universal Product Catalog' };
   }
   return { title: `${catalog.title} | Universal Product Catalog` };
 }
 
-export default function CatalogDetailsPage({ params }) {
-  const catalog = getDemoCatalogBySlug(params.slug);
+export default async function CatalogDetailsPage({ params }) {
+  const catalog = await resolveCatalogBySlug(params.slug);
   if (!catalog) notFound();
 
   return (
@@ -29,13 +27,19 @@ export default function CatalogDetailsPage({ params }) {
       </nav>
 
       <section className="hero compact-hero">
-        <p className="eyebrow">TMF620-style demo catalog</p>
+        <p className="eyebrow">TMF620-style catalog</p>
         <h1 className="section-title">{catalog.title}</h1>
         <p className="hero-text">{catalog.description}</p>
         <div className="hero-actions">
           <Link href="/catalogs/new?industry=telecommunications" className="primary-button">Clone as new catalog</Link>
           <Link href={`/catalogs/${catalog.slug}/characteristics`} className="secondary-button">Manage characteristics</Link>
+          <Link href={`/catalogs/${catalog.slug}/hierarchy`} className="secondary-button">Open hierarchy builder</Link>
           <Link href="/catalogs" className="secondary-button">Back to catalogs</Link>
+        </div>
+        <div className="tag-row">
+          <span className="tag">{catalog.sourceKind || 'demo'}</span>
+          <span className="tag">{catalog.industry}</span>
+          <span className="tag">{catalog.tmfVersion}</span>
         </div>
       </section>
 
@@ -66,7 +70,7 @@ export default function CatalogDetailsPage({ params }) {
           <article className="card">
             <h3>Business domains</h3>
             <div className="tag-row large-tags">
-              {catalog.catalog.businessDomains.map((item) => <span key={item} className="tag">{item}</span>)}
+              {(catalog.catalog.businessDomains || []).map((item) => <span key={item} className="tag">{item}</span>)}
             </div>
           </article>
         </div>
@@ -82,7 +86,7 @@ export default function CatalogDetailsPage({ params }) {
                 <thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Lifecycle</th><th>Business model</th><th>Category</th></tr></thead>
                 <tbody>
                   {catalog.productSpecifications.map((spec) => (
-                    <tr key={spec.code}><td><code>{spec.code}</code></td><td>{spec.name}</td><td>{spec.type}</td><td>{spec.lifecycle}</td><td>{spec.businessModel}</td><td>{spec.category}</td></tr>
+                    <tr key={spec.code}><td><code>{spec.code}</code></td><td>{spec.name}</td><td>{spec.type || 'ProductSpecification'}</td><td>{spec.lifecycle || 'Draft'}</td><td>{spec.businessModel || 'TBD'}</td><td>{spec.category || 'Product'}</td></tr>
                   ))}
                 </tbody>
               </table>
@@ -117,7 +121,7 @@ export default function CatalogDetailsPage({ params }) {
                   <td><code>{offering.specificationCode}</code></td>
                   <td>{offering.status}</td>
                   <td>{offering.validFor}</td>
-                  <td>{offering.channels.join(', ')}</td>
+                  <td>{(offering.channels || []).join(', ')}</td>
                   <td>{offering.priceSummary}</td>
                 </tr>
               ))}
@@ -148,7 +152,7 @@ export default function CatalogDetailsPage({ params }) {
                   <td>{item.configurableStage}</td>
                   <td>{item.editingBehaviour}</td>
                   <td>{item.defaultValue === null ? '—' : String(item.defaultValue)}</td>
-                  <td>{item.allowedValues.length ? item.allowedValues.join(', ') : '—'}</td>
+                  <td>{(item.allowedValues || []).length ? item.allowedValues.join(', ') : '—'}</td>
                   <td>{item.inventoryImpact}</td>
                   <td>{item.fulfillmentImpact}</td>
                   <td>{item.interpretation}</td>
@@ -165,13 +169,13 @@ export default function CatalogDetailsPage({ params }) {
           <article className="card">
             <h3>Service specifications</h3>
             <ul className="bullet-list">
-              {catalog.serviceSpecifications.map((item) => <li key={item.code}><strong>{item.name}</strong> — <code>{item.code}</code> — {item.summary}</li>)}
+              {catalog.serviceSpecifications.map((item) => <li key={item.code}><strong>{item.name}</strong> — <code>{item.code}</code> — {item.summary || 'Service summary pending.'}</li>)}
             </ul>
           </article>
           <article className="card">
             <h3>Resource specifications</h3>
             <ul className="bullet-list">
-              {catalog.resourceSpecifications.map((item) => <li key={item.code}><strong>{item.name}</strong> — <code>{item.code}</code> — {item.summary}</li>)}
+              {catalog.resourceSpecifications.map((item) => <li key={item.code}><strong>{item.name}</strong> — <code>{item.code}</code> — {item.summary || 'Resource summary pending.'}</li>)}
             </ul>
           </article>
         </div>
@@ -183,7 +187,7 @@ export default function CatalogDetailsPage({ params }) {
                 <tr key={`${row.productSpec}-${row.serviceSpec}`}>
                   <td><code>{row.productSpec}</code></td>
                   <td><code>{row.serviceSpec}</code></td>
-                  <td>{row.resourceSpecs.length ? row.resourceSpecs.map((item) => <code key={item}>{item} </code>) : '—'}</td>
+                  <td>{(row.resourceSpecs || []).length ? row.resourceSpecs.map((item) => <code key={item}>{item} </code>) : '—'}</td>
                 </tr>
               ))}
             </tbody>

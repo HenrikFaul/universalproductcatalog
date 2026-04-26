@@ -1,22 +1,20 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getDemoCatalogBySlug, getDemoCatalogs } from '../../../lib/catalogData';
+import { resolveCatalogBySlug } from '../../../lib/catalogPersistence';
 import CharacteristicsManagerClient from './CharacteristicsManagerClient';
 
-export function generateStaticParams() {
-  return getDemoCatalogs().map((catalog) => ({ slug: catalog.slug }));
-}
+export const dynamic = 'force-dynamic';
 
-export function generateMetadata({ params }) {
-  const catalog = getDemoCatalogBySlug(params.slug);
+export async function generateMetadata({ params }) {
+  const catalog = await resolveCatalogBySlug(params.slug);
   if (!catalog) {
     return { title: 'Characteristic manager | Universal Product Catalog' };
   }
   return { title: `Characteristics · ${catalog.title} | Universal Product Catalog` };
 }
 
-export default function CatalogCharacteristicsPage({ params }) {
-  const catalog = getDemoCatalogBySlug(params.slug);
+export default async function CatalogCharacteristicsPage({ params }) {
+  const catalog = await resolveCatalogBySlug(params.slug);
   if (!catalog) notFound();
 
   return (
@@ -35,12 +33,11 @@ export default function CatalogCharacteristicsPage({ params }) {
         <p className="eyebrow">Characteristic manager</p>
         <h1 className="section-title">{catalog.title}</h1>
         <p className="hero-text">
-          Create, edit and safely delete universal product characteristics without touching the
-          existing backend model. This manager uses the current TMF620-aligned demo catalog as seed data.
+          Create, edit and safely delete universal product characteristics. Changes are now prepared to persist to the configured Supabase backend.
         </p>
         <div className="hero-actions">
           <Link href={`/catalogs/${catalog.slug}`} className="secondary-button">Back to catalog</Link>
-          <Link href="/catalogs/new?industry=telecommunications" className="secondary-button">Clone new catalog</Link>
+          <Link href={`/catalogs/${catalog.slug}/hierarchy`} className="secondary-button">Open hierarchy builder</Link>
         </div>
       </section>
 
