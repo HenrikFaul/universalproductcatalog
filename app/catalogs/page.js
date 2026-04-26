@@ -93,22 +93,41 @@ export default async function CatalogsPage() {
           </div>
           <Link href="/catalogs/new" className="secondary-button compact-button">Open builder</Link>
         </div>
-        <div className="list-grid">
-          {templates.map((template) => (
-            <Link href={`/catalogs/new?industry=${template.slug}`} className="card interactive-card list-card" key={template.slug}>
-              <div className="card-topline">
-                <h3>{template.title}</h3>
-                <span className="status-pill">Template</span>
-              </div>
-              <p>{template.focus}</p>
-              <div className="tag-row">
-                {template.starterProducts.slice(0, 3).map((item) => (
-                  <span className="tag" key={item}>{item}</span>
-                ))}
-              </div>
-              <span className="text-link">Use template →</span>
-            </Link>
-          ))}
+        <div className="table-scroll starter-template-table-wrap">
+          <table className="catalog-table starter-template-table">
+            <thead>
+              <tr>
+                <th aria-label="Row number">#</th>
+                <th>Iparág / sablon</th>
+                <th>Leírás</th>
+                <th>Példa elemek / címkék</th>
+                <th>Típus</th>
+                <th>Művelet</th>
+              </tr>
+            </thead>
+            <tbody>
+              {templates.map((template, index) => (
+                <tr key={template.slug}>
+                  <td className="row-number">{index + 1}</td>
+                  <td><strong>{template.title}</strong></td>
+                  <td>{template.focus}</td>
+                  <td>
+                    <div className="tag-row compact-tag-row">
+                      {template.starterProducts.slice(0, 3).map((item) => (
+                        <span className="tag" key={item}>{item}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td><span className="status-pill">Template</span></td>
+                  <td>
+                    <Link href={`/catalogs/new?industry=${template.slug}`} className="secondary-button compact-button row-action-button">
+                      Use template →
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </main>

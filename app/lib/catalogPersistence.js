@@ -380,7 +380,7 @@ export async function updatePersistedCharacteristics(slug, characteristicDefinit
   return rowToCatalog(rows[0]);
 }
 
-export async function updatePersistedHierarchy(slug, hierarchy, serviceMapping) {
+export async function updatePersistedHierarchy(slug, hierarchy, serviceMapping, visualState = null) {
   const existing = (await ensurePersistedSeedForSlug(slug)) || (await getPersistedCatalogBySlug(slug));
   if (!existing) {
     throw new Error(`Catalog ${slug} was not found.`);
@@ -392,6 +392,20 @@ export async function updatePersistedHierarchy(slug, hierarchy, serviceMapping) 
 
   if (serviceMapping !== undefined) {
     payload.service_mapping = ensureArray(serviceMapping);
+  }
+
+  if (visualState && typeof visualState === 'object') {
+    payload.metadata = {
+      ...(existing.metadata || {}),
+      hierarchyStudio: {
+        rootNodeCodes: ensureArray(visualState.rootNodeCodes),
+        removedNodeCodes: ensureArray(visualState.removedNodeCodes),
+        customPositions: visualState.customPositions && typeof visualState.customPositions === 'object'
+          ? visualState.customPositions
+          : {},
+        updatedAt: new Date().toISOString(),
+      },
+    };
   }
 
   const rows = await supabaseRest(`${TABLE_NAME}?slug=eq.${encodeURIComponent(slug)}`, {

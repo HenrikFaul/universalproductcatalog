@@ -32,7 +32,7 @@ export async function PUT(request, { params }) {
   try {
     const payload = await request.json();
     const { slug } = await params;
-    const updated = await updatePersistedHierarchy(slug, payload.items || [], payload.serviceMapping);
+    const updated = await updatePersistedHierarchy(slug, payload.items || [], payload.serviceMapping, payload.visualState || null);
     return NextResponse.json({
       ok: true,
       item: updated,

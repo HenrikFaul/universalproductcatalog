@@ -20,7 +20,7 @@ export default async function CatalogHierarchyPage({ params }) {
   if (!catalog) notFound();
 
   return (
-    <main className="page-shell">
+    <main className="page-shell hierarchy-page-shell">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link href="/">Home</Link>
         <span> / </span>
@@ -58,6 +58,7 @@ export default async function CatalogHierarchyPage({ params }) {
         resourceSpecifications={catalog.resourceSpecifications}
         serviceMapping={catalog.serviceMapping}
         characteristicDefinitions={catalog.characteristicDefinitions}
+        initialStudioState={catalog.metadata?.hierarchyStudio || {}}
       />
     </main>
   );

@@ -44,6 +44,68 @@ function cloneEdges(edges) {
   return edges.map((edge) => normalizeEdge({ ...edge }));
 }
 
+function deepCloneValue(value) {
+  if (typeof structuredClone === 'function') {
+    return structuredClone(value);
+  }
+  return JSON.parse(JSON.stringify(value ?? null));
+}
+
+function buildInitialRootNodeCodes(initialEdges, productSpecifications) {
+  const normalizedEdges = cloneEdges(initialEdges || []);
+  const childCodes = new Set(normalizedEdges.map((edge) => edge.child));
+  const rootCodes = new Set(
+    normalizedEdges
+      .map((edge) => edge.parent)
+      .filter((code) => code && !childCodes.has(code)),
+  );
+
+  if (rootCodes.size === 0 && productSpecifications[0]?.code) {
+    rootCodes.add(productSpecifications[0].code);
+  }
+
+  return rootCodes;
+}
+
+function buildActiveNodeCodes(edges, rootNodeCodes, fallbackProductCode, removedNodeCodes = new Set()) {
+  const active = new Set(rootNodeCodes || []);
+  edges.forEach((edge) => {
+    if (edge.parent) active.add(edge.parent);
+    if (edge.child) active.add(edge.child);
+  });
+
+  if (active.size === 0 && fallbackProductCode && !removedNodeCodes.has(fallbackProductCode)) {
+    active.add(fallbackProductCode);
+  }
+
+  removedNodeCodes.forEach((code) => active.delete(code));
+  return active;
+}
+
+function collectDescendantCodes(edges, rootCode) {
+  const childrenByParent = new Map();
+  edges.forEach((edge) => {
+    const children = childrenByParent.get(edge.parent) || [];
+    children.push(edge.child);
+    childrenByParent.set(edge.parent, children);
+  });
+
+  const removed = new Set();
+  const stack = [rootCode];
+  while (stack.length) {
+    const current = stack.pop();
+    if (!current || removed.has(current)) continue;
+    removed.add(current);
+    (childrenByParent.get(current) || []).forEach((child) => stack.push(child));
+  }
+
+  return removed;
+}
+
+function getIncomingEdges(edges, code) {
+  return edges.filter((edge) => edge.child === code);
+}
+
 function buildEdgesFromServiceMapping(serviceMapping) {
   return serviceMapping.flatMap((row) => [
     { parent: row.productSpec, child: row.serviceSpec, min: 1, max: 1, defaultQty: 1, lane: 'service' },
@@ -207,15 +269,21 @@ function wouldCreateCycle(edges, parent, child) {
   return false;
 }
 
-function buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions) {
-  const autoProductPositions = buildProductAutoPositions(productSpecifications, bundleEdges);
+function buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes) {
+  const visibleProductSpecifications = productSpecifications.filter((item) => activeNodeCodes.has(item.code));
+  const visibleServiceSpecifications = serviceSpecifications.filter((item) => activeNodeCodes.has(item.code));
+  const visibleResourceSpecifications = resourceSpecifications.filter((item) => activeNodeCodes.has(item.code));
+  const visibleBundleEdges = bundleEdges.filter((edge) => activeNodeCodes.has(edge.parent) && activeNodeCodes.has(edge.child));
+  const visibleServiceResourceEdges = serviceResourceEdges.filter((edge) => activeNodeCodes.has(edge.parent) && activeNodeCodes.has(edge.child));
+
+  const autoProductPositions = buildProductAutoPositions(visibleProductSpecifications, visibleBundleEdges);
   const servicePositions = buildServiceResourcePositions(
-    serviceSpecifications,
-    resourceSpecifications,
-    buildServiceMappingFromEdges(serviceResourceEdges),
+    visibleServiceSpecifications,
+    visibleResourceSpecifications,
+    buildServiceMappingFromEdges(visibleServiceResourceEdges),
   );
 
-  const products = productSpecifications.map((item) => ({
+  const products = visibleProductSpecifications.map((item) => ({
     ...nodeIndex.get(item.code),
     x: customPositions[item.code]?.x ?? autoProductPositions[item.code]?.x ?? PRODUCT_ROOT_X,
     y: customPositions[item.code]?.y ?? autoProductPositions[item.code]?.y ?? PRODUCT_ROOT_Y,
@@ -223,7 +291,7 @@ function buildNodeCards(productSpecifications, serviceSpecifications, resourceSp
     height: PRODUCT_NODE_HEIGHT,
   }));
 
-  const services = serviceSpecifications.map((item) => ({
+  const services = visibleServiceSpecifications.map((item) => ({
     ...nodeIndex.get(item.code),
     x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? SERVICE_COLUMN_X,
     y: customPositions[item.code]?.y ?? servicePositions[item.code]?.y ?? SERVICE_ROOT_Y,
@@ -231,7 +299,7 @@ function buildNodeCards(productSpecifications, serviceSpecifications, resourceSp
     height: SERVICE_NODE_HEIGHT,
   }));
 
-  const resources = resourceSpecifications.map((item) => ({
+  const resources = visibleResourceSpecifications.map((item) => ({
     ...nodeIndex.get(item.code),
     x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? RESOURCE_COLUMN_X,
     y: customPositions[item.code]?.y ?? servicePositions[item.code]?.y ?? SERVICE_ROOT_Y,
@@ -296,6 +364,7 @@ export default function HierarchyBuilderClient({
   resourceSpecifications,
   serviceMapping,
   characteristicDefinitions,
+  initialStudioState = {},
 }) {
   const nodeIndex = useMemo(
     () => buildNodeIndex(productSpecifications, serviceSpecifications, resourceSpecifications, characteristicDefinitions),
@@ -313,6 +382,14 @@ export default function HierarchyBuilderClient({
   );
 
   const [edges, setEdges] = useState(() => cloneEdges(initialGraphEdges));
+  const [rootNodeCodes, setRootNodeCodes] = useState(() => new Set(
+    Array.isArray(initialStudioState.rootNodeCodes) && initialStudioState.rootNodeCodes.length
+      ? initialStudioState.rootNodeCodes
+      : [...buildInitialRootNodeCodes(initialGraphEdges, productSpecifications)],
+  ));
+  const [removedNodeCodes, setRemovedNodeCodes] = useState(() => new Set(
+    Array.isArray(initialStudioState.removedNodeCodes) ? initialStudioState.removedNodeCodes : [],
+  ));
   const [laneFilter, setLaneFilter] = useState('all');
   const [selectedEdgeId, setSelectedEdgeId] = useState('');
   const [selectedNodeId, setSelectedNodeId] = useState(productSpecifications[0]?.code || '');
@@ -320,12 +397,15 @@ export default function HierarchyBuilderClient({
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [saveError, setSaveError] = useState('');
   const [toastMessage, setToastMessage] = useState('');
+  const [toastTone, setToastTone] = useState('success');
   const [saving, setSaving] = useState(false);
-  const [customPositions, setCustomPositions] = useState({});
+  const [customPositions, setCustomPositions] = useState(() => initialStudioState.customPositions || {});
   const [draft, setDraft] = useState({ parent: productSpecifications[0]?.code || '', child: '', min: 0, max: 1, defaultQty: 0 });
   const [viewportWidth, setViewportWidth] = useState(0);
   const [hoveredDropTarget, setHoveredDropTarget] = useState('');
+  const [isCanvasDropActive, setIsCanvasDropActive] = useState(false);
   const [relationModal, setRelationModal] = useState(null);
+  const [relationshipManager, setRelationshipManager] = useState(null);
   const [openPaletteSections, setOpenPaletteSections] = useState({
     products: false,
     services: false,
@@ -391,9 +471,14 @@ export default function HierarchyBuilderClient({
   const bundleEdges = useMemo(() => edges.filter((item) => item.lane === 'bundle'), [edges]);
   const serviceResourceEdges = useMemo(() => edges.filter((item) => item.lane === 'service' || item.lane === 'resource'), [edges]);
 
+  const activeNodeCodes = useMemo(
+    () => buildActiveNodeCodes(edges, rootNodeCodes, productSpecifications[0]?.code || '', removedNodeCodes),
+    [edges, productSpecifications, removedNodeCodes, rootNodeCodes],
+  );
+
   const nodes = useMemo(
-    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions),
-    [bundleEdges, customPositions, nodeIndex, productSpecifications, resourceSpecifications, serviceResourceEdges, serviceSpecifications],
+    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes),
+    [activeNodeCodes, bundleEdges, customPositions, nodeIndex, productSpecifications, resourceSpecifications, serviceResourceEdges, serviceSpecifications],
   );
 
   const nodeLookup = useMemo(() => new Map(nodes.map((node) => [node.code, node])), [nodes]);
@@ -465,16 +550,27 @@ export default function HierarchyBuilderClient({
   ], [characteristicPaletteItems, paletteItems]);
 
   async function persist(nextEdges, options = {}) {
-    const previousEdges = cloneEdges(edges);
-    const previousSelectedEdgeId = selectedEdgeId;
+    const previousState = {
+      edges: cloneEdges(edges),
+      selectedEdgeId,
+      rootNodeCodes: new Set(rootNodeCodes),
+      removedNodeCodes: new Set(removedNodeCodes),
+      customPositions: deepCloneValue(customPositions) || {},
+    };
     const optimisticEdges = cloneEdges(nextEdges);
     const optimisticSelectedEdgeId = options.selectedEdgeId ?? selectedEdgeId;
+    const optimisticRoots = new Set(options.rootNodeCodes ?? rootNodeCodes);
+    const optimisticRemoved = new Set(options.removedNodeCodes ?? removedNodeCodes);
+    const optimisticPositions = options.customPositions ?? customPositions;
 
     setSaving(true);
     setSaveError('');
     setToastMessage('');
     setEdges(optimisticEdges);
-    if (optimisticSelectedEdgeId) setSelectedEdgeId(optimisticSelectedEdgeId);
+    setRootNodeCodes(optimisticRoots);
+    setRemovedNodeCodes(optimisticRemoved);
+    setCustomPositions(optimisticPositions);
+    if (optimisticSelectedEdgeId !== undefined) setSelectedEdgeId(optimisticSelectedEdgeId);
 
     try {
       const bundleOnlyEdges = optimisticEdges
@@ -484,7 +580,15 @@ export default function HierarchyBuilderClient({
       const response = await fetch(`/api/catalogs/${catalogSlug}/hierarchy`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: bundleOnlyEdges, serviceMapping: serviceMappingFromEdges }),
+        body: JSON.stringify({
+          items: bundleOnlyEdges,
+          serviceMapping: serviceMappingFromEdges,
+          visualState: {
+            rootNodeCodes: [...optimisticRoots],
+            removedNodeCodes: [...optimisticRemoved],
+            customPositions: optimisticPositions,
+          },
+        }),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || !payload.ok) {
@@ -499,9 +603,13 @@ export default function HierarchyBuilderClient({
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      setEdges(previousEdges);
-      setSelectedEdgeId(previousSelectedEdgeId);
+      setEdges(previousState.edges);
+      setSelectedEdgeId(previousState.selectedEdgeId);
+      setRootNodeCodes(previousState.rootNodeCodes);
+      setRemovedNodeCodes(previousState.removedNodeCodes);
+      setCustomPositions(previousState.customPositions);
       setSaveError(message);
+      setToastTone('error');
       setToastMessage(`Change rolled back: ${message}`);
       return false;
     } finally {
@@ -515,66 +623,214 @@ export default function HierarchyBuilderClient({
     if (firstRelatedEdge) setSelectedEdgeId(firstRelatedEdge.id);
   }
 
-  async function addBundleEdge(parent, child, options = draft) {
-    if (!parent || !child) {
-      setSaveError('Choose both a parent and a child product.');
+  function getValidParentOptions(childCode, { includeRoot = true } = {}) {
+    const childNode = nodeIndex.get(childCode);
+    if (!childNode) return [];
+
+    const activeParents = nodes.filter((node) => node.code !== childCode);
+    const candidateParents = activeParents.filter((node) => {
+      if (childNode.type === 'product') return node.type === 'product';
+      if (childNode.type === 'service') return node.type === 'product';
+      if (childNode.type === 'resource') return node.type === 'service';
+      return false;
+    });
+
+    const safeParents = candidateParents.filter((node) => {
+      if (childNode.type !== 'product') return true;
+      const withoutCurrentIncoming = bundleEdges.filter((edge) => edge.child !== childCode);
+      return !wouldCreateCycle(withoutCurrentIncoming, node.code, childCode);
+    });
+
+    return [
+      ...(includeRoot && childNode.type === 'product' ? [{ code: '__root__', name: 'Root level / no parent', type: 'root' }] : []),
+      ...safeParents.map((node) => ({ code: node.code, name: node.label, type: node.type })),
+    ];
+  }
+
+  function getDefaultParentForChild(childCode, preferredParent = '') {
+    const validParents = getValidParentOptions(childCode);
+    if (!validParents.length) return '';
+    if (preferredParent && validParents.some((item) => item.code === preferredParent)) return preferredParent;
+
+    const childNode = nodeIndex.get(childCode);
+    if (childNode?.type === 'product') {
+      const selectedIsValid = selectedNodeId && validParents.some((item) => item.code === selectedNodeId);
+      return selectedIsValid ? selectedNodeId : '__root__';
+    }
+
+    const selectedIsValid = selectedNodeId && validParents.some((item) => item.code === selectedNodeId);
+    return selectedIsValid ? selectedNodeId : validParents[0]?.code || '';
+  }
+
+  function updateRelationModalChild(nextChild) {
+    setRelationModal((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        child: nextChild,
+        parent: getDefaultParentForChild(nextChild, prev.parent),
+      };
+    });
+  }
+
+  async function applyRelationshipChange(parent, child, options = draft) {
+    const normalizedParent = parent === '__root__' ? '' : parent;
+    if (!child) {
+      setSaveError('Choose a child node before saving the relationship.');
       return false;
     }
-    if (parent === child) {
+
+    const childNode = nodeIndex.get(child);
+    if (!childNode) {
+      setSaveError('The selected child node does not exist in the catalog definition set.');
+      return false;
+    }
+
+    const previousRoots = new Set(rootNodeCodes);
+    const previousRemoved = new Set(removedNodeCodes);
+
+    if (!normalizedParent) {
+      if (childNode.type !== 'product') {
+        setSaveError('Choose a valid parent before creating a service or resource relationship.');
+        return false;
+      }
+      const nextEdges = cloneEdges(edges.filter((edge) => edge.child !== child));
+      const nextRoots = new Set(rootNodeCodes);
+      nextRoots.add(child);
+      const nextRemoved = new Set(removedNodeCodes);
+      nextRemoved.delete(child);
+      setRootNodeCodes(nextRoots);
+      setRemovedNodeCodes(nextRemoved);
+      const saved = await persist(nextEdges, { selectedEdgeId: nextEdges[0]?.id || '', rootNodeCodes: nextRoots, removedNodeCodes: nextRemoved, customPositions: options.customPositions || customPositions });
+      if (!saved) {
+        setRootNodeCodes(previousRoots);
+        setRemovedNodeCodes(previousRemoved);
+        return false;
+      }
+      setSelectedNodeId(child);
+      setToastTone('success');
+      setToastMessage('Node moved to root level.');
+      return true;
+    }
+
+    if (normalizedParent === child) {
       setSaveError('A node cannot be linked to itself.');
       return false;
     }
-    const parentNode = nodeLookup.get(parent);
-    const childNode = nodeLookup.get(child);
-    const lane = laneForNodeTypes(parentNode?.type, childNode?.type);
+
+    const parentNode = nodeIndex.get(normalizedParent);
+    const lane = laneForNodeTypes(parentNode?.type, childNode.type);
     if (!lane) {
       setSaveError('Unsupported hierarchy relation type. Allowed: product→product, product→service, service→resource.');
       return false;
     }
-    if (lane === 'bundle' && wouldCreateCycle(bundleEdges, parent, child)) {
-      setSaveError('That drop would create a bundle cycle. Choose another parent/child pair.');
-      return false;
-    }
-    const duplicate = edges.find((edge) => edge.parent === parent && edge.child === child && edge.lane === lane);
-    if (duplicate) {
-      setSelectedEdgeId(duplicate.id);
-      setSaveError('The selected relationship already exists.');
+
+    const edgesWithoutCurrentIncoming = edges.filter((edge) => edge.child !== child);
+    if (lane === 'bundle' && wouldCreateCycle(edgesWithoutCurrentIncoming.filter((edge) => edge.lane === 'bundle'), normalizedParent, child)) {
+      setSaveError('That relationship would create a circular bundle reference. Choose another parent.');
       return false;
     }
 
-    const nextEdge = normalizeEdge({ parent, child, min: options.min, max: options.max, defaultQty: options.defaultQty, lane });
-    const nextEdges = cloneEdges([
-      ...edges,
-      nextEdge,
-    ]);
-    const saved = await persist(nextEdges, { selectedEdgeId: nextEdge.id });
-    if (saved) setSelectedNodeId(child);
-    return saved;
+    const nextEdge = normalizeEdge({
+      parent: normalizedParent,
+      child,
+      min: options.min,
+      max: options.max,
+      defaultQty: options.defaultQty,
+      lane,
+    });
+    const nextEdges = cloneEdges([...edgesWithoutCurrentIncoming, nextEdge]);
+    const nextRoots = new Set(rootNodeCodes);
+    nextRoots.delete(child);
+    const nextRemoved = new Set(removedNodeCodes);
+    nextRemoved.delete(child);
+    setRootNodeCodes(nextRoots);
+    setRemovedNodeCodes(nextRemoved);
+
+    const saved = await persist(nextEdges, { selectedEdgeId: nextEdge.id, rootNodeCodes: nextRoots, removedNodeCodes: nextRemoved, customPositions: options.customPositions || customPositions });
+    if (!saved) {
+      setRootNodeCodes(previousRoots);
+      setRemovedNodeCodes(previousRemoved);
+      return false;
+    }
+
+    setSelectedNodeId(child);
+    setToastTone('success');
+    setToastMessage('Relationship saved.');
+    return true;
+  }
+
+  async function addBundleEdge(parent, child, options = draft) {
+    return applyRelationshipChange(parent, child, options);
   }
 
   async function updateSelectedBundleEdge() {
-    if (!selectedEdge) return;
-    const nextEdges = cloneEdges(edges.map((edge) => (edge.id === selectedEdge.id
-      ? normalizeEdge({ ...edge, parent: draft.parent, child: draft.child, min: draft.min, max: draft.max, defaultQty: draft.defaultQty })
-      : edge)));
-    await persist(nextEdges, { selectedEdgeId: selectedEdge.id });
+    if (!selectedEdge) return false;
+    return applyRelationshipChange(draft.parent, draft.child, draft);
   }
 
   async function removeEdge() {
-    if (!deleteTarget) return;
-    const nextEdges = cloneEdges(edges.filter((item) => item.id !== deleteTarget.id));
-    await persist(nextEdges, { selectedEdgeId: nextEdges[0]?.id || '' });
+    if (!deleteTarget?.edge) return;
+    const edgeToRemove = deleteTarget.edge;
+    const previousRoots = new Set(rootNodeCodes);
+    const nextEdges = cloneEdges(edges.filter((item) => item.id !== edgeToRemove.id));
+    const stillHasIncoming = nextEdges.some((edge) => edge.child === edgeToRemove.child);
+    const nextRoots = new Set(rootNodeCodes);
+    if (!stillHasIncoming) nextRoots.add(edgeToRemove.child);
+    setRootNodeCodes(nextRoots);
+    const saved = await persist(nextEdges, { selectedEdgeId: nextEdges[0]?.id || '', rootNodeCodes: nextRoots });
+    if (!saved) setRootNodeCodes(previousRoots);
+    if (saved) {
+      setDeleteTarget(null);
+      setToastTone('success');
+      setToastMessage('Relationship removed and child node kept at root level.');
+    }
+  }
+
+  async function removeNodeFromStructure() {
+    if (!deleteTarget?.node) return;
+    const targetCode = deleteTarget.node.code;
+    const previousRoots = new Set(rootNodeCodes);
+    const previousRemoved = new Set(removedNodeCodes);
+    const previousPositions = deepCloneValue(customPositions) || {};
+    const removedCodes = collectDescendantCodes(edges, targetCode);
+    removedCodes.add(targetCode);
+
+    const nextEdges = cloneEdges(edges.filter((edge) => !removedCodes.has(edge.parent) && !removedCodes.has(edge.child)));
+    const nextRoots = new Set([...rootNodeCodes].filter((code) => !removedCodes.has(code)));
+    const nextRemoved = new Set([...removedNodeCodes, ...removedCodes]);
+    const nextPositions = Object.fromEntries(
+      Object.entries(customPositions).filter(([code]) => !removedCodes.has(code)),
+    );
+
+    setRootNodeCodes(nextRoots);
+    setRemovedNodeCodes(nextRemoved);
+    setCustomPositions(nextPositions);
+
+    const saved = await persist(nextEdges, { selectedEdgeId: nextEdges[0]?.id || '', rootNodeCodes: nextRoots, removedNodeCodes: nextRemoved, customPositions: nextPositions });
+    if (!saved) {
+      setRootNodeCodes(previousRoots);
+      setRemovedNodeCodes(previousRemoved);
+      setCustomPositions(previousPositions);
+      return;
+    }
+
+    if (removedCodes.has(selectedNodeId)) setSelectedNodeId(nextEdges[0]?.parent || '');
     setDeleteTarget(null);
+    setToastTone('success');
+    setToastMessage(`Removed ${removedCodes.size} node${removedCodes.size === 1 ? '' : 's'} from the visual hierarchy.`);
   }
 
   function resetToDefault() {
-    void persist(initialGraphEdges, { selectedEdgeId: initialGraphEdges[0]?.id || '' });
+    void persist(initialGraphEdges, { selectedEdgeId: initialGraphEdges[0]?.id || '', rootNodeCodes: buildInitialRootNodeCodes(initialGraphEdges, productSpecifications), removedNodeCodes: new Set(), customPositions: {} });
+    setRootNodeCodes(buildInitialRootNodeCodes(initialGraphEdges, productSpecifications));
+    setRemovedNodeCodes(new Set());
     setCustomPositions({});
   }
 
   function handleNodePointerDown(event, node) {
     if (!stageRef.current) return;
-    if (event.target.closest('[data-node-action="remove"]')) return;
+    if (event.target.closest('[data-node-action]')) return;
 
     const rect = stageRef.current.getBoundingClientRect();
     const localX = (event.clientX - rect.left) / fitScale;
@@ -592,13 +848,12 @@ export default function HierarchyBuilderClient({
   }
 
   function openRelationBuilder(overrides = {}) {
-    const defaultParent = selectedNode?.type === 'product'
-      ? (selectedNodeId || productSpecifications[0]?.code || '')
-      : (productSpecifications[0]?.code || '');
+    const child = overrides.child || '';
+    const parent = child ? getDefaultParentForChild(child, overrides.parent || '') : '';
 
     setRelationModal({
-      parent: overrides.parent ?? defaultParent,
-      child: overrides.child || '',
+      parent,
+      child,
       min: overrides.min ?? 0,
       max: overrides.max ?? 1,
       defaultQty: overrides.defaultQty ?? 0,
@@ -612,6 +867,7 @@ export default function HierarchyBuilderClient({
   function closeRelationBuilder() {
     setRelationModal(null);
     setHoveredDropTarget('');
+    setIsCanvasDropActive(false);
   }
 
   function handlePaletteDragStart(event, code) {
@@ -621,8 +877,14 @@ export default function HierarchyBuilderClient({
 
   function openDropModalFromEvent(event, parentCode = '') {
     event.preventDefault();
+    event.stopPropagation();
+    setIsCanvasDropActive(false);
     const draggedCode = event.dataTransfer.getData('text/upc-product-code');
     if (!draggedCode) return;
+    if (parentCode && parentCode === draggedCode) {
+      setSaveError('A node cannot be dropped onto itself.');
+      return;
+    }
 
     let dropPoint = { targetX: null, targetY: null };
     if (stageRef.current) {
@@ -635,14 +897,9 @@ export default function HierarchyBuilderClient({
       };
     }
 
-    const parentType = parentCode ? nodeLookup.get(parentCode)?.type : 'product';
-    const childType = nodeLookup.get(draggedCode)?.type;
-    const defaultLane = laneForNodeTypes(parentType, childType) || 'bundle';
-
     openRelationBuilder({
-      parent: parentCode,
+      parent: parentCode || '',
       child: draggedCode,
-      lane: defaultLane,
       source: parentCode ? 'node-drop' : 'canvas-drop',
       prelinkedTarget: parentCode,
       ...dropPoint,
@@ -651,18 +908,58 @@ export default function HierarchyBuilderClient({
 
   async function submitRelationBuilder() {
     if (!relationModal) return;
-    if (Number.isFinite(Number(relationModal.targetX)) && Number.isFinite(Number(relationModal.targetY))) {
-      setCustomPositions((prev) => ({
-        ...prev,
+    const previousPositions = deepCloneValue(customPositions) || {};
+
+    const nextPositions = Number.isFinite(Number(relationModal.targetX)) && Number.isFinite(Number(relationModal.targetY))
+      ? {
+        ...customPositions,
         [relationModal.child]: {
           x: relationModal.targetX,
           y: relationModal.targetY,
         },
-      }));
+      }
+      : customPositions;
+
+    if (nextPositions !== customPositions) {
+      setCustomPositions(nextPositions);
     }
 
-    const saved = await addBundleEdge(relationModal.parent, relationModal.child, relationModal);
-    if (saved) closeRelationBuilder();
+    const saved = await applyRelationshipChange(relationModal.parent, relationModal.child, {
+      ...relationModal,
+      customPositions: nextPositions,
+    });
+    if (saved) {
+      closeRelationBuilder();
+      return;
+    }
+    setCustomPositions(previousPositions);
+  }
+
+  function openRelationshipManager(event, node) {
+    event.stopPropagation();
+    const incoming = getIncomingEdges(edges, node.code)[0];
+    setRelationshipManager({
+      nodeCode: node.code,
+      nodeLabel: node.label,
+      parent: incoming?.parent || '__root__',
+      min: incoming?.min ?? 0,
+      max: incoming?.max ?? 1,
+      defaultQty: incoming?.defaultQty ?? 0,
+    });
+  }
+
+  function closeRelationshipManager() {
+    setRelationshipManager(null);
+  }
+
+  async function submitRelationshipManager() {
+    if (!relationshipManager) return;
+    const saved = await applyRelationshipChange(
+      relationshipManager.parent,
+      relationshipManager.nodeCode,
+      relationshipManager,
+    );
+    if (saved) closeRelationshipManager();
   }
 
   useEffect(() => {
@@ -679,9 +976,9 @@ export default function HierarchyBuilderClient({
 
   return (
     <div className={styles.wrapper}>
-      {saveError ? <p className="ds-field__error">{saveError}</p> : null}
+      {saveError ? <p className={cx('ds-field__error', styles.fullBleed)}>{saveError}</p> : null}
       {toastMessage ? (
-        <div className={styles.toastError} role="status">
+        <div className={cx(styles.toastNotice, styles.fullBleed)} data-tone={toastTone} role="status">
           {toastMessage}
           <button type="button" onClick={() => setToastMessage('')} aria-label="Dismiss rollback notice">×</button>
         </div>
@@ -851,7 +1148,7 @@ export default function HierarchyBuilderClient({
                       </div>
                       <div className={styles.inlineActions}>
                         <Button onClick={updateSelectedBundleEdge} loading={saving}>Save edge</Button>
-                        <Button variant="danger" onClick={() => setDeleteTarget(selectedEdge)}>Delete edge</Button>
+                        <Button variant="danger" onClick={() => setDeleteTarget({ kind: 'edge', edge: selectedEdge })}>Delete edge</Button>
                       </div>
                     </>
                   ) : null}
@@ -922,8 +1219,9 @@ export default function HierarchyBuilderClient({
       </div>
 
       <Card
+        className={styles.canvasCard}
         title="Visual hierarchy studio"
-        description="The full product → service → resource structure is rendered below in one connected graph. Drag nodes to rearrange the layout, drag palette items into the stage to open a relation builder, and remove bundle edges with the minus action on child nodes."
+        description="The full product → service → resource structure is rendered below in one connected graph. Drag nodes to rearrange the layout, drag palette items into the stage to open a relation builder, drop onto highlighted nodes or the canvas, manage parents with the cog action, and remove complete subtrees with the minus action."
         padding="lg"
         actions={(
           <div className={styles.legendRow}>
@@ -935,8 +1233,19 @@ export default function HierarchyBuilderClient({
       >
         <div className={styles.canvasViewportFull} ref={viewportRef}>
           <div
-            className={styles.canvasSurfaceFull}
-            onDragOver={(event) => event.preventDefault()}
+            className={cx(styles.canvasSurfaceFull, isCanvasDropActive && styles.canvasSurfaceDropActive)}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              setIsCanvasDropActive(true);
+            }}
+            onDragOver={(event) => {
+              event.preventDefault();
+              event.dataTransfer.dropEffect = 'copy';
+              setIsCanvasDropActive(true);
+            }}
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setIsCanvasDropActive(false);
+            }}
             onDrop={(event) => openDropModalFromEvent(event)}
             style={{ minHeight: `${stageHeight}px` }}
           >
@@ -958,7 +1267,7 @@ export default function HierarchyBuilderClient({
               <div className={styles.laneLabel} style={{ left: 'var(--studio-resource-lane-left)' }}>Resources</div>
 
               {nodes.map((node) => {
-                const removableBundleEdge = edges.find((edge) => edge.child === node.code);
+                const incomingEdge = getIncomingEdges(edges, node.code)[0] || null;
                 return (
                   <div
                     key={node.code}
@@ -993,20 +1302,31 @@ export default function HierarchyBuilderClient({
                       openDropModalFromEvent(event, node.code);
                     }}
                   >
-                    {removableBundleEdge ? (
+                    <div className={styles.nodeActionBar} data-node-action="bar">
                       <button
                         type="button"
                         data-node-action="remove"
-                        className={styles.nodeRemoveButton}
-                        aria-label={`Remove relationship for ${node.label}`}
+                        className={styles.nodeActionButtonDanger}
+                        aria-label={`Completely remove ${node.label} from the structure`}
+                        title="Remove from structure"
                         onClick={(event) => {
                           event.stopPropagation();
-                          setDeleteTarget(removableBundleEdge);
+                          setDeleteTarget({ kind: 'node', node, incomingEdge });
                         }}
                       >
                         −
                       </button>
-                    ) : null}
+                      <button
+                        type="button"
+                        data-node-action="settings"
+                        className={styles.nodeActionButton}
+                        aria-label={`Manage relationship for ${node.label}`}
+                        title="Manage relationship"
+                        onClick={(event) => openRelationshipManager(event, node)}
+                      >
+                        ⚙
+                      </button>
+                    </div>
                     <span className={styles.graphNodeType}>{node.type}</span>
                     <strong className={styles.graphNodeTitle}>{node.label}</strong>
                     <code className={styles.graphNodeCode}>{node.code}</code>
@@ -1027,18 +1347,34 @@ export default function HierarchyBuilderClient({
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
-        title="Delete hierarchy edge"
-        description="This removes the selected relationship from the persisted hierarchy graph."
+        title={deleteTarget?.kind === 'node' ? 'Remove element from structure' : 'Delete hierarchy relationship'}
+        description={deleteTarget?.kind === 'node'
+          ? 'Are you sure you want to completely remove this element from the structure? This action will detach it and remove its associated characteristics from the hierarchy.'
+          : 'This removes the selected relationship from the persisted hierarchy graph and keeps the child as a root-level node.'}
         actions={(
           <>
             <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</Button>
-            <Button variant="danger" onClick={removeEdge} loading={saving}>Delete edge</Button>
+            {deleteTarget?.kind === 'node' ? (
+              <Button variant="danger" onClick={removeNodeFromStructure} loading={saving}>Remove</Button>
+            ) : (
+              <Button variant="danger" onClick={removeEdge} loading={saving}>Delete edge</Button>
+            )}
           </>
         )}
       >
-        {deleteTarget ? (
+        {deleteTarget?.kind === 'node' ? (
+          <div className={styles.relationModalBody}>
+            <p>
+              Remove <strong>{deleteTarget.node.label}</strong> (<code>{deleteTarget.node.code}</code>) from <strong>{catalogTitle}</strong>?
+            </p>
+            <p className={styles.mutedText}>
+              Descendant nodes are removed from the canvas as well to prevent orphan branches. Catalog definitions remain in the palette, so the element can be added again later.
+            </p>
+          </div>
+        ) : null}
+        {deleteTarget?.kind === 'edge' ? (
           <p>
-            Remove <code>{deleteTarget.parent}</code> → <code>{deleteTarget.child}</code> from <strong>{catalogTitle}</strong>?
+            Remove <code>{deleteTarget.edge.parent}</code> → <code>{deleteTarget.edge.child}</code> from <strong>{catalogTitle}</strong>?
           </p>
         ) : null}
       </Modal>
@@ -1046,8 +1382,8 @@ export default function HierarchyBuilderClient({
       <Modal
         open={Boolean(relationModal)}
         onClose={closeRelationBuilder}
-        title="Create bundle relationship"
-        description="Choose the parent, child and quantities before the relationship is added to the visual hierarchy."
+        title="Create relationship"
+        description="Choose the parent, child and cardinality before the relationship is added to the visual hierarchy. The child will be re-parented immutably if it already exists in another branch."
         actions={(
           <>
             <Button variant="ghost" onClick={closeRelationBuilder}>Cancel</Button>
@@ -1064,13 +1400,14 @@ export default function HierarchyBuilderClient({
             <label className={styles.filterField}>
               <span>Parent node</span>
               <select value={relationModal.parent} onChange={(event) => setRelationModal((prev) => ({ ...prev, parent: event.target.value }))}>
-                <option value="">Select parent…</option>
-                {[...productSpecifications, ...serviceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                {getValidParentOptions(relationModal.child).map((item) => (
+                  <option value={item.code} key={item.code}>{item.code === '__root__' ? item.name : `${item.code} · ${item.name}`}</option>
+                ))}
               </select>
             </label>
             <label className={styles.filterField}>
               <span>Child node</span>
-              <select value={relationModal.child} onChange={(event) => setRelationModal((prev) => ({ ...prev, child: event.target.value }))}>
+              <select value={relationModal.child} onChange={(event) => updateRelationModalChild(event.target.value)}>
                 <option value="">Select child…</option>
                 {[...productSpecifications, ...serviceSpecifications, ...resourceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
               </select>
@@ -1079,6 +1416,41 @@ export default function HierarchyBuilderClient({
               <Input label="Min" type="number" value={relationModal.min} onChange={(event) => setRelationModal((prev) => ({ ...prev, min: event.target.value }))} />
               <Input label="Max" type="number" value={relationModal.max} onChange={(event) => setRelationModal((prev) => ({ ...prev, max: event.target.value }))} />
               <Input label="Default qty" type="number" value={relationModal.defaultQty} onChange={(event) => setRelationModal((prev) => ({ ...prev, defaultQty: event.target.value }))} />
+            </div>
+          </div>
+        ) : null}
+      </Modal>
+
+      <Modal
+        open={Boolean(relationshipManager)}
+        onClose={closeRelationshipManager}
+        title="Manage node relationship"
+        description="Move the selected node to root level or re-parent it to another valid node without creating circular TMF620 bundle references."
+        actions={(
+          <>
+            <Button variant="ghost" onClick={closeRelationshipManager}>Cancel</Button>
+            <Button onClick={submitRelationshipManager} loading={saving}>Save relationship</Button>
+          </>
+        )}
+      >
+        {relationshipManager ? (
+          <div className={styles.relationModalBody}>
+            <div className={styles.relationHero}>
+              <strong>{relationshipManager.nodeLabel}</strong>
+              <code>{relationshipManager.nodeCode}</code>
+            </div>
+            <label className={styles.filterField}>
+              <span>Parent node</span>
+              <select value={relationshipManager.parent} onChange={(event) => setRelationshipManager((prev) => ({ ...prev, parent: event.target.value }))}>
+                {getValidParentOptions(relationshipManager.nodeCode).map((item) => (
+                  <option value={item.code} key={item.code}>{item.code === '__root__' ? item.name : `${item.code} · ${item.name}`}</option>
+                ))}
+              </select>
+            </label>
+            <div className={styles.compactGrid}>
+              <Input label="Min" type="number" value={relationshipManager.min} onChange={(event) => setRelationshipManager((prev) => ({ ...prev, min: event.target.value }))} />
+              <Input label="Max" type="number" value={relationshipManager.max} onChange={(event) => setRelationshipManager((prev) => ({ ...prev, max: event.target.value }))} />
+              <Input label="Default qty" type="number" value={relationshipManager.defaultQty} onChange={(event) => setRelationshipManager((prev) => ({ ...prev, defaultQty: event.target.value }))} />
             </div>
           </div>
         ) : null}
