@@ -27,3 +27,12 @@
 5. Hierarchy graph edits must be immutable and optimistic: clone edge arrays before setting state, persist asynchronously, confirm from server response, and rollback the previous state on failure.
 6. Product→service and service→resource mappings must be persisted together with bundle hierarchy edges; rebuilding state from only bundle edges drops visual relationships and causes graph/database drift.
 7. Long structure palettes should be grouped in default-collapsed accordion sections with counts to reduce cognitive load and avoid unusable sidebars on laptop viewports.
+
+## 2026-04-26 - Hierarchy Studio spatial/DnD/node lifecycle hardening
+1. A hierarchy canvas must not render every catalog definition by default; it should render active hierarchy/root nodes only, while the palette remains the source for available definitions. Otherwise relationship deletion leaves misleading orphan nodes on screen.
+2. Visual root nodes and intentionally removed nodes need their own persisted UI state in metadata; edge persistence alone cannot distinguish between an empty hierarchy and a deliberately removed root node.
+3. Node-level action icons must call `stopPropagation()` and be excluded from pointer-drag handlers, otherwise settings/delete clicks can accidentally start node drag or selection flows.
+4. Re-parenting should be implemented as an immutable relationship upsert: remove the child’s previous incoming edge, validate the new parent/child lane, prevent bundle cycles, then persist and rollback as one unit.
+5. Destructive node removal should use an explicit confirmation modal and remove descendants by default to avoid creating new orphan branches.
+6. Drag-and-drop creation needs both a pending modal payload and a final submit handler that updates state, persists, closes the modal, and reports success; missing any one of these steps makes the UI appear inert.
+7. Large enterprise graph editors should use side-by-side palette/canvas layouts and local scroll containers to preserve viewport space on laptop resolutions.

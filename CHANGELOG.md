@@ -72,3 +72,12 @@
 - Added mortgage helper functions for PMT annuity calculation, LTV ratio, and conditional premium account fee waiver.
 - Extended rules engine for JTM eligibility hard-stop and REQUIRES auto-add output handling.
 - Added EPC bundle metadata for home-buyer, cold-chain, brewery, optics, and life/health policy bundles.
+
+## [3.8.0] - 2026-04-26
+- Reworked Hierarchy Studio spatial layout so the Structure Palette sits directly beside the visual canvas instead of above it, using a full-width catalog-specific page shell and a two-column grid optimized for laptop viewports.
+- Changed the visual graph to render only active hierarchy/root nodes instead of every catalog definition, preventing detached orphan nodes from staying on the canvas after relationship or subtree removal.
+- Added node action bars with dedicated destructive remove and relationship settings controls, including propagation-safe click handling so node dragging/selection is not accidentally triggered.
+- Added safe node-removal confirmation flow that removes the selected node and descendants from the visual hierarchy, cleans related edges, clears custom positions, and leaves catalog definitions available in the palette for later reuse.
+- Added relationship manager modal for moving nodes to root level or re-parenting them to valid TMF620-compatible parents while preventing product bundle cycles.
+- Hardened drag-and-drop relationship creation with canvas drop highlighting, immutable relationship upsert, automatic modal close on success, rollback-safe custom positions, and success/error toast feedback.
+- Persisted Hierarchy Studio visual state (`rootNodeCodes`, `removedNodeCodes`, `customPositions`) into catalog metadata so removals and root placements survive reloads when Supabase persistence is enabled.
