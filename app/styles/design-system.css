@@ -55,8 +55,8 @@ body {
 
 .ds-button--primary {
   background: var(--color-primary);
-  color: hsl(222 47% 8%);
-  box-shadow: var(--shadow-sm);
+  color: white;
+  box-shadow: 0 10px 22px hsl(160 84% 39% / 0.2);
 }
 
 .ds-button--primary:hover:not(:disabled) {
@@ -64,14 +64,15 @@ body {
 }
 
 .ds-button--secondary {
-  background: transparent;
+  background: var(--color-bg-surface);
   border-color: var(--color-border-strong);
   color: var(--color-text-primary);
 }
 
 .ds-button--secondary:hover:not(:disabled) {
-  background: var(--color-bg-elevated);
+  background: var(--color-primary-soft);
   border-color: var(--color-primary);
+  color: var(--color-primary-strong);
 }
 
 .ds-button--ghost {
@@ -253,11 +254,11 @@ body {
 }
 
 .ds-card[data-tone='danger'] {
-  border-color: hsl(0 60% 28%);
+  border-color: hsl(0 72% 80%);
 }
 
 .ds-card[data-tone='success'] {
-  border-color: hsl(145 42% 28%);
+  border-color: hsl(145 63% 78%);
 }
 
 .ds-modal-root {

@@ -13,3 +13,8 @@
 10. Grid pricing for optical SPH/CYL works more reliably when values are converted to scaled integers before range matching.
 11. Rules output benefits from carrying both `errors` and `actions` so constraint-side effects (like truck split allocations) are explicit and testable.
 12. Mobile-first accessibility can be improved globally by setting minimum 44px control height and reinforced invalid-state outlines.
+
+## 2026-04-26
+1. Avoid mixing dark translucent backgrounds with slate text in the catalog shell; global page, card, table, form and builder styles must remain light by default.
+2. Builder sidebars with long template lists need sticky overflow control and a single-column responsive fallback to prevent inaccessible controls on laptop viewports.
+3. Shared design-system button tokens must be checked together with page-level classes so primary and secondary controls keep readable contrast after theme changes.

@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.6.0] - 2026-04-26
+- Reworked the main layout and catalog builder into a light Enterprise SaaS UI theme.
+- Removed dark card/hero/input backgrounds that caused unreadable contrast.
+- Added responsive grid safeguards, sticky builder sidebar overflow control and accessible focus/hover states.
+- Kept backend, persistence, data and API behavior unchanged; UI-only CSS/token update.
+
 ## [2.4.0] - 2026-04-25
 - Added 6 industry payload examples (Telecom, Automotive, Banking, Logistics, Brewery, Optics).
 - Added cross-industry compatibility validator for biological and physical conflicts.
