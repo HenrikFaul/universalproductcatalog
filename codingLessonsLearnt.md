@@ -18,3 +18,12 @@
 1. Avoid mixing dark translucent backgrounds with slate text in the catalog shell; global page, card, table, form and builder styles must remain light by default.
 2. Builder sidebars with long template lists need sticky overflow control and a single-column responsive fallback to prevent inaccessible controls on laptop viewports.
 3. Shared design-system button tokens must be checked together with page-level classes so primary and secondary controls keep readable contrast after theme changes.
+
+## 2026-04-26 - Critical catalog clone/import/hierarchy fixes
+1. Catalog cloning must never reuse the source slug or only shallow-copy JSON blobs; even in a JSONB-backed runtime table, all internal TMF620 code/id references should be remapped through one ID map before insertion.
+2. Supabase slug conflicts should be resolved before POST by querying for candidate uniqueness; relying on duplicate-key errors creates a poor UX and makes clone/import flows look broken.
+3. A JSON export feature should have a reverse import path with strict shape validation before mutating editor state; accept both exported productSpecifications and starterProducts-style blueprints.
+4. Hierarchy Studio belongs inside catalog context, not global navigation, because catalog_id/slug is required to interpret and persist relationships safely.
+5. Hierarchy graph edits must be immutable and optimistic: clone edge arrays before setting state, persist asynchronously, confirm from server response, and rollback the previous state on failure.
+6. Product→service and service→resource mappings must be persisted together with bundle hierarchy edges; rebuilding state from only bundle edges drops visual relationships and causes graph/database drift.
+7. Long structure palettes should be grouped in default-collapsed accordion sections with counts to reduce cognitive load and avoid unusable sidebars on laptop viewports.

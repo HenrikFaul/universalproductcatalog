@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.0] - 2026-04-26
+- Added catalog-specific deep clone endpoint and UI action that generates a unique slug/catalog code and remaps internal TMF620 product/offering/service/resource references through an ID map.
+- Added Blueprint JSON import UX in the catalog builder with client-side schema validation for catalog/product/characteristic sections and automatic conflict-safe persistence via unique slug generation.
+- Removed global Hierarchy Studio navigation and added catalog-local tabs on overview, hierarchy and characteristic pages.
+- Reworked Hierarchy Studio palette into default-collapsed accordion groups for Products, Services, Resources and Characteristics with count badges and subtle category backgrounds.
+- Fixed hierarchy state synchronization by applying immutable optimistic graph updates, persisting service/resource mappings, confirming server state and rolling back failed mutations with a visible toast.
+
 ## [3.6.0] - 2026-04-26
 - Reworked the main layout and catalog builder into a light Enterprise SaaS UI theme.
 - Removed dark card/hero/input backgrounds that caused unreadable contrast.

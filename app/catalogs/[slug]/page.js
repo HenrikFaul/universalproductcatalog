@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { resolveCatalogBySlug } from '../../lib/catalogPersistence';
+import CloneCatalogButton from '../../../components/catalog/CloneCatalogButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,7 @@ export default async function CatalogDetailsPage({ params }) {
         <h1 className="section-title">{catalog.title}</h1>
         <p className="hero-text">{catalog.description}</p>
         <div className="hero-actions">
-          <Link href="/catalogs/new?industry=telecommunications" className="primary-button">Clone as new catalog</Link>
+          <CloneCatalogButton slug={catalog.slug} />
           <Link href={`/catalogs/${catalog.slug}/characteristics`} className="secondary-button">Manage characteristics</Link>
           <Link href={`/catalogs/${catalog.slug}/hierarchy`} className="secondary-button">Open hierarchy builder</Link>
           <Link href="/catalogs" className="secondary-button">Back to catalogs</Link>
@@ -44,6 +45,12 @@ export default async function CatalogDetailsPage({ params }) {
           <span className="tag">{catalog.tmfVersion}</span>
         </div>
       </section>
+
+      <nav className="catalog-local-tabs" aria-label="Catalog sections">
+        <Link href={`/catalogs/${catalog.slug}`} className="catalog-local-tab active">Overview</Link>
+        <Link href={`/catalogs/${catalog.slug}/hierarchy`} className="catalog-local-tab">Hierarchy Studio</Link>
+        <Link href={`/catalogs/${catalog.slug}/characteristics`} className="catalog-local-tab">Characteristics</Link>
+      </nav>
 
       <section className="stats-grid catalog-stats">
         <article className="stat-card"><span className="stat-value">{catalog.productSpecifications.length}</span><span className="stat-label">Product specifications</span></article>

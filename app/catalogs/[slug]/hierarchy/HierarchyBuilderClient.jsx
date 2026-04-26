@@ -40,6 +40,17 @@ function normalizeEdge(edge) {
   };
 }
 
+function cloneEdges(edges) {
+  return edges.map((edge) => normalizeEdge({ ...edge }));
+}
+
+function buildEdgesFromServiceMapping(serviceMapping) {
+  return serviceMapping.flatMap((row) => [
+    { parent: row.productSpec, child: row.serviceSpec, min: 1, max: 1, defaultQty: 1, lane: 'service' },
+    ...(row.resourceSpecs || []).map((resourceCode) => ({ parent: row.serviceSpec, child: resourceCode, min: 0, max: 1, defaultQty: 0, lane: 'resource' })),
+  ]).map(normalizeEdge);
+}
+
 function buildCharacteristicStats(characteristicDefinitions) {
   return characteristicDefinitions.reduce((accumulator, item) => {
     const current = accumulator[item.appliesTo] || {
@@ -196,14 +207,13 @@ function wouldCreateCycle(edges, parent, child) {
   return false;
 }
 
-function buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceLaneEdges, customPositions) {
+function buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions) {
   const autoProductPositions = buildProductAutoPositions(productSpecifications, bundleEdges);
-  const servicePositions = buildServiceResourcePositions(serviceSpecifications, resourceSpecifications, serviceLaneEdges.reduce((rows, edge) => {
-    if (edge.lane !== 'service') return rows;
-    const existing = rows.find((row) => row.productSpec === edge.parent && row.serviceSpec === edge.child);
-    if (!existing) rows.push({ productSpec: edge.parent, serviceSpec: edge.child, resourceSpecs: [] });
-    return rows;
-  }, []));
+  const servicePositions = buildServiceResourcePositions(
+    serviceSpecifications,
+    resourceSpecifications,
+    buildServiceMappingFromEdges(serviceResourceEdges),
+  );
 
   const products = productSpecifications.map((item) => ({
     ...nodeIndex.get(item.code),
@@ -292,27 +302,36 @@ export default function HierarchyBuilderClient({
     [characteristicDefinitions, productSpecifications, resourceSpecifications, serviceSpecifications],
   );
 
-  const serviceLaneEdges = useMemo(
-    () => serviceMapping.flatMap((row) => [
-      { parent: row.productSpec, child: row.serviceSpec, min: 1, max: 1, defaultQty: 1, lane: 'service' },
-      ...(row.resourceSpecs || []).map((resourceCode) => ({ parent: row.serviceSpec, child: resourceCode, min: 0, max: 1, defaultQty: 0, lane: 'resource' })),
-    ]),
+  const initialServiceResourceEdges = useMemo(
+    () => buildEdgesFromServiceMapping(serviceMapping),
     [serviceMapping],
   );
 
-  const [edges, setEdges] = useState(() => [...initialHierarchy.map(normalizeEdge), ...serviceLaneEdges.map(normalizeEdge)]);
+  const initialGraphEdges = useMemo(
+    () => cloneEdges([...initialHierarchy.map(normalizeEdge), ...initialServiceResourceEdges]),
+    [initialHierarchy, initialServiceResourceEdges],
+  );
+
+  const [edges, setEdges] = useState(() => cloneEdges(initialGraphEdges));
   const [laneFilter, setLaneFilter] = useState('all');
   const [selectedEdgeId, setSelectedEdgeId] = useState('');
   const [selectedNodeId, setSelectedNodeId] = useState(productSpecifications[0]?.code || '');
   const [inspectorTab, setInspectorTab] = useState('overview');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [saveError, setSaveError] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const [customPositions, setCustomPositions] = useState({});
   const [draft, setDraft] = useState({ parent: productSpecifications[0]?.code || '', child: '', min: 0, max: 1, defaultQty: 0 });
   const [viewportWidth, setViewportWidth] = useState(0);
   const [hoveredDropTarget, setHoveredDropTarget] = useState('');
   const [relationModal, setRelationModal] = useState(null);
+  const [openPaletteSections, setOpenPaletteSections] = useState({
+    products: false,
+    services: false,
+    resources: false,
+    characteristics: false,
+  });
   const dragMetaRef = useRef(null);
   const viewportRef = useRef(null);
   const stageRef = useRef(null);
@@ -370,10 +389,11 @@ export default function HierarchyBuilderClient({
   }, []);
 
   const bundleEdges = useMemo(() => edges.filter((item) => item.lane === 'bundle'), [edges]);
+  const serviceResourceEdges = useMemo(() => edges.filter((item) => item.lane === 'service' || item.lane === 'resource'), [edges]);
 
   const nodes = useMemo(
-    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceLaneEdges, customPositions),
-    [bundleEdges, customPositions, nodeIndex, productSpecifications, resourceSpecifications, serviceLaneEdges, serviceSpecifications],
+    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions),
+    [bundleEdges, customPositions, nodeIndex, productSpecifications, resourceSpecifications, serviceResourceEdges, serviceSpecifications],
   );
 
   const nodeLookup = useMemo(() => new Map(nodes.map((node) => [node.code, node])), [nodes]);
@@ -407,7 +427,7 @@ export default function HierarchyBuilderClient({
 
   const selectedEdge = edges.find((item) => item.id === selectedEdgeId) || null;
   const selectedNode = nodeLookup.get(selectedNodeId) || null;
-  const selectedNodeIncoming = bundleEdges.filter((edge) => edge.child === selectedNodeId);
+  const selectedNodeIncoming = edges.filter((edge) => edge.child === selectedNodeId);
   const selectedNodeOutgoing = edges.filter((edge) => edge.parent === selectedNodeId);
   const paletteItems = useMemo(() => ([
     ...productSpecifications.map((item) => ({ ...item, type: 'product' })),
@@ -427,12 +447,40 @@ export default function HierarchyBuilderClient({
     };
   })), [edges, nodeIndex, productSpecifications, resourceSpecifications, serviceSpecifications]);
 
-  async function persist(nextEdges) {
+  const characteristicPaletteItems = useMemo(() => characteristicDefinitions.map((item, index) => ({
+    code: item.name || `CHAR_${index + 1}`,
+    type: 'characteristic',
+    label: item.displayName || item.name || `Characteristic ${index + 1}`,
+    characteristicCount: 0,
+    incoming: item.appliesTo ? 1 : 0,
+    outgoing: 0,
+    appliesTo: item.appliesTo || 'unmapped',
+  })), [characteristicDefinitions]);
+
+  const paletteGroups = useMemo(() => [
+    { key: 'products', label: 'Products', tone: styles.paletteGroupProducts, items: paletteItems.filter((item) => item.type === 'product'), draggable: true },
+    { key: 'services', label: 'Services', tone: styles.paletteGroupServices, items: paletteItems.filter((item) => item.type === 'service'), draggable: true },
+    { key: 'resources', label: 'Resources', tone: styles.paletteGroupResources, items: paletteItems.filter((item) => item.type === 'resource'), draggable: true },
+    { key: 'characteristics', label: 'Characteristics', tone: styles.paletteGroupCharacteristics, items: characteristicPaletteItems, draggable: false },
+  ], [characteristicPaletteItems, paletteItems]);
+
+  async function persist(nextEdges, options = {}) {
+    const previousEdges = cloneEdges(edges);
+    const previousSelectedEdgeId = selectedEdgeId;
+    const optimisticEdges = cloneEdges(nextEdges);
+    const optimisticSelectedEdgeId = options.selectedEdgeId ?? selectedEdgeId;
+
     setSaving(true);
     setSaveError('');
+    setToastMessage('');
+    setEdges(optimisticEdges);
+    if (optimisticSelectedEdgeId) setSelectedEdgeId(optimisticSelectedEdgeId);
+
     try {
-      const bundleOnlyEdges = nextEdges.filter((item) => item.lane === 'bundle').map(({ id, ...rest }) => rest);
-      const serviceMappingFromEdges = buildServiceMappingFromEdges(nextEdges);
+      const bundleOnlyEdges = optimisticEdges
+        .filter((item) => item.lane === 'bundle')
+        .map(({ id, ...rest }) => rest);
+      const serviceMappingFromEdges = buildServiceMappingFromEdges(optimisticEdges);
       const response = await fetch(`/api/catalogs/${catalogSlug}/hierarchy`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -442,13 +490,19 @@ export default function HierarchyBuilderClient({
       if (!response.ok || !payload.ok) {
         throw new Error(payload.error || 'Failed to persist the hierarchy graph.');
       }
+
       const persistedBundleEdges = (payload.items || []).map(normalizeEdge);
-      const next = [...persistedBundleEdges, ...serviceLaneEdges.map(normalizeEdge)];
-      setEdges(next);
-      if (!next.find((item) => item.id === selectedEdgeId)) setSelectedEdgeId(next[0]?.id || '');
+      const persistedServiceResourceEdges = buildEdgesFromServiceMapping(payload.serviceMapping || payload.item?.serviceMapping || serviceMappingFromEdges);
+      const confirmedEdges = cloneEdges([...persistedBundleEdges, ...persistedServiceResourceEdges]);
+      setEdges(confirmedEdges);
+      if (!confirmedEdges.find((item) => item.id === optimisticSelectedEdgeId)) setSelectedEdgeId(confirmedEdges[0]?.id || '');
       return true;
     } catch (error) {
-      setSaveError(error instanceof Error ? error.message : String(error));
+      const message = error instanceof Error ? error.message : String(error);
+      setEdges(previousEdges);
+      setSelectedEdgeId(previousSelectedEdgeId);
+      setSaveError(message);
+      setToastMessage(`Change rolled back: ${message}`);
       return false;
     } finally {
       setSaving(false);
@@ -488,32 +542,33 @@ export default function HierarchyBuilderClient({
       return false;
     }
 
-    const nextEdges = [
+    const nextEdge = normalizeEdge({ parent, child, min: options.min, max: options.max, defaultQty: options.defaultQty, lane });
+    const nextEdges = cloneEdges([
       ...edges,
-      normalizeEdge({ parent, child, min: options.min, max: options.max, defaultQty: options.defaultQty, lane }),
-    ];
-    const saved = await persist(nextEdges);
+      nextEdge,
+    ]);
+    const saved = await persist(nextEdges, { selectedEdgeId: nextEdge.id });
     if (saved) setSelectedNodeId(child);
     return saved;
   }
 
   async function updateSelectedBundleEdge() {
-    if (!selectedEdge || selectedEdge.lane !== 'bundle') return;
-    const nextEdges = edges.map((edge) => (edge.id === selectedEdge.id
-      ? normalizeEdge({ ...edge, min: draft.min, max: draft.max, defaultQty: draft.defaultQty })
-      : edge));
-    await persist(nextEdges);
+    if (!selectedEdge) return;
+    const nextEdges = cloneEdges(edges.map((edge) => (edge.id === selectedEdge.id
+      ? normalizeEdge({ ...edge, parent: draft.parent, child: draft.child, min: draft.min, max: draft.max, defaultQty: draft.defaultQty })
+      : edge)));
+    await persist(nextEdges, { selectedEdgeId: selectedEdge.id });
   }
 
   async function removeEdge() {
     if (!deleteTarget) return;
-    const nextEdges = edges.filter((item) => item.id !== deleteTarget.id);
-    await persist(nextEdges);
+    const nextEdges = cloneEdges(edges.filter((item) => item.id !== deleteTarget.id));
+    await persist(nextEdges, { selectedEdgeId: nextEdges[0]?.id || '' });
     setDeleteTarget(null);
   }
 
   function resetToDefault() {
-    void persist(initialHierarchy.map(normalizeEdge));
+    void persist(initialGraphEdges, { selectedEdgeId: initialGraphEdges[0]?.id || '' });
     setCustomPositions({});
   }
 
@@ -625,6 +680,12 @@ export default function HierarchyBuilderClient({
   return (
     <div className={styles.wrapper}>
       {saveError ? <p className="ds-field__error">{saveError}</p> : null}
+      {toastMessage ? (
+        <div className={styles.toastError} role="status">
+          {toastMessage}
+          <button type="button" onClick={() => setToastMessage('')} aria-label="Dismiss rollback notice">×</button>
+        </div>
+      ) : null}
 
       <div className={styles.metricStrip}>
         <Card padding="md" className={styles.metricCard}>
@@ -653,28 +714,58 @@ export default function HierarchyBuilderClient({
         <div className={styles.leftRailStack}>
           <Card
             title="Structure palette"
-            description="Drag a product into the visual studio below. A relation builder dialog lets you choose the parent, child and bundle cardinality before saving."
+            description="Drag a product, service or resource into the visual studio below. A relation builder dialog lets you choose the parent, child and bundle cardinality before saving."
             padding="md"
           >
-            <div className={styles.paletteList}>
-              {paletteItems.map((item) => (
-                <button
-                  key={item.code}
-                  type="button"
-                  className={cx(styles.paletteItem, selectedNodeId === item.code && styles.paletteItemActive)}
-                  draggable
-                  onDragStart={(event) => handlePaletteDragStart(event, item.code)}
-                  onClick={() => syncSelectedNode(item.code)}
-                >
-                  <div className={styles.paletteItemTop}>
-                    <span className={styles.paletteItemCode}>{item.code}</span>
-                    <span className={styles.paletteBadge}>{item.type}</span>
-                    <span className={styles.paletteBadge}>{item.characteristicCount} char</span>
-                  </div>
-                  <strong>{item.label}</strong>
-                  <span className={styles.paletteMeta}>Parents {item.incoming} · Children {item.outgoing}</span>
-                </button>
-              ))}
+            <div className={styles.paletteAccordion}>
+              {paletteGroups.map((group) => {
+                const isOpen = Boolean(openPaletteSections[group.key]);
+                return (
+                  <section key={group.key} className={styles.paletteSection}>
+                    <button
+                      type="button"
+                      className={styles.paletteSectionHeader}
+                      aria-expanded={isOpen}
+                      onClick={() => setOpenPaletteSections((prev) => ({ ...prev, [group.key]: !prev[group.key] }))}
+                    >
+                      <span>{group.label}</span>
+                      <span className={styles.paletteSectionBadge}>
+                        <span>{group.key}</span>
+                        <strong>{group.items.length}</strong>
+                      </span>
+                    </button>
+                    {isOpen ? (
+                      <div className={cx(styles.paletteList, group.tone)}>
+                        {group.items.map((item) => (
+                          <button
+                            key={`${group.key}-${item.code}`}
+                            type="button"
+                            className={cx(styles.paletteItem, selectedNodeId === item.code && styles.paletteItemActive)}
+                            draggable={group.draggable}
+                            onDragStart={group.draggable ? (event) => handlePaletteDragStart(event, item.code) : undefined}
+                            onClick={() => { if (group.draggable) syncSelectedNode(item.code); }}
+                          >
+                            <div className={styles.paletteItemTop}>
+                              <span className={styles.paletteItemCode}>{item.code}</span>
+                              <span className={styles.paletteBadge}>{item.type}</span>
+                              {item.type === 'characteristic' ? (
+                                <span className={styles.paletteBadge}>applies {item.appliesTo}</span>
+                              ) : (
+                                <span className={styles.paletteBadge}>{item.characteristicCount} char</span>
+                              )}
+                            </div>
+                            <strong>{item.label}</strong>
+                            <span className={styles.paletteMeta}>
+                              {item.type === 'characteristic' ? `Mapped to ${item.appliesTo}` : `Parents ${item.incoming} · Children ${item.outgoing}`}
+                            </span>
+                          </button>
+                        ))}
+                        {group.items.length === 0 ? <p className={styles.mutedText}>No {group.label.toLowerCase()} available in this catalog.</p> : null}
+                      </div>
+                    ) : null}
+                  </section>
+                );
+              })}
             </div>
           </Card>
 
@@ -773,7 +864,7 @@ export default function HierarchyBuilderClient({
                 <h4>Create bundle relationship</h4>
                 <p className={styles.mutedText}>Prefer drag-and-drop in the studio for a faster visual flow, or use the manual builder below.</p>
                 <label className={styles.filterField}>
-                  <span>Parent product</span>
+                  <span>Parent node</span>
                   <select value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))}>
                     {[...productSpecifications, ...serviceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
                   </select>
@@ -891,13 +982,13 @@ export default function HierarchyBuilderClient({
                     }}
                     onPointerDown={(event) => handleNodePointerDown(event, node)}
                     onDragOver={(event) => {
-                      if (node.type !== 'product') return;
+                      if (node.type === 'resource') return;
                       event.preventDefault();
                       setHoveredDropTarget(node.code);
                     }}
                     onDragLeave={() => setHoveredDropTarget('')}
                     onDrop={(event) => {
-                      if (node.type !== 'product') return;
+                      if (node.type === 'resource') return;
                       setHoveredDropTarget('');
                       openDropModalFromEvent(event, node.code);
                     }}
@@ -971,14 +1062,14 @@ export default function HierarchyBuilderClient({
               {relationModal.prelinkedTarget ? <span className={styles.inlineToken}>Target {relationModal.prelinkedTarget}</span> : null}
             </div>
             <label className={styles.filterField}>
-              <span>Parent product</span>
+              <span>Parent node</span>
               <select value={relationModal.parent} onChange={(event) => setRelationModal((prev) => ({ ...prev, parent: event.target.value }))}>
                 <option value="">Select parent…</option>
                 {[...productSpecifications, ...serviceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
               </select>
             </label>
             <label className={styles.filterField}>
-              <span>Child product</span>
+              <span>Child node</span>
               <select value={relationModal.child} onChange={(event) => setRelationModal((prev) => ({ ...prev, child: event.target.value }))}>
                 <option value="">Select child…</option>
                 {[...productSpecifications, ...serviceSpecifications, ...resourceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}

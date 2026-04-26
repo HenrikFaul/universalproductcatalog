@@ -43,6 +43,12 @@ export default async function CatalogHierarchyPage({ params }) {
         </div>
       </section>
 
+      <nav className="catalog-local-tabs" aria-label="Catalog sections">
+        <Link href={`/catalogs/${catalog.slug}`} className="catalog-local-tab">Overview</Link>
+        <Link href={`/catalogs/${catalog.slug}/hierarchy`} className="catalog-local-tab active">Hierarchy Studio</Link>
+        <Link href={`/catalogs/${catalog.slug}/characteristics`} className="catalog-local-tab">Characteristics</Link>
+      </nav>
+
       <HierarchyBuilderClient
         catalogSlug={catalog.slug}
         catalogTitle={catalog.title}

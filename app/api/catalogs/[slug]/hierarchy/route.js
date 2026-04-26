@@ -9,13 +9,15 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(_request, { params }) {
   try {
-    const catalog = await resolveCatalogBySlug(params.slug);
+    const { slug } = await params;
+    const catalog = await resolveCatalogBySlug(slug);
     if (!catalog) {
       return NextResponse.json({ ok: false, error: 'Catalog not found' }, { status: 404 });
     }
     return NextResponse.json({
       ok: true,
       items: catalog.hierarchy || [],
+      serviceMapping: catalog.serviceMapping || [],
       diagnostics: getPersistenceDiagnostics(),
     });
   } catch (error) {
@@ -29,11 +31,13 @@ export async function GET(_request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const payload = await request.json();
-    const updated = await updatePersistedHierarchy(params.slug, payload.items || [], payload.serviceMapping);
+    const { slug } = await params;
+    const updated = await updatePersistedHierarchy(slug, payload.items || [], payload.serviceMapping);
     return NextResponse.json({
       ok: true,
       item: updated,
       items: updated.hierarchy || [],
+      serviceMapping: updated.serviceMapping || [],
       diagnostics: getPersistenceDiagnostics(),
     });
   } catch (error) {

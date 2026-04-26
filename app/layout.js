@@ -19,7 +19,6 @@ export default function RootLayout({ children }) {
               <Link href="/catalogs">Catalogs</Link>
               <Link href="/modules">Modules</Link>
               <Link href="/industries">Industries</Link>
-              <Link href="/catalogs/telecom-demo/hierarchy">Hierarchy Studio</Link>
             </nav>
           </aside>
           <div className="app-content">{children}</div>

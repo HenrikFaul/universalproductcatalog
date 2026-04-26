@@ -1,17 +1,19 @@
+import { randomUUID } from 'node:crypto';
 import {
   getConfiguredSupabaseUrl,
   getSupabaseTableName,
   hasSupabaseWriteAccess,
   supabaseRest,
-} from './supabaseRest';
+} from './supabaseRest.js';
 import {
   getCatalogTemplateBySlug,
   getDemoCatalogBySlug,
   getDemoCatalogs,
   safeSlug,
-} from './catalogData';
+} from './catalogData.js';
 
 const TABLE_NAME = getSupabaseTableName();
+const MAX_SLUG_ATTEMPTS = 12;
 
 function ensureArray(value) {
   return Array.isArray(value) ? value : [];
@@ -24,6 +26,48 @@ function buildDescriptionFromTemplate(template) {
 function normalizeText(value, fallback = '') {
   const normalized = String(value ?? '').trim();
   return normalized || fallback;
+}
+
+function deepClone(value) {
+  return JSON.parse(JSON.stringify(value ?? null));
+}
+
+function shortToken() {
+  return randomUUID().replace(/-/g, '').slice(0, 8);
+}
+
+function makeCloneCode(oldCode, cloneToken) {
+  const normalized = String(oldCode || 'NODE').trim().replace(/[^A-Za-z0-9_]+/g, '_').replace(/^_+|_+$/g, '');
+  return `${normalized || 'NODE'}_CLONE_${cloneToken.toUpperCase()}`;
+}
+
+function replaceExactReferences(value, idMap) {
+  if (Array.isArray(value)) {
+    return value.map((item) => replaceExactReferences(item, idMap));
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, replaceExactReferences(item, idMap)]),
+    );
+  }
+
+  if (typeof value === 'string' && idMap.has(value)) {
+    return idMap.get(value);
+  }
+
+  return value;
+}
+
+function collectCodes(items, idMap, cloneToken) {
+  ensureArray(items).forEach((item) => {
+    if (item?.code && !idMap.has(item.code)) {
+      idMap.set(item.code, makeCloneCode(item.code, cloneToken));
+    }
+    if (item?.id && !idMap.has(item.id)) {
+      idMap.set(item.id, makeCloneCode(item.id, cloneToken));
+    }
+  });
 }
 
 function buildDefaultTmFExamples(primarySpecCode, primarySpecName, offeringCode, offeringName) {
@@ -58,38 +102,44 @@ export function createCatalogRecordFromBlueprint(blueprint, template) {
   const productSpecifications = ensureArray(blueprint.productSpecifications);
   const serviceSpecifications = ensureArray(blueprint.serviceSpecifications);
   const resourceSpecifications = ensureArray(blueprint.resourceSpecifications);
-  const characteristicDefinitions = ensureArray(blueprint.characteristics);
+  const characteristicDefinitions = ensureArray(blueprint.characteristics || blueprint.characteristicDefinitions);
   const primarySpec =
     productSpecifications[0] ||
     { code: `${catalogCode}_SPEC`, name: `${catalogTitle} Root Product`, category: 'ProductSpecification' };
 
-  const productOfferings = [
-    {
-      code: `PO_${catalogCode.replace(/[^A-Z0-9_]/gi, '_')}`,
-      name: `${catalogTitle} Default Offering`,
-      specificationCode: primarySpec.code,
-      status: 'Draft',
-      validFor: 'open-ended',
-      channels: ['Web'],
-      priceSummary: 'Define pricing',
-      summary: 'Starter offering created from the catalog builder.',
-    },
-  ];
+  const productOfferings = ensureArray(blueprint.productOfferings).length
+    ? ensureArray(blueprint.productOfferings)
+    : [
+      {
+        code: `PO_${catalogCode.replace(/[^A-Z0-9_]/gi, '_')}`,
+        name: `${catalogTitle} Default Offering`,
+        specificationCode: primarySpec.code,
+        status: 'Draft',
+        validFor: 'open-ended',
+        channels: ['Web'],
+        priceSummary: 'Define pricing',
+        summary: 'Starter offering created from the catalog builder.',
+      },
+    ];
 
-  const hierarchy = productSpecifications.slice(1).map((item) => ({
-    parent: primarySpec.code,
-    child: item.code,
-    min: 0,
-    max: 1,
-    defaultQty: 0,
-    lane: 'bundle',
-  }));
+  const hierarchy = ensureArray(blueprint.hierarchy).length
+    ? ensureArray(blueprint.hierarchy)
+    : productSpecifications.slice(1).map((item) => ({
+      parent: primarySpec.code,
+      child: item.code,
+      min: 0,
+      max: 1,
+      defaultQty: 0,
+      lane: 'bundle',
+    }));
 
-  const serviceMapping = serviceSpecifications.map((service, index) => ({
-    productSpec: primarySpec.code,
-    serviceSpec: service.code,
-    resourceSpecs: resourceSpecifications.slice(index, index + 1).map((item) => item.code),
-  }));
+  const serviceMapping = ensureArray(blueprint.serviceMapping).length
+    ? ensureArray(blueprint.serviceMapping)
+    : serviceSpecifications.map((service, index) => ({
+      productSpec: primarySpec.code,
+      serviceSpec: service.code,
+      resourceSpecs: resourceSpecifications.slice(index, index + 1).map((item) => item.code),
+    }));
 
   return {
     slug: safeSlug(catalogCode || catalogTitle),
@@ -99,10 +149,11 @@ export function createCatalogRecordFromBlueprint(blueprint, template) {
     description: buildDescriptionFromTemplate(template),
     sourceKind: 'custom',
     catalog: {
+      ...(blueprint.catalog || {}),
       code: catalogCode,
-      version: '1.0.0',
-      validFor: 'open-ended',
-      businessDomains: [template.title],
+      version: blueprint.catalog?.version || '1.0.0',
+      validFor: blueprint.catalog?.validFor || 'open-ended',
+      businessDomains: blueprint.catalog?.businessDomains || [template.title],
     },
     productSpecifications,
     productOfferings,
@@ -111,15 +162,17 @@ export function createCatalogRecordFromBlueprint(blueprint, template) {
     characteristicDefinitions,
     hierarchy,
     serviceMapping,
-    tmf620Examples: buildDefaultTmFExamples(
+    tmf620Examples: blueprint.tmf620Examples || buildDefaultTmFExamples(
       primarySpec.code,
       primarySpec.name,
-      productOfferings[0].code,
-      productOfferings[0].name,
+      productOfferings[0]?.code,
+      productOfferings[0]?.name,
     ),
     metadata: {
       templateSlug: template.slug,
       templateFocus: template.focus,
+      importSource: blueprint.importSource,
+      ...(blueprint.metadata || {}),
     },
   };
 }
@@ -215,13 +268,86 @@ export async function getPersistedCatalogBySlug(slug) {
   return rowToCatalog(rows[0] || null);
 }
 
+async function ensureUniqueCatalogSlug(baseSlug) {
+  const normalizedBase = safeSlug(baseSlug || `catalog-${shortToken()}`) || `catalog-${shortToken()}`;
+
+  if (!hasSupabaseWriteAccess()) return normalizedBase;
+
+  for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt += 1) {
+    const candidate = attempt === 0 ? normalizedBase : `${normalizedBase}-${shortToken()}`;
+    const existing = await getPersistedCatalogBySlug(candidate);
+    if (!existing) return candidate;
+  }
+
+  return `${normalizedBase}-${Date.now().toString(36)}-${shortToken()}`;
+}
+
 export async function createPersistedCatalog(record) {
+  const rowPayload = catalogToRow({
+    ...record,
+    slug: await ensureUniqueCatalogSlug(record.slug || record.catalog?.code || record.title),
+  });
+
   const rows = await supabaseRest(`${TABLE_NAME}`, {
     method: 'POST',
-    headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
-    body: JSON.stringify(catalogToRow(record)),
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify(rowPayload),
   });
   return rowToCatalog(rows[0]);
+}
+
+export function createDeepClonedCatalogRecord(sourceCatalog) {
+  if (!sourceCatalog) {
+    throw new Error('Source catalog is required for deep clone.');
+  }
+
+  const cloneToken = shortToken();
+  const clone = deepClone(sourceCatalog);
+  const idMap = new Map();
+
+  collectCodes(clone.productSpecifications, idMap, cloneToken);
+  collectCodes(clone.productOfferings, idMap, cloneToken);
+  collectCodes(clone.serviceSpecifications, idMap, cloneToken);
+  collectCodes(clone.resourceSpecifications, idMap, cloneToken);
+
+  const originalCatalogCode = clone.catalog?.code;
+  if (originalCatalogCode) {
+    idMap.set(originalCatalogCode, makeCloneCode(originalCatalogCode, cloneToken));
+  }
+
+  const remapped = replaceExactReferences(clone, idMap);
+  const baseTitle = String(sourceCatalog.title || 'Catalog').replace(/\s+\(Clone [^)]+\)$/i, '');
+  const newCatalogCode = originalCatalogCode
+    ? idMap.get(originalCatalogCode)
+    : `CAT_CLONE_${cloneToken.toUpperCase()}`;
+
+  return {
+    ...remapped,
+    slug: `${safeSlug(sourceCatalog.slug || sourceCatalog.title || 'catalog')}-clone-${cloneToken}`,
+    title: `${baseTitle} (Clone ${cloneToken})`,
+    sourceKind: 'clone',
+    catalog: {
+      ...(remapped.catalog || {}),
+      id: randomUUID(),
+      code: newCatalogCode,
+      version: remapped.catalog?.version || '1.0.0',
+    },
+    metadata: {
+      ...(remapped.metadata || {}),
+      clonedFromSlug: sourceCatalog.slug,
+      cloneToken,
+      idMap: Object.fromEntries(idMap),
+      deepCloneVersion: '2026-04-26',
+    },
+  };
+}
+
+export async function cloneCatalogAsNew(sourceSlug) {
+  const source = await resolveCatalogBySlug(sourceSlug);
+  if (!source) {
+    throw new Error(`Catalog ${sourceSlug} was not found.`);
+  }
+  return createPersistedCatalog(createDeepClonedCatalogRecord(source));
 }
 
 export async function ensurePersistedSeedForSlug(slug) {
