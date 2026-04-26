@@ -3,113 +3,371 @@
   gap: var(--space-5);
 }
 
-.metricsRow {
+.metricStrip {
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.metricValue {
-  margin: 0;
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
+.metricCard {
+  min-height: 9rem;
 }
 
-.mainGrid {
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
-  align-items: start;
-}
-
-.sideRail {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.actionRow,
-.formStack,
-.inspectorStack {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.filterField {
-  display: grid;
-  gap: var(--space-2);
+.metricLabel,
+.metricMeta,
+.mutedText,
+.filterField,
+.graphNodeType,
+.graphNodeSubtitle,
+.graphNodeCode,
+.paletteMeta,
+.paletteItemCode,
+.edgeLanePill,
+.inspectorType,
+.characteristicType,
+.laneLabel {
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
 }
 
-.filterField select {
-  min-height: 44px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-surface);
-  color: var(--color-text-primary);
-  padding: 0 var(--space-3);
+.metricLabel,
+.metricMeta {
+  display: block;
 }
 
-.laneGrid {
+.metricValue {
+  color: var(--color-text-primary);
+  display: block;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  margin-block: var(--space-2);
+}
+
+.studioGrid {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(16rem, 19rem) minmax(0, 1.85fr) minmax(20rem, 1fr);
+}
+
+.paletteRail,
+.inspectorRail {
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: minmax(220px, 1fr) minmax(280px, 1.2fr) minmax(220px, 1fr);
+  position: sticky;
+  top: calc(var(--app-header-height) + var(--space-3));
 }
 
-.laneColumn,
-.edgeColumn {
+.canvasRail {
+  min-width: 0;
+}
+
+.paletteList,
+.controlStack,
+.inspectorStack,
+.characteristicList {
   display: grid;
   gap: var(--space-3);
 }
 
-.nodeList,
-.edgeList {
-  display: grid;
-  gap: var(--space-3);
-  max-height: 720px;
-  overflow: auto;
-  padding-right: var(--space-2);
-}
-
-.nodeCard,
-.edgeRow {
+.paletteItem {
+  align-items: start;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  cursor: grab;
   display: grid;
   gap: var(--space-2);
-  text-align: left;
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-lg);
   padding: var(--space-4);
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  text-align: left;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
 
-.nodeCard:hover,
-.edgeRow:hover,
-.edgeRowActive {
+.paletteItem:hover,
+.paletteItemActive {
+  background: var(--color-bg-surface);
   border-color: var(--color-primary);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
-.nodeType,
-.edgeLane,
-.mutedText,
-.nodeMeta {
+.paletteItemTop,
+.inlineActions,
+.legendRow,
+.characteristicTop {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.paletteBadge,
+.graphNodePill,
+.inlineToken,
+.edgeToken,
+.legendChip {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
   color: var(--color-text-secondary);
-  font-size: var(--text-sm);
+  display: inline-flex;
+  font-size: var(--text-xs);
+  gap: var(--space-1);
+  justify-content: center;
+  min-height: 1.75rem;
+  padding-inline: var(--space-2);
+}
+
+.legendProduct,
+.graphNodeProduct .graphNodeType {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.legendService,
+.graphNodeService .graphNodeType {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.legendResource,
+.graphNodeResource .graphNodeType {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.canvasViewport {
+  min-width: 0;
+  overflow: auto;
+}
+
+.canvasSurface {
+  --studio-product-lane-left: 4.5rem;
+  --studio-service-lane-left: 44.5rem;
+  --studio-resource-lane-left: 63rem;
+  background:
+    linear-gradient(180deg, var(--color-studio-canvas-elevated), var(--color-studio-canvas)),
+    radial-gradient(circle at top left, var(--color-studio-spot-primary), transparent 28%),
+    radial-gradient(circle at bottom right, var(--color-studio-spot-success), transparent 26%);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  min-height: 58rem;
+  min-width: 82.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.canvasSurface::before,
+.canvasSurface::after {
+  content: '';
+  inset-block: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 1px;
+}
+
+.canvasSurface::before {
+  background: linear-gradient(180deg, transparent, var(--color-studio-lane-primary), transparent);
+  left: 42rem;
+}
+
+.canvasSurface::after {
+  background: linear-gradient(180deg, transparent, var(--color-studio-lane-success), transparent);
+  left: 60rem;
+}
+
+.canvasSvg {
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.edgeGroup {
+  cursor: pointer;
+}
+
+.edgePath {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 2.5;
+  transition: stroke-width var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
+}
+
+.edgeBundle { stroke: var(--color-primary); }
+.edgeService { stroke: var(--color-success); }
+.edgeResource { stroke: var(--color-warning); }
+
+.edgeGroupActive .edgePath {
+  stroke-width: 4;
+}
+
+.laneLabel {
+  background: var(--color-bg-app);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-3);
+  position: absolute;
+  top: var(--space-4);
+  z-index: 2;
+}
+
+.graphNode {
+  background: linear-gradient(180deg, var(--color-bg-elevated), var(--color-studio-canvas-elevated));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  position: absolute;
+  text-align: left;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+  z-index: 1;
+}
+
+.graphNode:hover,
+.graphNodeActive {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.graphNodeTitle {
+  font-size: var(--text-md);
+  line-height: var(--line-height-snug);
+}
+
+.graphNodeCode {
+  font-size: var(--text-xs);
+}
+
+.graphNodeMetrics,
+.kpiGrid,
+.compactGrid,
+.tokenList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.kpiCard {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+}
+
+.kpiCard span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+}
+
+.kpiCard strong {
+  font-size: var(--text-xl);
+  line-height: var(--line-height-tight);
+}
+
+.filterField {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.filterField select {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  min-height: 3rem;
+  padding-inline: var(--space-3);
+}
+
+.inspectorHero,
+.relationHero,
+.miniSection,
+.characteristicCard {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.inspectorHero h3,
+.miniSection h4 {
+  margin: 0;
+}
+
+.inspectorType,
+.edgeLanePill {
+  justify-self: start;
 }
 
 .compactGrid {
   display: grid;
-  gap: var(--space-3);
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-@media (max-width: 1200px) {
-  .mainGrid,
-  .laneGrid,
-  .metricsRow {
+.separator {
+  border-top: 1px solid var(--color-border-subtle);
+  margin-block: var(--space-2);
+}
+
+.edgeToken {
+  cursor: pointer;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+@media (max-width: 90rem) {
+  .metricStrip,
+  .studioGrid {
     grid-template-columns: 1fr;
+  }
+
+  .paletteRail,
+  .inspectorRail {
+    position: static;
+  }
+}
+
+@media (max-width: 48rem) {
+  .compactGrid,
+  .kpiGrid,
+  .metricStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .inlineActions,
+  .legendRow,
+  .characteristicTop,
+  .paletteItemTop {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .canvasSurface {
+    min-height: 46rem;
   }
 }

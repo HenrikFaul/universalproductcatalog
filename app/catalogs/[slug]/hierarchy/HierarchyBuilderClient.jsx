@@ -1,11 +1,31 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Button from '../../../../components/ui/Button';
 import Card from '../../../../components/ui/Card';
 import Input from '../../../../components/ui/Input';
 import Modal from '../../../../components/ui/Modal';
+import Tabs from '../../../../components/ui/Tabs';
 import styles from './HierarchyBuilderClient.module.css';
+
+const PRODUCT_NODE_WIDTH = 232;
+const PRODUCT_NODE_HEIGHT = 124;
+const PRODUCT_NODE_GAP_X = 104;
+const PRODUCT_NODE_GAP_Y = 44;
+const PRODUCT_ROOT_X = 72;
+const PRODUCT_ROOT_Y = 72;
+const SERVICE_NODE_WIDTH = 232;
+const SERVICE_NODE_HEIGHT = 112;
+const SERVICE_COLUMN_X = 720;
+const RESOURCE_COLUMN_X = 1016;
+const SERVICE_ROOT_Y = 96;
+const SERVICE_GAP_Y = 28;
+const CANVAS_WIDTH = 1320;
+const CANVAS_HEIGHT = 920;
+
+function cx(...values) {
+  return values.filter(Boolean).join(' ');
+}
 
 function normalizeEdge(edge) {
   return {
@@ -19,36 +39,211 @@ function normalizeEdge(edge) {
   };
 }
 
-function buildNodeIndex(productSpecifications, serviceSpecifications, resourceSpecifications, characteristicDefinitions) {
-  const characteristicCount = characteristicDefinitions.reduce((accumulator, item) => {
-    const next = { ...accumulator };
-    next[item.appliesTo] = (next[item.appliesTo] || 0) + 1;
-    return next;
+function buildCharacteristicStats(characteristicDefinitions) {
+  return characteristicDefinitions.reduce((accumulator, item) => {
+    const current = accumulator[item.appliesTo] || {
+      items: [],
+      requiredCount: 0,
+      configurableCount: 0,
+    };
+
+    current.items.push(item);
+    if (String(item.presence || '').toLowerCase().includes('mandatory')) current.requiredCount += 1;
+    if (item.configurable) current.configurableCount += 1;
+
+    accumulator[item.appliesTo] = current;
+    return accumulator;
   }, {});
+}
+
+function buildNodeIndex(productSpecifications, serviceSpecifications, resourceSpecifications, characteristicDefinitions) {
+  const characteristicStats = buildCharacteristicStats(characteristicDefinitions);
+
+  const makeNode = (item, type, subtitle) => {
+    const stats = characteristicStats[item.code] || { items: [], requiredCount: 0, configurableCount: 0 };
+    return {
+      code: item.code,
+      label: item.name,
+      type,
+      subtitle,
+      characteristicCount: stats.items.length,
+      requiredCount: stats.requiredCount,
+      configurableCount: stats.configurableCount,
+      characteristics: stats.items,
+    };
+  };
 
   return new Map([
-    ...productSpecifications.map((item) => [item.code, {
-      code: item.code,
-      label: item.name,
-      type: 'product',
-      subtitle: item.category || 'Product specification',
-      characteristicCount: characteristicCount[item.code] || 0,
-    }]),
-    ...serviceSpecifications.map((item) => [item.code, {
-      code: item.code,
-      label: item.name,
-      type: 'service',
-      subtitle: item.summary || 'Service specification',
-      characteristicCount: characteristicCount[item.code] || 0,
-    }]),
-    ...resourceSpecifications.map((item) => [item.code, {
-      code: item.code,
-      label: item.name,
-      type: 'resource',
-      subtitle: item.summary || 'Resource specification',
-      characteristicCount: characteristicCount[item.code] || 0,
-    }]),
+    ...productSpecifications.map((item) => [item.code, makeNode(item, 'product', item.category || 'Product specification')]),
+    ...serviceSpecifications.map((item) => [item.code, makeNode(item, 'service', item.summary || 'Service specification')]),
+    ...resourceSpecifications.map((item) => [item.code, makeNode(item, 'resource', item.summary || 'Resource specification')]),
   ]);
+}
+
+function buildProductAutoPositions(productSpecifications, bundleEdges) {
+  const childSet = new Set(bundleEdges.map((edge) => edge.child));
+  const childrenByParent = new Map();
+  for (const edge of bundleEdges) {
+    const next = childrenByParent.get(edge.parent) || [];
+    next.push(edge.child);
+    childrenByParent.set(edge.parent, next);
+  }
+
+  const roots = productSpecifications
+    .map((item) => item.code)
+    .filter((code) => !childSet.has(code));
+
+  if (roots.length === 0 && productSpecifications[0]) {
+    roots.push(productSpecifications[0].code);
+  }
+
+  const levels = [];
+  const queue = roots.map((code) => ({ code, depth: 0 }));
+  const visited = new Set();
+
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || visited.has(current.code)) continue;
+    visited.add(current.code);
+    levels[current.depth] ||= [];
+    levels[current.depth].push(current.code);
+
+    const children = childrenByParent.get(current.code) || [];
+    children.forEach((child) => {
+      if (!visited.has(child)) queue.push({ code: child, depth: current.depth + 1 });
+    });
+  }
+
+  for (const item of productSpecifications) {
+    if (!visited.has(item.code)) {
+      levels[0] ||= [];
+      levels[0].push(item.code);
+    }
+  }
+
+  const positions = {};
+  levels.forEach((level, depth) => {
+    level.forEach((code, index) => {
+      positions[code] = {
+        x: PRODUCT_ROOT_X + depth * (PRODUCT_NODE_WIDTH + PRODUCT_NODE_GAP_X),
+        y: PRODUCT_ROOT_Y + index * (PRODUCT_NODE_HEIGHT + PRODUCT_NODE_GAP_Y),
+      };
+    });
+  });
+  return positions;
+}
+
+function buildServiceResourcePositions(serviceSpecifications, resourceSpecifications, serviceMapping) {
+  const positions = {};
+  serviceSpecifications.forEach((item, index) => {
+    positions[item.code] = {
+      x: SERVICE_COLUMN_X,
+      y: SERVICE_ROOT_Y + index * (SERVICE_NODE_HEIGHT + SERVICE_GAP_Y),
+    };
+  });
+
+  resourceSpecifications.forEach((item, index) => {
+    positions[item.code] = {
+      x: RESOURCE_COLUMN_X,
+      y: SERVICE_ROOT_Y + index * (SERVICE_NODE_HEIGHT + SERVICE_GAP_Y),
+    };
+  });
+
+  for (const row of serviceMapping) {
+    const servicePosition = positions[row.serviceSpec];
+    if (!servicePosition) continue;
+    (row.resourceSpecs || []).forEach((resourceCode, index) => {
+      if (!positions[resourceCode]) {
+        positions[resourceCode] = {
+          x: RESOURCE_COLUMN_X,
+          y: servicePosition.y + index * (SERVICE_NODE_HEIGHT + SERVICE_GAP_Y),
+        };
+      }
+    });
+  }
+  return positions;
+}
+
+function computeEdgePath(from, to) {
+  const startX = from.x + from.width;
+  const startY = from.y + from.height / 2;
+  const endX = to.x;
+  const endY = to.y + to.height / 2;
+  const deltaX = Math.max(56, (endX - startX) / 2);
+  return `M ${startX} ${startY} C ${startX + deltaX} ${startY}, ${endX - deltaX} ${endY}, ${endX} ${endY}`;
+}
+
+function wouldCreateCycle(edges, parent, child) {
+  const adjacency = new Map();
+  edges.forEach((edge) => {
+    if (edge.lane !== 'bundle') return;
+    const next = adjacency.get(edge.parent) || [];
+    next.push(edge.child);
+    adjacency.set(edge.parent, next);
+  });
+
+  const stack = [child];
+  const visited = new Set();
+  while (stack.length) {
+    const current = stack.pop();
+    if (!current || visited.has(current)) continue;
+    if (current === parent) return true;
+    visited.add(current);
+    const next = adjacency.get(current) || [];
+    next.forEach((item) => stack.push(item));
+  }
+  return false;
+}
+
+function buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceLaneEdges, customPositions) {
+  const autoProductPositions = buildProductAutoPositions(productSpecifications, bundleEdges);
+  const servicePositions = buildServiceResourcePositions(serviceSpecifications, resourceSpecifications, serviceLaneEdges.reduce((rows, edge) => {
+    if (edge.lane !== 'service') return rows;
+    const existing = rows.find((row) => row.productSpec === edge.parent && row.serviceSpec === edge.child);
+    if (!existing) rows.push({ productSpec: edge.parent, serviceSpec: edge.child, resourceSpecs: [] });
+    return rows;
+  }, []));
+
+  const products = productSpecifications.map((item) => ({
+    ...nodeIndex.get(item.code),
+    x: customPositions[item.code]?.x ?? autoProductPositions[item.code]?.x ?? PRODUCT_ROOT_X,
+    y: customPositions[item.code]?.y ?? autoProductPositions[item.code]?.y ?? PRODUCT_ROOT_Y,
+    width: PRODUCT_NODE_WIDTH,
+    height: PRODUCT_NODE_HEIGHT,
+  }));
+
+  const services = serviceSpecifications.map((item) => ({
+    ...nodeIndex.get(item.code),
+    x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? SERVICE_COLUMN_X,
+    y: customPositions[item.code]?.y ?? servicePositions[item.code]?.y ?? SERVICE_ROOT_Y,
+    width: SERVICE_NODE_WIDTH,
+    height: SERVICE_NODE_HEIGHT,
+  }));
+
+  const resources = resourceSpecifications.map((item) => ({
+    ...nodeIndex.get(item.code),
+    x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? RESOURCE_COLUMN_X,
+    y: customPositions[item.code]?.y ?? servicePositions[item.code]?.y ?? SERVICE_ROOT_Y,
+    width: SERVICE_NODE_WIDTH,
+    height: SERVICE_NODE_HEIGHT,
+  }));
+
+  return [...products, ...services, ...resources];
+}
+
+function buildPaletteItems(productSpecifications, nodeIndex, bundleEdges) {
+  return productSpecifications.map((item) => {
+    const node = nodeIndex.get(item.code);
+    const outgoing = bundleEdges.filter((edge) => edge.parent === item.code).length;
+    const incoming = bundleEdges.filter((edge) => edge.child === item.code).length;
+    return {
+      code: item.code,
+      label: item.name,
+      characteristicCount: node?.characteristicCount || 0,
+      outgoing,
+      incoming,
+    };
+  });
 }
 
 export default function HierarchyBuilderClient({
@@ -77,21 +272,86 @@ export default function HierarchyBuilderClient({
   const [edges, setEdges] = useState(() => [...initialHierarchy.map(normalizeEdge), ...serviceLaneEdges.map(normalizeEdge)]);
   const [laneFilter, setLaneFilter] = useState('all');
   const [selectedEdgeId, setSelectedEdgeId] = useState('');
-  const [draft, setDraft] = useState({ parent: productSpecifications[0]?.code || '', child: '', lane: 'bundle', min: 0, max: 1, defaultQty: 0 });
+  const [selectedNodeId, setSelectedNodeId] = useState(productSpecifications[0]?.code || '');
+  const [inspectorTab, setInspectorTab] = useState('overview');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [saveError, setSaveError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [customPositions, setCustomPositions] = useState({});
+  const [draft, setDraft] = useState({ parent: productSpecifications[0]?.code || '', child: '', min: 0, max: 1, defaultQty: 0 });
+  const dragMetaRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!selectedEdgeId && edges[0]) setSelectedEdgeId(edges[0].id);
+  }, [edges, selectedEdgeId]);
+
+  useEffect(() => {
+    if (!selectedNodeId && productSpecifications[0]) setSelectedNodeId(productSpecifications[0].code);
+  }, [productSpecifications, selectedNodeId]);
+
+  useEffect(() => {
+    const onPointerMove = (event) => {
+      const current = dragMetaRef.current;
+      if (!current || !canvasRef.current) return;
+      const rect = canvasRef.current.getBoundingClientRect();
+      const nextX = event.clientX - rect.left - current.offsetX;
+      const nextY = event.clientY - rect.top - current.offsetY;
+      setCustomPositions((prev) => ({
+        ...prev,
+        [current.code]: {
+          x: Math.max(24, Math.min(CANVAS_WIDTH - current.width - 24, nextX)),
+          y: Math.max(24, Math.min(CANVAS_HEIGHT - current.height - 24, nextY)),
+        },
+      }));
+    };
+
+    const onPointerUp = () => {
+      dragMetaRef.current = null;
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+  }, []);
+
+  const bundleEdges = useMemo(() => edges.filter((item) => item.lane === 'bundle'), [edges]);
+
+  const nodes = useMemo(
+    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceLaneEdges, customPositions),
+    [bundleEdges, customPositions, nodeIndex, productSpecifications, resourceSpecifications, serviceLaneEdges, serviceSpecifications],
+  );
+
+  const nodeLookup = useMemo(() => new Map(nodes.map((node) => [node.code, node])), [nodes]);
 
   const visibleEdges = useMemo(
     () => edges.filter((edge) => laneFilter === 'all' || edge.lane === laneFilter),
     [edges, laneFilter],
   );
 
-  const selectedEdge = visibleEdges.find((item) => item.id === selectedEdgeId) || visibleEdges[0] || null;
+  const renderedEdges = useMemo(
+    () => visibleEdges
+      .map((edge) => {
+        const parent = nodeLookup.get(edge.parent);
+        const child = nodeLookup.get(edge.child);
+        if (!parent || !child) return null;
+        return {
+          ...edge,
+          path: computeEdgePath(parent, child),
+        };
+      })
+      .filter(Boolean),
+    [nodeLookup, visibleEdges],
+  );
 
-  const productNodes = productSpecifications.map((item) => nodeIndex.get(item.code)).filter(Boolean);
-  const serviceNodes = serviceSpecifications.map((item) => nodeIndex.get(item.code)).filter(Boolean);
-  const resourceNodes = resourceSpecifications.map((item) => nodeIndex.get(item.code)).filter(Boolean);
+  const selectedEdge = edges.find((item) => item.id === selectedEdgeId) || null;
+  const selectedNode = nodeLookup.get(selectedNodeId) || null;
+  const selectedNodeIncoming = bundleEdges.filter((edge) => edge.child === selectedNodeId);
+  const selectedNodeOutgoing = edges.filter((edge) => edge.parent === selectedNodeId);
+  const paletteItems = useMemo(() => buildPaletteItems(productSpecifications, nodeIndex, bundleEdges), [bundleEdges, nodeIndex, productSpecifications]);
 
   async function persist(nextEdges) {
     setSaving(true);
@@ -110,7 +370,7 @@ export default function HierarchyBuilderClient({
       const persistedBundleEdges = (payload.items || []).map(normalizeEdge);
       const next = [...persistedBundleEdges, ...serviceLaneEdges.map(normalizeEdge)];
       setEdges(next);
-      setSelectedEdgeId(next[0]?.id || '');
+      if (!next.find((item) => item.id === selectedEdgeId)) setSelectedEdgeId(next[0]?.id || '');
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -118,15 +378,45 @@ export default function HierarchyBuilderClient({
     }
   }
 
-  async function addEdge() {
-    if (!draft.parent || !draft.child) {
-      setSaveError('Choose both a parent and a child node.');
+  function syncSelectedNode(code) {
+    setSelectedNodeId(code);
+    const firstRelatedEdge = edges.find((edge) => edge.parent === code || edge.child === code);
+    if (firstRelatedEdge) setSelectedEdgeId(firstRelatedEdge.id);
+  }
+
+  async function addBundleEdge(parent, child, options = draft) {
+    if (!parent || !child) {
+      setSaveError('Choose both a parent and a child product.');
       return;
     }
+    if (parent === child) {
+      setSaveError('A node cannot be linked to itself.');
+      return;
+    }
+    if (wouldCreateCycle(bundleEdges, parent, child)) {
+      setSaveError('That drop would create a bundle cycle. Choose another parent/child pair.');
+      return;
+    }
+    const duplicate = bundleEdges.find((edge) => edge.parent === parent && edge.child === child);
+    if (duplicate) {
+      setSelectedEdgeId(duplicate.id);
+      setSaveError('The selected relationship already exists.');
+      return;
+    }
+
     const nextEdges = [
       ...edges,
-      normalizeEdge({ ...draft, id: `${draft.parent}-${draft.child}-${draft.lane}` }),
+      normalizeEdge({ parent, child, min: options.min, max: options.max, defaultQty: options.defaultQty, lane: 'bundle' }),
     ];
+    await persist(nextEdges);
+    setSelectedNodeId(child);
+  }
+
+  async function updateSelectedBundleEdge() {
+    if (!selectedEdge || selectedEdge.lane !== 'bundle') return;
+    const nextEdges = edges.map((edge) => (edge.id === selectedEdge.id
+      ? normalizeEdge({ ...edge, min: draft.min, max: draft.max, defaultQty: draft.defaultQty })
+      : edge));
     await persist(nextEdges);
   }
 
@@ -139,115 +429,326 @@ export default function HierarchyBuilderClient({
 
   function resetToDefault() {
     void persist(initialHierarchy.map(normalizeEdge));
+    setCustomPositions({});
   }
 
-  function renderNode(node) {
-    if (!node) return null;
-    return (
-      <button
-        key={node.code}
-        type="button"
-        className={styles.nodeCard}
-        onClick={() => {
-          const firstRelatedEdge = visibleEdges.find((edge) => edge.parent === node.code || edge.child === node.code);
-          if (firstRelatedEdge) setSelectedEdgeId(firstRelatedEdge.id);
-        }}
-      >
-        <span className={styles.nodeType}>{node.type}</span>
-        <strong>{node.label}</strong>
-        <code>{node.code}</code>
-        <span className={styles.nodeMeta}>{node.subtitle}</span>
-        <span className={styles.nodeMeta}>{node.characteristicCount} characteristic(s)</span>
-      </button>
-    );
+  function handleNodePointerDown(event, node) {
+    if (node.type !== 'product' || !canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    dragMetaRef.current = {
+      code: node.code,
+      offsetX: event.clientX - rect.left - node.x,
+      offsetY: event.clientY - rect.top - node.y,
+      width: node.width,
+      height: node.height,
+    };
   }
+
+  function handlePaletteDragStart(event, code) {
+    event.dataTransfer.effectAllowed = 'copy';
+    event.dataTransfer.setData('text/upc-product-code', code);
+  }
+
+  function handleNodeDrop(event, parentCode) {
+    event.preventDefault();
+    const draggedCode = event.dataTransfer.getData('text/upc-product-code');
+    if (!draggedCode) return;
+    void addBundleEdge(parentCode, draggedCode, draft);
+  }
+
+  useEffect(() => {
+    if (!selectedEdge || selectedEdge.lane !== 'bundle') return;
+    setDraft((prev) => ({
+      ...prev,
+      parent: selectedEdge.parent,
+      child: selectedEdge.child,
+      min: selectedEdge.min,
+      max: selectedEdge.max ?? '',
+      defaultQty: selectedEdge.defaultQty,
+    }));
+  }, [selectedEdge]);
 
   return (
     <div className={styles.wrapper}>
       {saveError ? <p className="ds-field__error">{saveError}</p> : null}
-      <div className={styles.metricsRow}>
-        <Card title="Bundle edges" padding="md"><p className={styles.metricValue}>{edges.filter((item) => item.lane === 'bundle').length}</p></Card>
-        <Card title="Service edges" padding="md"><p className={styles.metricValue}>{edges.filter((item) => item.lane === 'service').length}</p></Card>
-        <Card title="Resource edges" padding="md"><p className={styles.metricValue}>{edges.filter((item) => item.lane === 'resource').length}</p></Card>
+
+      <div className={styles.metricStrip}>
+        <Card padding="md" className={styles.metricCard}>
+          <span className={styles.metricLabel}>Bundle edges</span>
+          <strong className={styles.metricValue}>{bundleEdges.length}</strong>
+          <span className={styles.metricMeta}>Editable product hierarchy</span>
+        </Card>
+        <Card padding="md" className={styles.metricCard}>
+          <span className={styles.metricLabel}>Mapped services</span>
+          <strong className={styles.metricValue}>{edges.filter((item) => item.lane === 'service').length}</strong>
+          <span className={styles.metricMeta}>Product → service decomposition</span>
+        </Card>
+        <Card padding="md" className={styles.metricCard}>
+          <span className={styles.metricLabel}>Mapped resources</span>
+          <strong className={styles.metricValue}>{edges.filter((item) => item.lane === 'resource').length}</strong>
+          <span className={styles.metricMeta}>Service → resource decomposition</span>
+        </Card>
+        <Card padding="md" className={styles.metricCard}>
+          <span className={styles.metricLabel}>Characteristic definitions</span>
+          <strong className={styles.metricValue}>{characteristicDefinitions.length}</strong>
+          <span className={styles.metricMeta}>Reflected directly on nodes</span>
+        </Card>
       </div>
 
-      <div className={styles.mainGrid}>
-        <Card
-          title="Hierarchy canvas"
-          description={`Current catalog: ${catalogTitle}. The bundle lane is editable; service and resource decomposition are shown from service mappings.`}
-          actions={(
-            <div className={styles.actionRow}>
-              <label className={styles.filterField}><span>Lane</span><select value={laneFilter} onChange={(event) => setLaneFilter(event.target.value)}><option value="all">All lanes</option><option value="bundle">Bundle structure</option><option value="service">Product → Service</option><option value="resource">Service → Resource</option></select></label>
-              <Button variant="secondary" onClick={resetToDefault} loading={saving}>Reset bundle lane</Button>
+      <div className={styles.studioGrid}>
+        <aside className={styles.paletteRail}>
+          <Card
+            title="Structure palette"
+            description="Drag a child product onto any product node in the canvas to create a new bundle relationship."
+            padding="md"
+          >
+            <div className={styles.paletteList}>
+              {paletteItems.map((item) => (
+                <button
+                  key={item.code}
+                  type="button"
+                  className={cx(styles.paletteItem, selectedNodeId === item.code && styles.paletteItemActive)}
+                  draggable
+                  onDragStart={(event) => handlePaletteDragStart(event, item.code)}
+                  onClick={() => syncSelectedNode(item.code)}
+                >
+                  <div className={styles.paletteItemTop}>
+                    <span className={styles.paletteItemCode}>{item.code}</span>
+                    <span className={styles.paletteBadge}>{item.characteristicCount} char</span>
+                  </div>
+                  <strong>{item.label}</strong>
+                  <span className={styles.paletteMeta}>Parents {item.incoming} · Children {item.outgoing}</span>
+                </button>
+              ))}
             </div>
-          )}
-        >
-          <div className={styles.laneGrid}>
-            <section className={styles.laneColumn}>
-              <h3>Products</h3>
-              <div className={styles.nodeList}>{productNodes.map(renderNode)}</div>
-            </section>
-            <section className={styles.edgeColumn}>
-              <h3>Edges</h3>
-              <div className={styles.edgeList}>
-                {visibleEdges.map((edge) => (
+          </Card>
+
+          <Card title="Canvas controls" padding="md">
+            <div className={styles.controlStack}>
+              <label className={styles.filterField}>
+                <span>Visible lane</span>
+                <select value={laneFilter} onChange={(event) => setLaneFilter(event.target.value)}>
+                  <option value="all">All lanes</option>
+                  <option value="bundle">Bundle structure</option>
+                  <option value="service">Product → Service</option>
+                  <option value="resource">Service → Resource</option>
+                </select>
+              </label>
+              <div className={styles.inlineActions}>
+                <Button variant="secondary" onClick={resetToDefault} loading={saving}>Reset layout</Button>
+                <Button variant="ghost" onClick={() => setCustomPositions({})}>Auto arrange</Button>
+              </div>
+            </div>
+          </Card>
+        </aside>
+
+        <section className={styles.canvasRail}>
+          <Card
+            title="Hierarchy studio"
+            description="Drag nodes to rearrange the visual layout. Drag a product from the palette onto a product node to create a bundle edge. Manual edits below are reflected here instantly."
+            padding="md"
+            actions={(
+              <div className={styles.legendRow}>
+                <span className={cx(styles.legendChip, styles.legendProduct)}>Product</span>
+                <span className={cx(styles.legendChip, styles.legendService)}>Service</span>
+                <span className={cx(styles.legendChip, styles.legendResource)}>Resource</span>
+              </div>
+            )}
+          >
+            <div className={styles.canvasViewport}>
+              <div className={styles.canvasSurface} ref={canvasRef}>
+                <svg className={styles.canvasSvg} viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} preserveAspectRatio="xMinYMin meet" aria-hidden="true">
+                  {renderedEdges.map((edge) => (
+                    <g key={edge.id} className={cx(styles.edgeGroup, selectedEdgeId === edge.id && styles.edgeGroupActive)} onClick={() => setSelectedEdgeId(edge.id)}>
+                      <path d={edge.path} className={cx(styles.edgePath, edge.lane === 'bundle' && styles.edgeBundle, edge.lane === 'service' && styles.edgeService, edge.lane === 'resource' && styles.edgeResource)} />
+                    </g>
+                  ))}
+                </svg>
+
+                <div className={styles.laneLabel} style={{ left: 'var(--studio-product-lane-left)' }}>Products</div>
+                <div className={styles.laneLabel} style={{ left: 'var(--studio-service-lane-left)' }}>Services</div>
+                <div className={styles.laneLabel} style={{ left: 'var(--studio-resource-lane-left)' }}>Resources</div>
+
+                {nodes.map((node) => (
                   <button
+                    key={node.code}
                     type="button"
-                    key={edge.id}
-                    className={`${styles.edgeRow} ${selectedEdge?.id === edge.id ? styles.edgeRowActive : ''}`}
-                    onClick={() => setSelectedEdgeId(edge.id)}
+                    className={cx(
+                      styles.graphNode,
+                      node.type === 'product' && styles.graphNodeProduct,
+                      node.type === 'service' && styles.graphNodeService,
+                      node.type === 'resource' && styles.graphNodeResource,
+                      selectedNodeId === node.code && styles.graphNodeActive,
+                    )}
+                    style={{ left: `${node.x}px`, top: `${node.y}px`, width: `${node.width}px`, minHeight: `${node.height}px` }}
+                    onClick={() => syncSelectedNode(node.code)}
+                    onPointerDown={(event) => handleNodePointerDown(event, node)}
+                    onDragOver={(event) => {
+                      if (node.type !== 'product') return;
+                      event.preventDefault();
+                    }}
+                    onDrop={(event) => {
+                      if (node.type !== 'product') return;
+                      handleNodeDrop(event, node.code);
+                    }}
                   >
-                    <span className={styles.edgeLane}>{edge.lane}</span>
-                    <span><code>{edge.parent}</code> → <code>{edge.child}</code></span>
+                    <span className={styles.graphNodeType}>{node.type}</span>
+                    <strong className={styles.graphNodeTitle}>{node.label}</strong>
+                    <code className={styles.graphNodeCode}>{node.code}</code>
+                    <span className={styles.graphNodeSubtitle}>{node.subtitle}</span>
+                    <div className={styles.graphNodeMetrics}>
+                      <span className={styles.graphNodePill}>{node.characteristicCount} char</span>
+                      <span className={styles.graphNodePill}>{node.requiredCount} req</span>
+                      <span className={styles.graphNodePill}>{node.configurableCount} conf</span>
+                    </div>
                   </button>
                 ))}
               </div>
-            </section>
-            <section className={styles.laneColumn}>
-              <h3>Services & resources</h3>
-              <div className={styles.nodeList}>{serviceNodes.map(renderNode)}{resourceNodes.map(renderNode)}</div>
-            </section>
-          </div>
-        </Card>
-
-        <div className={styles.sideRail}>
-          <Card title="Selected relationship" description="Inspect the currently selected edge and remove only editable bundle relationships.">
-            {selectedEdge ? (
-              <div className={styles.inspectorStack}>
-                <div><strong>Parent</strong><div><code>{selectedEdge.parent}</code></div></div>
-                <div><strong>Child</strong><div><code>{selectedEdge.child}</code></div></div>
-                <div><strong>Lane</strong><div>{selectedEdge.lane}</div></div>
-                <div><strong>Cardinality</strong><div>{selectedEdge.min}..{selectedEdge.max ?? '∞'}</div></div>
-                <div><strong>Default quantity</strong><div>{selectedEdge.defaultQty}</div></div>
-                {selectedEdge.lane === 'bundle' ? (
-                  <Button variant="danger" onClick={() => setDeleteTarget(selectedEdge)}>Delete edge</Button>
-                ) : (
-                  <p className={styles.mutedText}>Service/resource edges are read-only because they come from the service mapping layer.</p>
-                )}
-              </div>
-            ) : <p className={styles.mutedText}>Select an edge to inspect it.</p>}
-          </Card>
-
-          <Card title="Add bundle relationship" description="Create a new Bundle → Child relationship between product specifications.">
-            <div className={styles.formStack}>
-              <label className={styles.filterField}><span>Parent product</span><select value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))}>{productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}</select></label>
-              <label className={styles.filterField}><span>Child product</span><select value={draft.child} onChange={(event) => setDraft((prev) => ({ ...prev, child: event.target.value }))}><option value="">Select child…</option>{productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}</select></label>
-              <div className={styles.compactGrid}>
-                <Input label="Min" type="number" value={draft.min} onChange={(event) => setDraft((prev) => ({ ...prev, min: event.target.value }))} />
-                <Input label="Max" type="number" value={draft.max} onChange={(event) => setDraft((prev) => ({ ...prev, max: event.target.value }))} />
-                <Input label="Default qty" type="number" value={draft.defaultQty} onChange={(event) => setDraft((prev) => ({ ...prev, defaultQty: event.target.value }))} />
-              </div>
-              <Button onClick={addEdge} loading={saving}>Add bundle edge</Button>
             </div>
           </Card>
-        </div>
+        </section>
+
+        <aside className={styles.inspectorRail}>
+          <Card title="Inspector" padding="md">
+            <Tabs
+              value={inspectorTab}
+              onChange={setInspectorTab}
+              items={[
+                { value: 'overview', label: 'Overview' },
+                { value: 'relationships', label: 'Relationships', badge: selectedEdge ? 1 : null },
+                { value: 'characteristics', label: 'Characteristics', badge: selectedNode?.characteristicCount || 0 },
+              ]}
+            />
+
+            {inspectorTab === 'overview' ? (
+              selectedNode ? (
+                <div className={styles.inspectorStack}>
+                  <div className={styles.inspectorHero}>
+                    <span className={styles.inspectorType}>{selectedNode.type}</span>
+                    <h3>{selectedNode.label}</h3>
+                    <code>{selectedNode.code}</code>
+                    <p>{selectedNode.subtitle}</p>
+                  </div>
+                  <div className={styles.kpiGrid}>
+                    <div className={styles.kpiCard}><span>Incoming</span><strong>{selectedNodeIncoming.length}</strong></div>
+                    <div className={styles.kpiCard}><span>Outgoing</span><strong>{selectedNodeOutgoing.length}</strong></div>
+                    <div className={styles.kpiCard}><span>Characteristics</span><strong>{selectedNode.characteristicCount}</strong></div>
+                    <div className={styles.kpiCard}><span>Configurable</span><strong>{selectedNode.configurableCount}</strong></div>
+                  </div>
+                  <div className={styles.miniSection}>
+                    <h4>Related relationships</h4>
+                    <div className={styles.tokenList}>
+                      {selectedNodeOutgoing.map((edge) => (
+                        <button key={edge.id} type="button" className={styles.edgeToken} onClick={() => { setSelectedEdgeId(edge.id); setInspectorTab('relationships'); }}>
+                          {edge.lane} · {edge.parent} → {edge.child}
+                        </button>
+                      ))}
+                      {selectedNodeOutgoing.length === 0 ? <p className={styles.mutedText}>No outgoing relationships from this node.</p> : null}
+                    </div>
+                  </div>
+                </div>
+              ) : <p className={styles.mutedText}>Select a node from the graph or palette.</p>
+            ) : null}
+
+            {inspectorTab === 'relationships' ? (
+              <div className={styles.inspectorStack}>
+                {selectedEdge ? (
+                  <>
+                    <div className={styles.relationHero}>
+                      <span className={styles.edgeLanePill}>{selectedEdge.lane}</span>
+                      <strong>{selectedEdge.parent} → {selectedEdge.child}</strong>
+                      <span className={styles.mutedText}>Min {selectedEdge.min} · Max {selectedEdge.max ?? '∞'} · Default {selectedEdge.defaultQty}</span>
+                    </div>
+                    {selectedEdge.lane === 'bundle' ? (
+                      <>
+                        <div className={styles.compactGrid}>
+                          <Input label="Parent" value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))} />
+                          <Input label="Child" value={draft.child} onChange={(event) => setDraft((prev) => ({ ...prev, child: event.target.value }))} />
+                        </div>
+                        <div className={styles.compactGrid}>
+                          <Input label="Min" type="number" value={draft.min} onChange={(event) => setDraft((prev) => ({ ...prev, min: event.target.value }))} />
+                          <Input label="Max" type="number" value={draft.max} onChange={(event) => setDraft((prev) => ({ ...prev, max: event.target.value }))} />
+                          <Input label="Default qty" type="number" value={draft.defaultQty} onChange={(event) => setDraft((prev) => ({ ...prev, defaultQty: event.target.value }))} />
+                        </div>
+                        <div className={styles.inlineActions}>
+                          <Button onClick={updateSelectedBundleEdge} loading={saving}>Save edge</Button>
+                          <Button variant="danger" onClick={() => setDeleteTarget(selectedEdge)}>Delete edge</Button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className={styles.mutedText}>Service and resource edges are derived from the service mapping layer. They are visible here for full structure clarity but remain read-only.</p>
+                    )}
+                  </>
+                ) : <p className={styles.mutedText}>Select a relationship from the graph or overview panel.</p>}
+
+                <div className={styles.separator} />
+
+                <div className={styles.miniSection}>
+                  <h4>Create bundle relationship</h4>
+                  <label className={styles.filterField}>
+                    <span>Parent product</span>
+                    <select value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))}>
+                      {productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                    </select>
+                  </label>
+                  <label className={styles.filterField}>
+                    <span>Child product</span>
+                    <select value={draft.child} onChange={(event) => setDraft((prev) => ({ ...prev, child: event.target.value }))}>
+                      <option value="">Select child…</option>
+                      {productSpecifications.map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                    </select>
+                  </label>
+                  <div className={styles.compactGrid}>
+                    <Input label="Min" type="number" value={draft.min} onChange={(event) => setDraft((prev) => ({ ...prev, min: event.target.value }))} />
+                    <Input label="Max" type="number" value={draft.max} onChange={(event) => setDraft((prev) => ({ ...prev, max: event.target.value }))} />
+                    <Input label="Default qty" type="number" value={draft.defaultQty} onChange={(event) => setDraft((prev) => ({ ...prev, defaultQty: event.target.value }))} />
+                  </div>
+                  <Button onClick={() => addBundleEdge(draft.parent, draft.child, draft)} loading={saving}>Add bundle edge</Button>
+                </div>
+              </div>
+            ) : null}
+
+            {inspectorTab === 'characteristics' ? (
+              selectedNode ? (
+                <div className={styles.inspectorStack}>
+                  <div className={styles.miniSection}>
+                    <h4>Characteristic summary</h4>
+                    <div className={styles.kpiGrid}>
+                      <div className={styles.kpiCard}><span>Total</span><strong>{selectedNode.characteristicCount}</strong></div>
+                      <div className={styles.kpiCard}><span>Required</span><strong>{selectedNode.requiredCount}</strong></div>
+                      <div className={styles.kpiCard}><span>Configurable</span><strong>{selectedNode.configurableCount}</strong></div>
+                    </div>
+                  </div>
+                  <div className={styles.characteristicList}>
+                    {selectedNode.characteristics.map((item) => (
+                      <article key={`${item.appliesTo}-${item.name}`} className={styles.characteristicCard}>
+                        <div className={styles.characteristicTop}>
+                          <strong>{item.displayName}</strong>
+                          <span className={styles.characteristicType}>{item.valueType}</span>
+                        </div>
+                        <div className={styles.tokenList}>
+                          <span className={styles.inlineToken}>{item.presence}</span>
+                          <span className={styles.inlineToken}>{item.configurable ? 'configurable' : 'fixed'}</span>
+                          <span className={styles.inlineToken}>{item.minCardinality}..{item.maxCardinality ?? '∞'}</span>
+                        </div>
+                        <p className={styles.mutedText}>{item.interpretation}</p>
+                      </article>
+                    ))}
+                    {selectedNode.characteristics.length === 0 ? <p className={styles.mutedText}>No characteristics mapped to this node yet. Add them from the characteristic manager and they will be reflected here.</p> : null}
+                  </div>
+                  <Button variant="secondary" onClick={() => { window.location.href = `/catalogs/${catalogSlug}/characteristics`; }}>Open characteristic manager</Button>
+                </div>
+              ) : <p className={styles.mutedText}>Select a node to inspect its characteristic model.</p>
+            ) : null}
+          </Card>
+        </aside>
       </div>
 
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         title="Delete hierarchy edge"
-        description="This removes the selected bundle relationship from the persisted catalog graph."
+        description="This removes the selected bundle relationship from the persisted hierarchy graph."
         actions={(
           <>
             <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</Button>
