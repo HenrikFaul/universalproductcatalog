@@ -38,3 +38,9 @@ export function calculateRiskPremium({ basePremium, biometricMultipliers = [], r
 
   return Number(((base * multiplierProduct) + ridersTotal).toFixed(4));
 }
+
+## 2026-04-26 – Lessons learned from TMF620 baseline expansion
+1. When introducing many new TMF entities quickly, centralizing entity metadata (`TMF_ENTITY_CONFIG`) avoids route-level duplication and keeps validation aligned.
+2. Product offering relationship constraints should be validated as directed graphs for BUNDLE/REQUIRES links; this catches business-invalid A→B, B→A loops before persistence.
+3. Even when persistence backends differ by environment, implementing pagination/filtering/field projection in a deterministic store abstraction helps keep API contracts stable and testable.
+4. For regression-safe rollout, soft delete (`lifecycle_status = RETIRED` + `deleted_at`) gives safer compatibility than hard deletion across interconnected catalog entities.
