@@ -25,7 +25,9 @@
 .edgeLanePill,
 .inspectorType,
 .characteristicType,
-.laneLabel {
+.laneLabel,
+.canvasHint,
+.canvasMeta {
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
 }
@@ -44,31 +46,25 @@
   margin-block: var(--space-2);
 }
 
-.studioGrid {
+.controlGrid {
   align-items: start;
   display: grid;
   gap: var(--space-5);
-  grid-template-columns: minmax(16rem, 19rem) minmax(0, 1.85fr) minmax(20rem, 1fr);
+  grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
 }
 
-.paletteRail,
-.inspectorRail {
-  display: grid;
-  gap: var(--space-4);
-  position: sticky;
-  top: calc(var(--app-header-height) + var(--space-3));
-}
-
-.canvasRail {
-  min-width: 0;
-}
-
-.paletteList,
+.leftRailStack,
 .controlStack,
 .inspectorStack,
-.characteristicList {
+.characteristicList,
+.paletteList,
+.relationModalBody {
   display: grid;
   gap: var(--space-3);
+}
+
+.inspectorRail {
+  min-width: 0;
 }
 
 .paletteItem {
@@ -100,7 +96,8 @@
 .paletteItemTop,
 .inlineActions,
 .legendRow,
-.characteristicTop {
+.characteristicTop,
+.canvasHeaderRow {
   align-items: center;
   display: flex;
   gap: var(--space-2);
@@ -111,7 +108,8 @@
 .graphNodePill,
 .inlineToken,
 .edgeToken,
-.legendChip {
+.legendChip,
+.canvasStatusPill {
   align-items: center;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
@@ -143,12 +141,11 @@
   color: var(--color-warning);
 }
 
-.canvasViewport {
+.canvasViewportFull {
   min-width: 0;
-  overflow: auto;
 }
 
-.canvasSurface {
+.canvasSurfaceFull {
   --studio-product-lane-left: 4.5rem;
   --studio-service-lane-left: 44.5rem;
   --studio-resource-lane-left: 63rem;
@@ -158,40 +155,48 @@
     radial-gradient(circle at bottom right, var(--color-studio-spot-success), transparent 26%);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-xl);
-  min-height: 58rem;
-  min-width: 82.5rem;
   overflow: hidden;
+  padding: var(--space-4);
   position: relative;
 }
 
-.canvasSurface::before,
-.canvasSurface::after {
+.canvasStage {
+  left: 0;
+  position: relative;
+  top: 0;
+  transform-origin: top left;
+}
+
+.canvasSurfaceFull::before,
+.canvasSurfaceFull::after {
   content: '';
-  inset-block: 0;
+  inset-block: var(--space-4);
   pointer-events: none;
   position: absolute;
   width: 1px;
 }
 
-.canvasSurface::before {
+.canvasSurfaceFull::before {
   background: linear-gradient(180deg, transparent, var(--color-studio-lane-primary), transparent);
-  left: 42rem;
+  left: calc(var(--space-4) + 42rem);
 }
 
-.canvasSurface::after {
+.canvasSurfaceFull::after {
   background: linear-gradient(180deg, transparent, var(--color-studio-lane-success), transparent);
-  left: 60rem;
+  left: calc(var(--space-4) + 60rem);
 }
 
 .canvasSvg {
   height: 100%;
   inset: 0;
+  pointer-events: none;
   position: absolute;
   width: 100%;
 }
 
 .edgeGroup {
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .edgePath {
@@ -225,7 +230,6 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
   color: var(--color-text-primary);
-  cursor: pointer;
   display: grid;
   gap: var(--space-2);
   padding: var(--space-4);
@@ -246,8 +250,13 @@
   transform: translateY(-2px);
 }
 
+.graphNodeDropTarget {
+  box-shadow: 0 0 0 2px var(--color-primary), var(--shadow-md);
+}
+
 .graphNodeTitle {
   font-size: var(--text-md);
+  font-weight: 700;
   line-height: var(--line-height-snug);
 }
 
@@ -256,7 +265,6 @@
 }
 
 .graphNodeMetrics,
-.kpiGrid,
 .compactGrid,
 .tokenList {
   display: flex;
@@ -266,6 +274,7 @@
 
 .kpiGrid {
   display: grid;
+  gap: var(--space-3);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -315,59 +324,91 @@
 }
 
 .inspectorHero h3,
-.miniSection h4 {
+.miniSection h4,
+.canvasTitleBlock h3 {
   margin: 0;
 }
 
-.inspectorType,
-.edgeLanePill {
-  justify-self: start;
-}
-
-.compactGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .separator {
-  border-top: 1px solid var(--color-border-subtle);
-  margin-block: var(--space-2);
+  background: var(--color-border-subtle);
+  height: 1px;
 }
 
 .edgeToken {
-  cursor: pointer;
   justify-content: flex-start;
   text-align: left;
 }
 
-@media (max-width: 90rem) {
-  .metricStrip,
-  .studioGrid {
+.nodeRemoveButton {
+  align-items: center;
+  background: var(--color-danger-soft);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  color: var(--color-danger);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1.125rem;
+  font-weight: 700;
+  height: 1.875rem;
+  justify-content: center;
+  position: absolute;
+  right: var(--space-3);
+  top: var(--space-3);
+  transition: transform var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+  width: 1.875rem;
+}
+
+.nodeRemoveButton:hover {
+  border-color: var(--color-danger);
+  transform: translateY(-1px);
+}
+
+.canvasTitleBlock {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.canvasHint {
+  max-width: 64rem;
+}
+
+.canvasMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.relationModalBody {
+  min-width: min(100%, 34rem);
+}
+
+@media (max-width: 1200px) {
+  .metricStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .controlGrid {
     grid-template-columns: 1fr;
   }
 
-  .paletteRail,
-  .inspectorRail {
-    position: static;
+  .canvasSurfaceFull::before,
+  .canvasSurfaceFull::after {
+    display: none;
   }
 }
 
-@media (max-width: 48rem) {
-  .compactGrid,
-  .kpiGrid,
-  .metricStrip {
+@media (max-width: 768px) {
+  .metricStrip,
+  .kpiGrid {
     grid-template-columns: 1fr;
   }
 
-  .inlineActions,
-  .legendRow,
-  .characteristicTop,
-  .paletteItemTop {
-    align-items: flex-start;
-    flex-direction: column;
+  .wrapper {
+    gap: var(--space-4);
   }
 
-  .canvasSurface {
-    min-height: 46rem;
+  .canvasSurfaceFull {
+    padding: var(--space-3);
   }
 }
