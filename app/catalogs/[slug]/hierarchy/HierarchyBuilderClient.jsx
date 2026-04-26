@@ -352,6 +352,15 @@ function buildServiceMappingFromEdges(edges) {
   }));
 }
 
+function toCode(value, fallbackPrefix = 'ITEM') {
+  const normalized = String(value || '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  return normalized || `${fallbackPrefix}_${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+}
+
 function computeLogicalBounds(nodes) {
   if (!nodes.length) {
     return { width: CANVAS_WIDTH, height: CANVAS_HEIGHT };
@@ -375,9 +384,16 @@ export default function HierarchyBuilderClient({
   characteristicDefinitions,
   initialStudioState = {},
 }) {
+  const [productSpecsState, setProductSpecsState] = useState(() => Array.isArray(productSpecifications) ? productSpecifications : []);
+  const [serviceSpecsState, setServiceSpecsState] = useState(() => Array.isArray(serviceSpecifications) ? serviceSpecifications : []);
+  const [resourceSpecsState, setResourceSpecsState] = useState(() => Array.isArray(resourceSpecifications) ? resourceSpecifications : []);
+  const [offeringState, setOfferingState] = useState([]);
+  const [categoryState, setCategoryState] = useState([]);
+  const [offeringCategoryState, setOfferingCategoryState] = useState([]);
+
   const nodeIndex = useMemo(
-    () => buildNodeIndex(productSpecifications, serviceSpecifications, resourceSpecifications, characteristicDefinitions),
-    [characteristicDefinitions, productSpecifications, resourceSpecifications, serviceSpecifications],
+    () => buildNodeIndex(productSpecsState, serviceSpecsState, resourceSpecsState, characteristicDefinitions),
+    [characteristicDefinitions, productSpecsState, resourceSpecsState, serviceSpecsState],
   );
 
   const initialServiceResourceEdges = useMemo(
@@ -394,14 +410,14 @@ export default function HierarchyBuilderClient({
   const [rootNodeCodes, setRootNodeCodes] = useState(() => new Set(
     Array.isArray(initialStudioState.rootNodeCodes) && initialStudioState.rootNodeCodes.length
       ? initialStudioState.rootNodeCodes
-      : [...buildInitialRootNodeCodes(initialGraphEdges, productSpecifications)],
+      : [...buildInitialRootNodeCodes(initialGraphEdges, productSpecsState)],
   ));
   const [removedNodeCodes, setRemovedNodeCodes] = useState(() => new Set(
     Array.isArray(initialStudioState.removedNodeCodes) ? initialStudioState.removedNodeCodes : [],
   ));
   const [laneFilter, setLaneFilter] = useState('all');
   const [selectedEdgeId, setSelectedEdgeId] = useState('');
-  const [selectedNodeId, setSelectedNodeId] = useState(productSpecifications[0]?.code || '');
+  const [selectedNodeId, setSelectedNodeId] = useState(productSpecsState[0]?.code || '');
   const [inspectorTab, setInspectorTab] = useState('overview');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [saveError, setSaveError] = useState('');
@@ -410,7 +426,8 @@ export default function HierarchyBuilderClient({
   const [saving, setSaving] = useState(false);
   const [customPositions, setCustomPositions] = useState(() => initialStudioState.customPositions || {});
   const [laneLayout, setLaneLayout] = useState(() => ({ ...DEFAULT_LANE_LAYOUT, ...(initialStudioState.laneLayout || {}) }));
-  const [draft, setDraft] = useState({ parent: productSpecifications[0]?.code || '', child: '', min: 0, max: 1, defaultQty: 0 });
+  const [draft, setDraft] = useState({ parent: productSpecsState[0]?.code || '', child: '', min: 0, max: 1, defaultQty: 0 });
+  const [entityDraft, setEntityDraft] = useState({ type: 'product', code: '', name: '', summary: '', category: '' });
   const [viewportWidth, setViewportWidth] = useState(0);
   const [hoveredDropTarget, setHoveredDropTarget] = useState('');
   const [isCanvasDropActive, setIsCanvasDropActive] = useState(false);
@@ -432,8 +449,29 @@ export default function HierarchyBuilderClient({
   }, [edges, selectedEdgeId]);
 
   useEffect(() => {
-    if (!selectedNodeId && productSpecifications[0]) setSelectedNodeId(productSpecifications[0].code);
-  }, [productSpecifications, selectedNodeId]);
+    if (!selectedNodeId && productSpecsState[0]) setSelectedNodeId(productSpecsState[0].code);
+  }, [productSpecsState, selectedNodeId]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadEntities() {
+      try {
+        const response = await fetch(`/api/catalogs/${catalogSlug}/entities`);
+        const payload = await response.json().catch(() => ({}));
+        if (!mounted || !response.ok || !payload.ok) return;
+        setProductSpecsState(payload.item.productSpecifications || []);
+        setServiceSpecsState(payload.item.serviceSpecifications || []);
+        setResourceSpecsState(payload.item.resourceSpecifications || []);
+        setOfferingState(payload.item.productOfferings || []);
+        setCategoryState(payload.item.catalogCategories || []);
+        setOfferingCategoryState(payload.item.offeringCategories || []);
+      } catch (_error) {
+        // Non-blocking: fallback is server-rendered props.
+      }
+    }
+    void loadEntities();
+    return () => { mounted = false; };
+  }, [catalogSlug]);
 
   useEffect(() => {
     if (!viewportRef.current || typeof ResizeObserver === 'undefined') return undefined;
@@ -504,13 +542,13 @@ export default function HierarchyBuilderClient({
   const serviceResourceEdges = useMemo(() => edges.filter((item) => item.lane === 'service' || item.lane === 'resource'), [edges]);
 
   const activeNodeCodes = useMemo(
-    () => buildActiveNodeCodes(edges, rootNodeCodes, productSpecifications[0]?.code || '', removedNodeCodes),
-    [edges, productSpecifications, removedNodeCodes, rootNodeCodes],
+    () => buildActiveNodeCodes(edges, rootNodeCodes, productSpecsState[0]?.code || '', removedNodeCodes),
+    [edges, productSpecsState, removedNodeCodes, rootNodeCodes],
   );
 
   const nodes = useMemo(
-    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes, laneLayout),
-    [activeNodeCodes, bundleEdges, customPositions, laneLayout, nodeIndex, productSpecifications, resourceSpecifications, serviceResourceEdges, serviceSpecifications],
+    () => buildNodeCards(productSpecsState, serviceSpecsState, resourceSpecsState, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes, laneLayout),
+    [activeNodeCodes, bundleEdges, customPositions, laneLayout, nodeIndex, productSpecsState, resourceSpecsState, serviceResourceEdges, serviceSpecsState],
   );
 
   const nodeLookup = useMemo(() => new Map(nodes.map((node) => [node.code, node])), [nodes]);
@@ -547,9 +585,9 @@ export default function HierarchyBuilderClient({
   const selectedNodeIncoming = edges.filter((edge) => edge.child === selectedNodeId);
   const selectedNodeOutgoing = edges.filter((edge) => edge.parent === selectedNodeId);
   const paletteItems = useMemo(() => ([
-    ...productSpecifications.map((item) => ({ ...item, type: 'product' })),
-    ...serviceSpecifications.map((item) => ({ ...item, type: 'service' })),
-    ...resourceSpecifications.map((item) => ({ ...item, type: 'resource' })),
+    ...productSpecsState.map((item) => ({ ...item, type: 'product' })),
+    ...serviceSpecsState.map((item) => ({ ...item, type: 'service' })),
+    ...resourceSpecsState.map((item) => ({ ...item, type: 'resource' })),
   ].map((item) => {
     const node = nodeIndex.get(item.code);
     const outgoing = edges.filter((edge) => edge.parent === item.code).length;
@@ -562,7 +600,7 @@ export default function HierarchyBuilderClient({
       outgoing,
       incoming,
     };
-  })), [edges, nodeIndex, productSpecifications, resourceSpecifications, serviceSpecifications]);
+  })), [edges, nodeIndex, productSpecsState, resourceSpecsState, serviceSpecsState]);
 
   const characteristicPaletteItems = useMemo(() => characteristicDefinitions.map((item, index) => ({
     code: item.name || `CHAR_${index + 1}`,
@@ -853,8 +891,8 @@ export default function HierarchyBuilderClient({
   }
 
   function resetToDefault() {
-    void persist(initialGraphEdges, { selectedEdgeId: initialGraphEdges[0]?.id || '', rootNodeCodes: buildInitialRootNodeCodes(initialGraphEdges, productSpecifications), removedNodeCodes: new Set(), customPositions: {}, laneLayout: DEFAULT_LANE_LAYOUT });
-    setRootNodeCodes(buildInitialRootNodeCodes(initialGraphEdges, productSpecifications));
+    void persist(initialGraphEdges, { selectedEdgeId: initialGraphEdges[0]?.id || '', rootNodeCodes: buildInitialRootNodeCodes(initialGraphEdges, productSpecsState), removedNodeCodes: new Set(), customPositions: {}, laneLayout: DEFAULT_LANE_LAYOUT });
+    setRootNodeCodes(buildInitialRootNodeCodes(initialGraphEdges, productSpecsState));
     setRemovedNodeCodes(new Set());
     setCustomPositions({});
     setLaneLayout(DEFAULT_LANE_LAYOUT);
@@ -1018,6 +1056,61 @@ export default function HierarchyBuilderClient({
     }));
   }, [selectedEdge]);
 
+  async function persistEntities(nextPayload) {
+    const response = await fetch(`/api/catalogs/${catalogSlug}/entities`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nextPayload),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.ok) {
+      throw new Error(payload.error || 'Entity persistence failed.');
+    }
+  }
+
+  async function submitEntityDraft() {
+    const normalizedCode = toCode(entityDraft.code || entityDraft.name, entityDraft.type.toUpperCase());
+    if (!entityDraft.name.trim()) {
+      setSaveError('Entity name is required.');
+      return;
+    }
+    const record = {
+      code: normalizedCode,
+      name: entityDraft.name.trim(),
+      summary: entityDraft.summary.trim(),
+      category: entityDraft.category.trim(),
+    };
+    try {
+      if (entityDraft.type === 'product') {
+        const next = [...productSpecsState.filter((item) => item.code !== normalizedCode), record];
+        setProductSpecsState(next);
+        await persistEntities({ productSpecifications: next });
+      } else if (entityDraft.type === 'service') {
+        const next = [...serviceSpecsState.filter((item) => item.code !== normalizedCode), record];
+        setServiceSpecsState(next);
+        await persistEntities({ serviceSpecifications: next });
+      } else {
+        const next = [...resourceSpecsState.filter((item) => item.code !== normalizedCode), record];
+        setResourceSpecsState(next);
+        await persistEntities({ resourceSpecifications: next });
+      }
+      setToastTone('success');
+      setToastMessage('Entity saved in catalog.');
+      setEntityDraft((prev) => ({ ...prev, code: '', name: '', summary: '' }));
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async function addCatalogGroup() {
+    if (!entityDraft.category.trim()) return;
+    const next = [...new Set([...categoryState, entityDraft.category.trim()])];
+    setCategoryState(next);
+    await persistEntities({ catalogCategories: next, offeringCategories: offeringCategoryState });
+    setToastTone('success');
+    setToastMessage('Catalog group saved.');
+  }
+
   return (
     <div className={styles.wrapper}>
       {saveError ? <p className={cx('ds-field__error', styles.fullBleed)}>{saveError}</p> : null}
@@ -1053,6 +1146,28 @@ export default function HierarchyBuilderClient({
 
       <div className={styles.controlGrid}>
         <div className={styles.leftRailStack}>
+          <Card title="Entity editor" description="Create and edit product, service, and resource entities directly in this catalog, then assign grouping labels." padding="md">
+            <div className={styles.controlStack}>
+              <label className={styles.filterField}>
+                <span>Entity type</span>
+                <select value={entityDraft.type} onChange={(event) => setEntityDraft((prev) => ({ ...prev, type: event.target.value }))}>
+                  <option value="product">Product specification</option>
+                  <option value="service">Service specification</option>
+                  <option value="resource">Resource specification</option>
+                </select>
+              </label>
+              <Input label="Code (optional)" value={entityDraft.code} onChange={(event) => setEntityDraft((prev) => ({ ...prev, code: event.target.value }))} />
+              <Input label="Name" value={entityDraft.name} onChange={(event) => setEntityDraft((prev) => ({ ...prev, name: event.target.value }))} />
+              <Input label="Summary / description" value={entityDraft.summary} onChange={(event) => setEntityDraft((prev) => ({ ...prev, summary: event.target.value }))} />
+              <Input label="Group / category" value={entityDraft.category} onChange={(event) => setEntityDraft((prev) => ({ ...prev, category: event.target.value }))} />
+              <div className={styles.inlineActions}>
+                <Button onClick={submitEntityDraft}>Save entity</Button>
+                <Button variant="secondary" onClick={addCatalogGroup}>Save group</Button>
+              </div>
+              <span className={styles.mutedText}>Groups: {(categoryState || []).join(', ') || 'No groups defined yet.'}</span>
+            </div>
+          </Card>
+
           <Card
             title="Structure palette"
             description="Drag a product, service or resource into the visual studio below. A relation builder dialog lets you choose the parent, child and bundle cardinality before saving."
@@ -1207,14 +1322,14 @@ export default function HierarchyBuilderClient({
                 <label className={styles.filterField}>
                   <span>Parent node</span>
                   <select value={draft.parent} onChange={(event) => setDraft((prev) => ({ ...prev, parent: event.target.value }))}>
-                    {[...productSpecifications, ...serviceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                    {[...productSpecsState, ...serviceSpecsState].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
                   </select>
                 </label>
                 <label className={styles.filterField}>
                   <span>Child node</span>
                   <select value={draft.child} onChange={(event) => setDraft((prev) => ({ ...prev, child: event.target.value }))}>
                     <option value="">Select child…</option>
-                    {[...productSpecifications, ...serviceSpecifications, ...resourceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                    {[...productSpecsState, ...serviceSpecsState, ...resourceSpecsState].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
                   </select>
                 </label>
                 <div className={styles.compactGrid}>
@@ -1458,7 +1573,7 @@ export default function HierarchyBuilderClient({
               <span>Child node</span>
               <select value={relationModal.child} onChange={(event) => updateRelationModalChild(event.target.value)}>
                 <option value="">Select child…</option>
-                {[...productSpecifications, ...serviceSpecifications, ...resourceSpecifications].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
+                {[...productSpecsState, ...serviceSpecsState, ...resourceSpecsState].map((item) => <option value={item.code} key={item.code}>{item.code} · {item.name}</option>)}
               </select>
             </label>
             <div className={styles.compactGrid}>

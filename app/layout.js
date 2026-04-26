@@ -10,12 +10,8 @@ export const metadata = {
 function UpcLogoMark({ compact = false }) {
   return (
     <span className={compact ? 'upc-logo-mark upc-logo-mark--compact' : 'upc-logo-mark'} aria-hidden="true">
-      <span className="upc-logo-corner upc-logo-corner--tl" />
-      <span className="upc-logo-corner upc-logo-corner--tr" />
-      <span className="upc-logo-corner upc-logo-corner--br" />
-      <span className="upc-logo-corner upc-logo-corner--bl" />
-      <span className="upc-logo-node upc-logo-node--top" />
-      <span className="upc-logo-node upc-logo-node--bottom" />
+      <span className="upc-logo-diamond" />
+      <span className="upc-logo-core">UPC</span>
     </span>
   );
 }

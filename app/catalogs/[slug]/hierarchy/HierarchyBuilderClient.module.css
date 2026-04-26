@@ -255,13 +255,34 @@
 }
 
 .graphNodeTitle {
-  font-size: var(--text-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);
   font-weight: 700;
   line-height: var(--line-height-snug);
 }
 
 .graphNodeCode {
-  font-size: var(--text-xs);
+  background: color-mix(in srgb, var(--color-bg-surface) 92%, #fff 8%);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.graphNodeSubtitle {
+  color: var(--color-text-primary);
+  font-size: var(--text-md);
+  line-height: 1.4;
+}
+
+.graphNodeType {
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.graphNodePill {
+  font-size: var(--text-sm);
+  font-weight: 700;
 }
 
 .graphNodeMetrics,
