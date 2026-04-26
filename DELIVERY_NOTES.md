@@ -1,10 +1,26 @@
-Universal Product Catalog TMF620 demo + builder delivery
+# Step 3 — Characteristic CRUD UI
 
-Included in this package:
-- telecom demo catalog route with TMF620-style product specifications, offerings, characteristics, service/resource mapping
-- catalog builder route with 20 industry starter templates
-- static-data refactor for module and industry detail routes to avoid runtime 500s
-- homepage and module/industry pages linked to the catalog area
+This patch adds the third requested layer:
 
-Important note:
-- the new catalog builder is client-side and exports a starter JSON blueprint; it does not yet persist catalogs to a backend database because the current repository has no persistence layer or API for save/create operations.
+- characteristic manager UI
+- create / edit / delete flow
+- protected delete confirmation modal
+- export JSON capability
+- no backend mutation / no regression to existing TMF620 demo catalog page
+
+## Files
+- `app/catalogs/[slug]/page.js` — adds entry point to manager
+- `app/catalogs/[slug]/characteristics/page.js` — new route
+- `app/catalogs/[slug]/characteristics/CharacteristicsManagerClient.jsx` — client CRUD
+- `app/catalogs/[slug]/characteristics/CharacteristicsManagerClient.module.css` — scoped layout + spacing rules
+
+## Important
+This step assumes the Step 2 design-system foundation components already exist:
+- `components/ui/Button.jsx`
+- `components/ui/Input.jsx`
+- `components/ui/Modal.jsx`
+- `components/ui/Card.jsx`
+
+## Persistence model
+This CRUD layer intentionally stores changes in browser localStorage under a catalog-specific key.
+It is designed to be replaced later with real backend persistence without redesigning the UI.

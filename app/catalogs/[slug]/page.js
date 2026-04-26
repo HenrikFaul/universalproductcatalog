@@ -34,6 +34,7 @@ export default function CatalogDetailsPage({ params }) {
         <p className="hero-text">{catalog.description}</p>
         <div className="hero-actions">
           <Link href="/catalogs/new?industry=telecommunications" className="primary-button">Clone as new catalog</Link>
+          <Link href={`/catalogs/${catalog.slug}/characteristics`} className="secondary-button">Manage characteristics</Link>
           <Link href="/catalogs" className="secondary-button">Back to catalogs</Link>
         </div>
       </section>
