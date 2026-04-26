@@ -1,10 +1,10 @@
-use client';
+'use client';
 
-import { useMemo, useState } from 'react';
-import Button from '../../../../../components/ui/Button';
-import Input from '../../../../../components/ui/Input';
-import Modal from '../../../../../components/ui/Modal';
-import Card from '../../../../../components/ui/Card';
+import { useEffect, useMemo, useState } from 'react';
+import Button from '../../../../components/ui/Button';
+import Input from '../../../../components/ui/Input';
+import Modal from '../../../../components/ui/Modal';
+import Card from '../../../../components/ui/Card';
 import styles from './CharacteristicsManagerClient.module.css';
 
 const VALUE_TYPES = ['string', 'number', 'boolean', 'json', 'enum', 'array'];
@@ -117,6 +117,7 @@ export default function CharacteristicsManagerClient({
   serviceSpecifications,
   resourceSpecifications,
 }) {
+  const storageKey = `upc-characteristics-${catalogSlug}`;
   const specOptions = useMemo(
     () => [
       ...productSpecifications.map((item) => ({ code: item.code, label: `${item.code} · ${item.name}` })),
@@ -135,10 +136,30 @@ export default function CharacteristicsManagerClient({
   const [editorMode, setEditorMode] = useState('create');
   const [draft, setDraft] = useState(() => draftFromDefinition(createEmptyDefinition(seedDefinitions[0]?.appliesTo || productSpecifications[0]?.code || '')));
   const [draftError, setDraftError] = useState('');
-  const [saveError, setSaveError] = useState('');
-  const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteConfirmValue, setDeleteConfirmValue] = useState('');
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) {
+          setRows(parsed.map(normalizeDefinition));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to hydrate characteristic manager state', error);
+    }
+  }, [storageKey]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(rows));
+    } catch (error) {
+      console.error('Failed to persist characteristic manager state', error);
+    }
+  }, [rows, storageKey]);
 
   const metrics = useMemo(() => {
     const configurableCount = rows.filter((item) => item.configurable).length;
@@ -160,7 +181,16 @@ export default function CharacteristicsManagerClient({
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
-      const haystack = [row.displayName, row.name, row.appliesTo, row.interpretation, row.allowedValues.join(', ')].join(' ').toLowerCase();
+      const haystack = [
+        row.displayName,
+        row.name,
+        row.appliesTo,
+        row.interpretation,
+        row.allowedValues.join(', '),
+      ]
+        .join(' ')
+        .toLowerCase();
+
       if (search.trim() && !haystack.includes(search.trim().toLowerCase())) return false;
       if (appliesToFilter !== 'all' && row.appliesTo !== appliesToFilter) return false;
       if (presenceFilter !== 'all' && row.presence !== presenceFilter) return false;
@@ -173,7 +203,11 @@ export default function CharacteristicsManagerClient({
   function openCreateModal() {
     setEditorMode('create');
     setDraftError('');
-    setDraft(draftFromDefinition(createEmptyDefinition(appliesToFilter !== 'all' ? appliesToFilter : productSpecifications[0]?.code || '')));
+    setDraft(
+      draftFromDefinition(
+        createEmptyDefinition(appliesToFilter !== 'all' ? appliesToFilter : productSpecifications[0]?.code || ''),
+      ),
+    );
     setEditorOpen(true);
   }
 
@@ -184,192 +218,386 @@ export default function CharacteristicsManagerClient({
     setEditorOpen(true);
   }
 
-  async function persistRows(nextRows) {
-    setSaving(true);
-    setSaveError('');
-    try {
-      const response = await fetch(`/api/catalogs/${catalogSlug}/characteristics`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: nextRows }),
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || 'Failed to persist characteristic definitions.');
+  function closeEditor() {
+    setEditorOpen(false);
+    setDraftError('');
+  }
+
+  function handleDraftChange(field, value) {
+    setDraft((current) => {
+      const next = { ...current, [field]: value };
+      if (field === 'displayName' && !current.name) {
+        next.name = inferDefaultName(value);
       }
-      setRows((payload.items || []).map(normalizeDefinition));
-      return true;
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : String(error));
-      return false;
-    } finally {
-      setSaving(false);
-    }
+      return next;
+    });
   }
 
-  async function handleSaveDraft() {
+  function validateDraft() {
+    if (!String(draft.appliesTo || '').trim()) return 'Select the product / service / resource specification this characteristic belongs to.';
+    if (!String(draft.displayName || '').trim()) return 'Display name is required.';
+    if (!String(draft.name || '').trim()) return 'Internal characteristic name is required.';
+    const min = Number(draft.minCardinality);
+    const max = draft.maxCardinality === '' ? null : Number(draft.maxCardinality);
+    if (Number.isFinite(min) && min < 0) return 'Minimum cardinality cannot be negative.';
+    if (max !== null && Number.isFinite(max) && max < min) return 'Maximum cardinality cannot be smaller than minimum cardinality.';
+    return '';
+  }
+
+  function handleSave() {
+    const error = validateDraft();
+    if (error) {
+      setDraftError(error);
+      return;
+    }
+
     const normalized = normalizeDefinition(draft);
-    if (!normalized.appliesTo) {
-      setDraftError('Choose which product, service or resource specification the characteristic applies to.');
-      return;
-    }
-    if (!normalized.displayName) {
-      setDraftError('Display name is required.');
-      return;
-    }
-    if (!normalized.name) {
-      setDraftError('Technical name is required.');
-      return;
-    }
 
-    const nextRows = editorMode === 'create'
-      ? [...rows, normalized]
-      : rows.map((item) => (item.id === normalized.id ? normalized : item));
+    setRows((current) => {
+      if (editorMode === 'edit') {
+        return current.map((item) => (item.id === normalized.id ? normalized : item));
+      }
+      return [normalized, ...current];
+    });
 
-    const success = await persistRows(nextRows);
-    if (success) {
-      setEditorOpen(false);
-    }
+    setEditorOpen(false);
+    setDraftError('');
   }
 
-  function requestDelete(definition) {
+  function openDeleteModal(definition) {
     setDeleteTarget(definition);
     setDeleteConfirmValue('');
   }
 
-  async function confirmDelete() {
-    if (!deleteTarget) return;
-    if (deleteConfirmValue.trim() !== deleteTarget.displayName) return;
-    const nextRows = rows.filter((item) => item.id !== deleteTarget.id);
-    const success = await persistRows(nextRows);
-    if (success) {
-      setDeleteTarget(null);
-      setDeleteConfirmValue('');
-    }
+  function closeDeleteModal() {
+    setDeleteTarget(null);
+    setDeleteConfirmValue('');
   }
 
-  function resetToSeed() {
-    void persistRows(seedDefinitions.map(normalizeDefinition));
+  function handleDelete() {
+    if (!deleteTarget) return;
+    setRows((current) => current.filter((item) => item.id !== deleteTarget.id));
+    closeDeleteModal();
+  }
+
+  function handleResetToSeed() {
+    setRows(seedDefinitions.map(normalizeDefinition));
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.metricsGrid}>
-        <Card title="Total definitions" padding="md"><p className={styles.metricValue}>{metrics.total}</p></Card>
-        <Card title="Configurable" padding="md"><p className={styles.metricValue}>{metrics.configurableCount}</p></Card>
-        <Card title="Inventory-impacting" padding="md"><p className={styles.metricValue}>{metrics.inventoryCount}</p></Card>
-        <Card title="Fulfillment-impacting" padding="md"><p className={styles.metricValue}>{metrics.fulfillmentCount}</p></Card>
+    <div className={styles.managerShell}>
+      <section className={styles.metricsGrid} aria-label="Characteristic metrics">
+        <Card title="Total characteristics" description="All loaded definitions" className={styles.metricCard}>
+          <strong className={styles.metricValue}>{metrics.total}</strong>
+        </Card>
+        <Card title="Configurable" description="Editable during commercial flow" className={styles.metricCard}>
+          <strong className={styles.metricValue}>{metrics.configurableCount}</strong>
+        </Card>
+        <Card title="Inventory impact" description="Relevant for PI / inventory sync" className={styles.metricCard}>
+          <strong className={styles.metricValue}>{metrics.inventoryCount}</strong>
+        </Card>
+        <Card title="Fulfillment impact" description="Relevant for service activation / downstream orchestration" className={styles.metricCard}>
+          <strong className={styles.metricValue}>{metrics.fulfillmentCount}</strong>
+        </Card>
+      </section>
+
+      <div className={styles.workspaceGrid}>
+        <Card
+          title="Characteristic workspace"
+          description="Search, filter and maintain universal EAV-style characteristic definitions."
+          className={styles.primaryPanel}
+          actions={(
+            <div className={styles.toolbarActions}>
+              <Button variant="ghost" onClick={() => exportJson(`${catalogSlug}-characteristics.json`, rows)}>Export JSON</Button>
+              <Button variant="secondary" onClick={handleResetToSeed}>Reset to seed</Button>
+              <Button onClick={openCreateModal}>New characteristic</Button>
+            </div>
+          )}
+        >
+          <div className={styles.toolbarGrid}>
+            <Input
+              label="Search"
+              placeholder="Search name, applies-to, interpretation..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <label className={styles.selectField}>
+              <span>Applies to</span>
+              <select value={appliesToFilter} onChange={(event) => setAppliesToFilter(event.target.value)}>
+                <option value="all">All structures</option>
+                {appliesToOptions.map((option) => (
+                  <option key={option.code} value={option.code}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.selectField}>
+              <span>Presence</span>
+              <select value={presenceFilter} onChange={(event) => setPresenceFilter(event.target.value)}>
+                <option value="all">All</option>
+                {PRESENCE_TYPES.map((item) => (
+                  <option key={item} value={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.selectField}>
+              <span>Configurable</span>
+              <select value={configFilter} onChange={(event) => setConfigFilter(event.target.value)}>
+                <option value="all">All</option>
+                <option value="configurable">Configurable only</option>
+                <option value="non-configurable">Non-configurable only</option>
+              </select>
+            </label>
+          </div>
+
+          <div className={styles.tableShell}>
+            <table className={styles.managerTable}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Applies to</th>
+                  <th>Type</th>
+                  <th>Presence</th>
+                  <th>Cardinality</th>
+                  <th>Configurable</th>
+                  <th>Impacts</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>
+                      <div className={styles.nameCell}>
+                        <strong>{row.displayName}</strong>
+                        <span>{row.name}</span>
+                      </div>
+                    </td>
+                    <td><code>{row.appliesTo}</code></td>
+                    <td>{row.valueType}</td>
+                    <td>{row.presence}</td>
+                    <td>{row.minCardinality}..{row.maxCardinality ?? '∞'}</td>
+                    <td>{row.configurable ? row.configurableStage : 'No'}</td>
+                    <td>
+                      <div className={styles.impactCell}>
+                        <span className={styles.impactBadge}>INV {row.inventoryImpact}</span>
+                        <span className={styles.impactBadge}>FUL {row.fulfillmentImpact}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={styles.rowActions}>
+                        <Button variant="ghost" onClick={() => openEditModal(row)}>Edit</Button>
+                        <Button variant="danger" onClick={() => openDeleteModal(row)}>Delete</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {!filteredRows.length ? (
+                  <tr>
+                    <td colSpan="8" className={styles.emptyCell}>
+                      No characteristics match the current filters.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        <Card
+          title="Design intent"
+          description={`Safe CRUD shell for ${catalogTitle}. Keeps the backend untouched while the UX layer is rebuilt.`}
+          className={styles.secondaryPanel}
+        >
+          <div className={styles.asideStack}>
+            <div className={styles.asideSection}>
+              <h3>What this step solves</h3>
+              <ul className={styles.bulletList}>
+                <li>Create new characteristic definitions from the UI</li>
+                <li>Edit existing definitions without raw JSON editing</li>
+                <li>Delete only through a confirmation modal</li>
+                <li>Export the current blueprint as JSON for backend wiring</li>
+              </ul>
+            </div>
+            <div className={styles.asideSection}>
+              <h3>Safe deletion rule</h3>
+              <p>
+                The delete action requires confirmation and the row is only removed from the
+                client blueprint state after explicit acknowledgement.
+              </p>
+            </div>
+            <div className={styles.asideSection}>
+              <h3>Next backend hook</h3>
+              <p>
+                This manager is designed so its save / delete handlers can later be replaced
+                with TMF620-aligned API mutations without redesigning the screen.
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
 
-      <Card
-        title="Filter and manage characteristics"
-        description={`Current catalog: ${catalogTitle}. Changes are saved to Supabase if server-side credentials are configured.`}
-        actions={(
-          <div className={styles.actionRow}>
-            <Button variant="secondary" onClick={() => exportJson(`${catalogSlug}-characteristics.json`, rows)}>Export JSON</Button>
-            <Button variant="ghost" onClick={resetToSeed} loading={saving}>Reset to seed</Button>
-            <Button onClick={openCreateModal}>New characteristic</Button>
-          </div>
-        )}
-      >
-        {saveError ? <p className="ds-field__error">{saveError}</p> : null}
-        <div className={styles.filtersGrid}>
-          <Input label="Search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by name, interpretation, applies-to or values" />
-          <label className={styles.filterField}><span>Applies to</span><select value={appliesToFilter} onChange={(event) => setAppliesToFilter(event.target.value)}><option value="all">All</option>{appliesToOptions.map((item) => <option value={item.code} key={item.code}>{item.label}</option>)}</select></label>
-          <label className={styles.filterField}><span>Presence</span><select value={presenceFilter} onChange={(event) => setPresenceFilter(event.target.value)}><option value="all">All</option>{PRESENCE_TYPES.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-          <label className={styles.filterField}><span>Configurability</span><select value={configFilter} onChange={(event) => setConfigFilter(event.target.value)}><option value="all">All</option><option value="configurable">Configurable only</option><option value="non-configurable">Non-configurable only</option></select></label>
-        </div>
-
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Display name</th><th>Applies to</th><th>Type</th><th>Presence</th><th>Cardinality</th><th>Configurable</th><th>Allowed values</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((row) => (
-                <tr key={row.id}>
-                  <td>
-                    <strong>{row.displayName}</strong>
-                    <span className={styles.subtleLine}>{row.name}</span>
-                  </td>
-                  <td><code>{row.appliesTo}</code></td>
-                  <td>{row.valueType}</td>
-                  <td>{row.presence}</td>
-                  <td>{row.minCardinality}..{row.maxCardinality ?? '∞'}</td>
-                  <td>{row.configurable ? 'Yes' : 'No'}</td>
-                  <td>{row.allowedValues.length ? row.allowedValues.join(', ') : '—'}</td>
-                  <td>
-                    <div className={styles.inlineActions}>
-                      <Button variant="secondary" size="sm" onClick={() => openEditModal(row)}>Edit</Button>
-                      <Button variant="danger" size="sm" onClick={() => requestDelete(row)}>Delete</Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
       <Modal
-        open={editorOpen}
-        onClose={() => setEditorOpen(false)}
-        title={editorMode === 'create' ? 'Create characteristic' : 'Edit characteristic'}
-        description="Define universal characteristic metadata that can later be mapped into industry-specific product structures."
-        actions={(
+        isOpen={editorOpen}
+        onClose={closeEditor}
+        title={editorMode === 'edit' ? 'Edit characteristic' : 'Create characteristic'}
+        description="Universal EAV definition editor with telecom demo defaults."
+        footer={(
           <>
-            <Button variant="ghost" onClick={() => setEditorOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveDraft} loading={saving}>{editorMode === 'create' ? 'Create' : 'Save changes'}</Button>
+            <Button variant="ghost" onClick={closeEditor}>Cancel</Button>
+            <Button onClick={handleSave}>{editorMode === 'edit' ? 'Save changes' : 'Create characteristic'}</Button>
           </>
         )}
       >
-        <div className={styles.modalForm}>
-          <label className={styles.filterField}><span>Applies to</span><select value={draft.appliesTo} onChange={(event) => setDraft((prev) => ({ ...prev, appliesTo: event.target.value }))}><option value="">Select…</option>{appliesToOptions.map((item) => <option value={item.code} key={item.code}>{item.label}</option>)}</select></label>
-          <div className={styles.modalGrid}>
-            <Input label="Display name" value={draft.displayName} onChange={(event) => setDraft((prev) => ({ ...prev, displayName: event.target.value }))} />
-            <Input label="Technical name" value={draft.name} onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))} />
-            <label className={styles.filterField}><span>Value type</span><select value={draft.valueType} onChange={(event) => setDraft((prev) => ({ ...prev, valueType: event.target.value }))}>{VALUE_TYPES.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-            <label className={styles.filterField}><span>Presence</span><select value={draft.presence} onChange={(event) => setDraft((prev) => ({ ...prev, presence: event.target.value }))}>{PRESENCE_TYPES.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-            <Input label="Presence meaning" value={draft.presenceMeaning} onChange={(event) => setDraft((prev) => ({ ...prev, presenceMeaning: event.target.value }))} />
-            <label className={styles.filterField}><span>Configurable stage</span><select value={draft.configurableStage} onChange={(event) => setDraft((prev) => ({ ...prev, configurableStage: event.target.value }))}>{STAGE_TYPES.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-            <label className={styles.filterField}><span>Editing behaviour</span><select value={draft.editingBehaviour} onChange={(event) => setDraft((prev) => ({ ...prev, editingBehaviour: event.target.value }))}>{EDITING_TYPES.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-            <label className={styles.filterField}><span>Inventory impact</span><select value={draft.inventoryImpact} onChange={(event) => setDraft((prev) => ({ ...prev, inventoryImpact: event.target.value }))}>{IMPACT_TYPES.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-            <label className={styles.filterField}><span>Fulfillment impact</span><select value={draft.fulfillmentImpact} onChange={(event) => setDraft((prev) => ({ ...prev, fulfillmentImpact: event.target.value }))}>{IMPACT_TYPES.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-            <Input label="Min cardinality" type="number" value={draft.minCardinality} onChange={(event) => setDraft((prev) => ({ ...prev, minCardinality: event.target.value }))} />
-            <Input label="Max cardinality" value={draft.maxCardinality} onChange={(event) => setDraft((prev) => ({ ...prev, maxCardinality: event.target.value }))} description="Use ∞ or leave empty for open-ended cardinality." />
-            <Input label="Default value" value={draft.defaultValue} onChange={(event) => setDraft((prev) => ({ ...prev, defaultValue: event.target.value }))} />
-            <Input label="Allowed values (comma-separated)" value={draft.allowedValuesText} onChange={(event) => setDraft((prev) => ({ ...prev, allowedValuesText: event.target.value }))} />
-          </div>
-          <Input multiline label="Interpretation" value={draft.interpretation} onChange={(event) => setDraft((prev) => ({ ...prev, interpretation: event.target.value }))} />
-          <label className={styles.checkboxRow}>
-            <input type="checkbox" checked={Boolean(draft.configurable)} onChange={(event) => setDraft((prev) => ({ ...prev, configurable: event.target.checked }))} />
-            <span>Configurable by the user or CPQ flow</span>
+        <div className={styles.formGrid}>
+          <label className={styles.selectField}>
+            <span>Applies to</span>
+            <select value={draft.appliesTo} onChange={(event) => handleDraftChange('appliesTo', event.target.value)}>
+              <option value="">Select specification</option>
+              {appliesToOptions.map((option) => (
+                <option key={option.code} value={option.code}>{option.label}</option>
+              ))}
+            </select>
           </label>
-          {draftError ? <p className="ds-field__error">{draftError}</p> : null}
+
+          <Input
+            label="Display name"
+            value={draft.displayName}
+            onChange={(event) => handleDraftChange('displayName', event.target.value)}
+            placeholder="Customer segment"
+          />
+          <Input
+            label="Internal name"
+            value={draft.name}
+            onChange={(event) => handleDraftChange('name', event.target.value)}
+            placeholder="customerSegment"
+          />
+
+          <label className={styles.selectField}>
+            <span>Value type</span>
+            <select value={draft.valueType} onChange={(event) => handleDraftChange('valueType', event.target.value)}>
+              {VALUE_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+
+          <label className={styles.selectField}>
+            <span>Presence</span>
+            <select value={draft.presence} onChange={(event) => handleDraftChange('presence', event.target.value)}>
+              {PRESENCE_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+
+          <Input
+            label="Presence meaning"
+            value={draft.presenceMeaning}
+            onChange={(event) => handleDraftChange('presenceMeaning', event.target.value)}
+            placeholder="Required before order submission"
+          />
+
+          <Input
+            label="Minimum cardinality"
+            type="number"
+            value={draft.minCardinality}
+            onChange={(event) => handleDraftChange('minCardinality', event.target.value)}
+          />
+          <Input
+            label="Maximum cardinality"
+            value={draft.maxCardinality}
+            onChange={(event) => handleDraftChange('maxCardinality', event.target.value)}
+            placeholder="Leave empty for unlimited"
+          />
+
+          <label className={styles.checkboxField}>
+            <input
+              type="checkbox"
+              checked={draft.configurable}
+              onChange={(event) => handleDraftChange('configurable', event.target.checked)}
+            />
+            <span>Configurable in commercial flow</span>
+          </label>
+
+          <label className={styles.selectField}>
+            <span>Configurable stage</span>
+            <select value={draft.configurableStage} onChange={(event) => handleDraftChange('configurableStage', event.target.value)}>
+              {STAGE_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+
+          <label className={styles.selectField}>
+            <span>Editing behaviour</span>
+            <select value={draft.editingBehaviour} onChange={(event) => handleDraftChange('editingBehaviour', event.target.value)}>
+              {EDITING_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+
+          <Input
+            label="Default value"
+            value={draft.defaultValue}
+            onChange={(event) => handleDraftChange('defaultValue', event.target.value)}
+            placeholder="Optional default"
+          />
+          <Input
+            label="Allowed values"
+            value={draft.allowedValuesText}
+            onChange={(event) => handleDraftChange('allowedValuesText', event.target.value)}
+            placeholder="comma, separated, options"
+            hint="For enum / array-like fields, separate items with commas."
+          />
+
+          <label className={styles.selectField}>
+            <span>Inventory impact</span>
+            <select value={draft.inventoryImpact} onChange={(event) => handleDraftChange('inventoryImpact', event.target.value)}>
+              {IMPACT_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+
+          <label className={styles.selectField}>
+            <span>Fulfillment impact</span>
+            <select value={draft.fulfillmentImpact} onChange={(event) => handleDraftChange('fulfillmentImpact', event.target.value)}>
+              {IMPACT_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+
+          <Input
+            label="Interpretation"
+            textarea
+            value={draft.interpretation}
+            onChange={(event) => handleDraftChange('interpretation', event.target.value)}
+            placeholder="Explain how downstream PI / SI / orchestration should interpret this field."
+          />
         </div>
+
+        {draftError ? <p className={styles.errorText}>{draftError}</p> : null}
       </Modal>
 
       <Modal
-        open={Boolean(deleteTarget)}
-        onClose={() => setDeleteTarget(null)}
+        isOpen={Boolean(deleteTarget)}
+        onClose={closeDeleteModal}
         title="Delete characteristic"
-        description="Type the exact display name to confirm permanent removal from the persisted catalog structure."
-        actions={(
+        description="This is intentionally guarded. Confirm the delete before the characteristic is removed from the blueprint."
+        footer={(
           <>
-            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</Button>
-            <Button variant="danger" onClick={confirmDelete} disabled={!deleteTarget || deleteConfirmValue.trim() !== deleteTarget.displayName} loading={saving}>Delete</Button>
+            <Button variant="ghost" onClick={closeDeleteModal}>Cancel</Button>
+            <Button
+              variant="danger"
+              disabled={!deleteTarget || deleteConfirmValue.trim() !== deleteTarget.displayName}
+              onClick={handleDelete}
+            >
+              Delete permanently
+            </Button>
           </>
         )}
       >
         {deleteTarget ? (
           <div className={styles.deleteBody}>
             <p>
-              You are deleting <strong>{deleteTarget.displayName}</strong> from <strong>{catalogTitle}</strong>.
+              You are about to delete <strong>{deleteTarget.displayName}</strong> from{' '}
+              <code>{deleteTarget.appliesTo}</code>.
+            </p>
+            <p className={styles.deleteHint}>
+              Type the exact characteristic display name to enable deletion.
             </p>
             <Input
-              label={`Type “${deleteTarget.displayName}” to confirm`}
+              label={`Type "${deleteTarget.displayName}" to confirm`}
               value={deleteConfirmValue}
               onChange={(event) => setDeleteConfirmValue(event.target.value)}
             />
