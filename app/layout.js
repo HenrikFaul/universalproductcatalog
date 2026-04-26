@@ -1,8 +1,9 @@
-import "./globals.css";
+import './globals.css';
+import './styles/design-system.css';
 
 export const metadata = {
-  title: "Universal Product Catalog",
-  description: "Universal Product Catalog EPC foundation"
+  title: 'Universal Product Catalog',
+  description: 'Universal Product Catalog EPC foundation',
 };
 
 export default function RootLayout({ children }) {
