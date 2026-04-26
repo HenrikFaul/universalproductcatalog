@@ -132,3 +132,10 @@ export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event
 - Added TMF entity runtime definitions and a headless in-memory entity store with pagination, filtering, field projection, lifecycle-aware soft delete, and relationship-cycle protection.
 - Added Next.js API routes for `/api/tmf-api/productCatalogManagement/v4/:entity` and `/api/tmf-api/productCatalogManagement/v4/:entity/:id` supporting CRUD semantics and 400/404/409 error contracts.
 - Added automated tests to verify query feature behavior and enforce anti-cycle validation on product offering relationships.
+
+## 2026-04-26 – Hierarchy Studio entity CRUD + readability hardening
+- Added catalog entity persistence endpoint (`/api/catalogs/:slug/entities`) and backend patch helper to save product/service/resource definitions and catalog grouping metadata without touching design tokens.
+- Extended Hierarchy Studio with an in-place Entity Editor card so users can create/update Product Specification, Service Specification, and Resource Specification records directly from the canvas workflow.
+- Wired entity updates to live state in `HierarchyBuilderClient`, so newly created entities are immediately selectable for relationship creation and grouping.
+- Increased hierarchy node text readability (larger title/code/type/pill typography and stronger code contrast) to improve legibility in dense graphs.
+- Replaced the previous corner-node logo mark with a compact diamond UPC mark variant requested for brand consistency.

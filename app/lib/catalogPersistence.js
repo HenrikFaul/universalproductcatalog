@@ -419,6 +419,43 @@ export async function updatePersistedHierarchy(slug, hierarchy, serviceMapping, 
   return rowToCatalog(rows[0]);
 }
 
+export async function updatePersistedEntities(slug, payload = {}) {
+  const existing = (await ensurePersistedSeedForSlug(slug)) || (await getPersistedCatalogBySlug(slug));
+  if (!existing) {
+    throw new Error(`Catalog ${slug} was not found.`);
+  }
+
+  const patch = {};
+  if (payload.productSpecifications !== undefined) {
+    patch.product_specifications = ensureArray(payload.productSpecifications);
+  }
+  if (payload.serviceSpecifications !== undefined) {
+    patch.service_specifications = ensureArray(payload.serviceSpecifications);
+  }
+  if (payload.resourceSpecifications !== undefined) {
+    patch.resource_specifications = ensureArray(payload.resourceSpecifications);
+  }
+  if (payload.productOfferings !== undefined) {
+    patch.product_offerings = ensureArray(payload.productOfferings);
+  }
+  if (payload.catalogCategories !== undefined || payload.offeringCategories !== undefined) {
+    patch.metadata = {
+      ...(existing.metadata || {}),
+      catalogGrouping: {
+        catalogCategories: ensureArray(payload.catalogCategories),
+        offeringCategories: ensureArray(payload.offeringCategories),
+        updatedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  const rows = await supabaseRest(`${TABLE_NAME}?slug=eq.${encodeURIComponent(slug)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
+  return rowToCatalog(rows[0]);
+}
+
 export async function resolveCatalogBySlug(slug) {
   const persisted = await getPersistedCatalogBySlug(slug);
   if (persisted) return persisted;

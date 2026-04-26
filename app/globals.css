@@ -1038,14 +1038,8 @@ html, body {
 .app-brand-text small { color: rgba(232,244,255,0.72); font-size: 0.76rem; font-weight: 700; }
 .upc-logo-mark { --logo-size: 2.35rem; display: inline-grid; flex: 0 0 auto; height: var(--logo-size); position: relative; width: var(--logo-size); }
 .upc-logo-mark--compact { --logo-size: 2rem; }
-.upc-logo-corner { border: 0.22rem solid #21a5ff; border-radius: 0.45rem; height: 1rem; position: absolute; width: 1rem; }
-.upc-logo-corner--tl { border-bottom: 0; border-right: 0; left: 0.15rem; top: 0.15rem; transform: rotate(45deg); }
-.upc-logo-corner--tr { border-bottom: 0; border-left: 0; right: 0.15rem; top: 0.15rem; transform: rotate(-45deg); }
-.upc-logo-corner--br { border-left: 0; border-top: 0; bottom: 0.15rem; right: 0.15rem; transform: rotate(45deg); }
-.upc-logo-corner--bl { border-right: 0; border-top: 0; bottom: 0.15rem; left: 0.15rem; transform: rotate(-45deg); }
-.upc-logo-node { background: #21a5ff; border-radius: 999px; height: 0.42rem; left: 50%; position: absolute; transform: translateX(-50%); width: 0.42rem; }
-.upc-logo-node--top { top: 0.3rem; }
-.upc-logo-node--bottom { bottom: 0.3rem; }
+.upc-logo-diamond { border: 0.15rem solid #21a5ff; border-radius: 0.42rem; inset: 0.18rem; position: absolute; transform: rotate(45deg); }
+.upc-logo-core { align-items: center; color: #fff; display: inline-flex; font-size: 0.44rem; font-weight: 900; height: 100%; justify-content: center; letter-spacing: 0.06em; position: relative; text-shadow: 0 1px 2px rgba(0,0,0,0.35); width: 100%; }
 .app-nav { gap: 0.35rem; }
 .app-nav a { border-color: transparent; color: rgba(232,244,255,0.78); font-size: 0.88rem; gap: 0.65rem; min-height: 2.75rem; }
 .app-nav a:hover, .app-nav a:focus-visible { background: rgba(33,165,255,0.13); border-color: rgba(33,165,255,0.22); color: #fff; }
@@ -1055,6 +1049,7 @@ html, body {
 .app-content { padding: 0; }
 .app-topbar { align-items: center; background: rgba(255,255,255,0.86); border-bottom: 1px solid var(--border); backdrop-filter: blur(14px); display: flex; justify-content: space-between; min-height: 4.5rem; padding: 0.85rem 2rem; position: sticky; top: 0; z-index: 20; }
 .topbar-title { align-items: center; display: flex; gap: 0.75rem; }
+.app-topbar .upc-logo-core { color: #12213d; text-shadow: none; }
 .topbar-title > div { display: grid; gap: 0.1rem; }
 .topbar-title span { color: var(--muted); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
 .topbar-title strong { color: var(--text); font-size: 0.95rem; }
