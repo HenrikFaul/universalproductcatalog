@@ -80,3 +80,29 @@
     --app-header-height: 4rem;
   }
 }
+
+/* UPC Candidate 2 palette overrides */
+:root {
+  --color-bg-app: hsl(210 40% 97%);
+  --color-bg-surface: hsl(0 0% 100%);
+  --color-bg-elevated: hsl(210 40% 99%);
+  --color-border-subtle: hsl(214 26% 90%);
+  --color-border-strong: hsl(214 22% 80%);
+  --color-text-primary: hsl(218 51% 16%);
+  --color-text-secondary: hsl(215 20% 34%);
+  --color-text-muted: hsl(215 14% 49%);
+  --color-primary: hsl(166 76% 42%);
+  --color-primary-strong: hsl(166 84% 30%);
+  --color-primary-soft: hsl(160 84% 96%);
+  --color-success: hsl(156 72% 36%);
+  --color-success-soft: hsl(152 78% 95%);
+  --color-warning: hsl(32 95% 52%);
+  --color-warning-soft: hsl(37 100% 95%);
+  --color-focus-ring: hsl(204 94% 54% / 0.18);
+  --color-studio-canvas: hsl(210 45% 98%);
+  --color-studio-canvas-elevated: hsl(0 0% 100%);
+  --color-studio-spot-primary: hsl(204 94% 54% / 0.10);
+  --color-studio-spot-success: hsl(156 72% 36% / 0.10);
+  --color-studio-lane-primary: hsl(204 94% 54% / 0.18);
+  --color-studio-lane-success: hsl(156 72% 36% / 0.18);
+}
