@@ -37,10 +37,6 @@ export default async function CatalogCharacteristicsPage({ params }) {
         <p className="hero-text">
           Create, edit and safely delete universal product characteristics. Changes are now prepared to persist to the configured Supabase backend.
         </p>
-        <div className="hero-actions">
-          <Link href={`/catalogs/${catalog.slug}`} className="secondary-button">Back to catalog</Link>
-          <Link href={`/catalogs/${catalog.slug}/hierarchy`} className="secondary-button">Open hierarchy builder</Link>
-        </div>
       </section>
 
       <nav className="catalog-local-tabs" aria-label="Catalog sections">

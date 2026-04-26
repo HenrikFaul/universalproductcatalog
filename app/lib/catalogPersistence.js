@@ -403,6 +403,9 @@ export async function updatePersistedHierarchy(slug, hierarchy, serviceMapping, 
         customPositions: visualState.customPositions && typeof visualState.customPositions === 'object'
           ? visualState.customPositions
           : {},
+        laneLayout: visualState.laneLayout && typeof visualState.laneLayout === 'object'
+          ? visualState.laneLayout
+          : undefined,
         updatedAt: new Date().toISOString(),
       },
     };

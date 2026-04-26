@@ -675,3 +675,30 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+/* Round 4: draggable lane splitters and unrestricted canvas use. */
+.canvasSurfaceFull::before {
+  left: var(--studio-service-lane-left);
+}
+
+.canvasSurfaceFull::after {
+  left: var(--studio-resource-lane-left);
+}
+
+.laneLabel {
+  appearance: none;
+  cursor: ew-resize;
+  user-select: none;
+}
+
+.laneLabel:hover,
+.laneLabel:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.canvasStage {
+  min-width: 100%;
+}

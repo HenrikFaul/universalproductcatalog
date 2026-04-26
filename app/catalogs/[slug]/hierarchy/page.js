@@ -37,10 +37,6 @@ export default async function CatalogHierarchyPage({ params }) {
         <p className="hero-text">
           Visualise and edit the Bundle → Product → Service → Resource structure in a TMF620-friendly way. The builder saves relationship edges to the configured Supabase backend when server credentials are present.
         </p>
-        <div className="hero-actions">
-          <Link href={`/catalogs/${catalog.slug}`} className="secondary-button">Back to catalog</Link>
-          <Link href={`/catalogs/${catalog.slug}/characteristics`} className="secondary-button">Manage characteristics</Link>
-        </div>
       </section>
 
       <nav className="catalog-local-tabs" aria-label="Catalog sections">

@@ -23,6 +23,11 @@ const SERVICE_GAP_Y = 28;
 const CANVAS_WIDTH = 1320;
 const CANVAS_HEIGHT = 920;
 const CANVAS_PADDING = 48;
+const DEFAULT_LANE_LAYOUT = {
+  productX: PRODUCT_ROOT_X,
+  serviceX: SERVICE_COLUMN_X - 120,
+  resourceX: RESOURCE_COLUMN_X - 120,
+};
 
 function cx(...values) {
   return values.filter(Boolean).join(' ');
@@ -154,7 +159,8 @@ function buildNodeIndex(productSpecifications, serviceSpecifications, resourceSp
   ]);
 }
 
-function buildProductAutoPositions(productSpecifications, bundleEdges) {
+function buildProductAutoPositions(productSpecifications, bundleEdges, laneLayout = DEFAULT_LANE_LAYOUT) {
+  const productStartX = laneLayout.productX + 24;
   const childSet = new Set(bundleEdges.map((edge) => edge.child));
   const childrenByParent = new Map();
   for (const edge of bundleEdges) {
@@ -199,7 +205,7 @@ function buildProductAutoPositions(productSpecifications, bundleEdges) {
   levels.forEach((level, depth) => {
     level.forEach((code, index) => {
       positions[code] = {
-        x: PRODUCT_ROOT_X + depth * (PRODUCT_NODE_WIDTH + PRODUCT_NODE_GAP_X),
+        x: productStartX + depth * (PRODUCT_NODE_WIDTH + PRODUCT_NODE_GAP_X),
         y: PRODUCT_ROOT_Y + index * (PRODUCT_NODE_HEIGHT + PRODUCT_NODE_GAP_Y),
       };
     });
@@ -207,18 +213,20 @@ function buildProductAutoPositions(productSpecifications, bundleEdges) {
   return positions;
 }
 
-function buildServiceResourcePositions(serviceSpecifications, resourceSpecifications, serviceMapping) {
+function buildServiceResourcePositions(serviceSpecifications, resourceSpecifications, serviceMapping, laneLayout = DEFAULT_LANE_LAYOUT) {
+  const serviceStartX = laneLayout.serviceX + 24;
+  const resourceStartX = laneLayout.resourceX + 24;
   const positions = {};
   serviceSpecifications.forEach((item, index) => {
     positions[item.code] = {
-      x: SERVICE_COLUMN_X,
+      x: serviceStartX,
       y: SERVICE_ROOT_Y + index * (SERVICE_NODE_HEIGHT + SERVICE_GAP_Y),
     };
   });
 
   resourceSpecifications.forEach((item, index) => {
     positions[item.code] = {
-      x: RESOURCE_COLUMN_X,
+      x: resourceStartX,
       y: SERVICE_ROOT_Y + index * (SERVICE_NODE_HEIGHT + SERVICE_GAP_Y),
     };
   });
@@ -229,7 +237,7 @@ function buildServiceResourcePositions(serviceSpecifications, resourceSpecificat
     (row.resourceSpecs || []).forEach((resourceCode, index) => {
       if (!positions[resourceCode]) {
         positions[resourceCode] = {
-          x: RESOURCE_COLUMN_X,
+          x: resourceStartX,
           y: servicePosition.y + index * (SERVICE_NODE_HEIGHT + SERVICE_GAP_Y),
         };
       }
@@ -269,18 +277,19 @@ function wouldCreateCycle(edges, parent, child) {
   return false;
 }
 
-function buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes) {
+function buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes, laneLayout = DEFAULT_LANE_LAYOUT) {
   const visibleProductSpecifications = productSpecifications.filter((item) => activeNodeCodes.has(item.code));
   const visibleServiceSpecifications = serviceSpecifications.filter((item) => activeNodeCodes.has(item.code));
   const visibleResourceSpecifications = resourceSpecifications.filter((item) => activeNodeCodes.has(item.code));
   const visibleBundleEdges = bundleEdges.filter((edge) => activeNodeCodes.has(edge.parent) && activeNodeCodes.has(edge.child));
   const visibleServiceResourceEdges = serviceResourceEdges.filter((edge) => activeNodeCodes.has(edge.parent) && activeNodeCodes.has(edge.child));
 
-  const autoProductPositions = buildProductAutoPositions(visibleProductSpecifications, visibleBundleEdges);
+  const autoProductPositions = buildProductAutoPositions(visibleProductSpecifications, visibleBundleEdges, laneLayout);
   const servicePositions = buildServiceResourcePositions(
     visibleServiceSpecifications,
     visibleResourceSpecifications,
     buildServiceMappingFromEdges(visibleServiceResourceEdges),
+    laneLayout,
   );
 
   const products = visibleProductSpecifications.map((item) => ({
@@ -293,7 +302,7 @@ function buildNodeCards(productSpecifications, serviceSpecifications, resourceSp
 
   const services = visibleServiceSpecifications.map((item) => ({
     ...nodeIndex.get(item.code),
-    x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? SERVICE_COLUMN_X,
+    x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? (laneLayout.serviceX + 24),
     y: customPositions[item.code]?.y ?? servicePositions[item.code]?.y ?? SERVICE_ROOT_Y,
     width: SERVICE_NODE_WIDTH,
     height: SERVICE_NODE_HEIGHT,
@@ -301,7 +310,7 @@ function buildNodeCards(productSpecifications, serviceSpecifications, resourceSp
 
   const resources = visibleResourceSpecifications.map((item) => ({
     ...nodeIndex.get(item.code),
-    x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? RESOURCE_COLUMN_X,
+    x: customPositions[item.code]?.x ?? servicePositions[item.code]?.x ?? (laneLayout.resourceX + 24),
     y: customPositions[item.code]?.y ?? servicePositions[item.code]?.y ?? SERVICE_ROOT_Y,
     width: SERVICE_NODE_WIDTH,
     height: SERVICE_NODE_HEIGHT,
@@ -400,6 +409,7 @@ export default function HierarchyBuilderClient({
   const [toastTone, setToastTone] = useState('success');
   const [saving, setSaving] = useState(false);
   const [customPositions, setCustomPositions] = useState(() => initialStudioState.customPositions || {});
+  const [laneLayout, setLaneLayout] = useState(() => ({ ...DEFAULT_LANE_LAYOUT, ...(initialStudioState.laneLayout || {}) }));
   const [draft, setDraft] = useState({ parent: productSpecifications[0]?.code || '', child: '', min: 0, max: 1, defaultQty: 0 });
   const [viewportWidth, setViewportWidth] = useState(0);
   const [hoveredDropTarget, setHoveredDropTarget] = useState('');
@@ -413,6 +423,7 @@ export default function HierarchyBuilderClient({
     characteristics: false,
   });
   const dragMetaRef = useRef(null);
+  const laneDragRef = useRef(null);
   const viewportRef = useRef(null);
   const stageRef = useRef(null);
 
@@ -439,6 +450,26 @@ export default function HierarchyBuilderClient({
 
   useEffect(() => {
     const onPointerMove = (event) => {
+      const laneDrag = laneDragRef.current;
+      if (laneDrag) {
+        const delta = (event.clientX - laneDrag.startClientX) / laneDrag.scale;
+        setLaneLayout((prev) => {
+          const next = { ...prev };
+          const raw = laneDrag.startValue + delta;
+          if (laneDrag.key === 'productX') {
+            next.productX = Math.max(24, Math.min(prev.serviceX - 280, raw));
+          }
+          if (laneDrag.key === 'serviceX') {
+            next.serviceX = Math.max(prev.productX + 280, Math.min(prev.resourceX - 280, raw));
+          }
+          if (laneDrag.key === 'resourceX') {
+            next.resourceX = Math.max(prev.serviceX + 280, raw);
+          }
+          return next;
+        });
+        return;
+      }
+
       const current = dragMetaRef.current;
       if (!current || !stageRef.current) return;
       const rect = stageRef.current.getBoundingClientRect();
@@ -449,14 +480,15 @@ export default function HierarchyBuilderClient({
       setCustomPositions((prev) => ({
         ...prev,
         [current.code]: {
-          x: Math.max(24, Math.min(current.boundsWidth - current.width - 24, nextX)),
-          y: Math.max(24, Math.min(current.boundsHeight - current.height - 24, nextY)),
+          x: Math.max(0, nextX),
+          y: Math.max(0, nextY),
         },
       }));
     };
 
     const onPointerUp = () => {
       dragMetaRef.current = null;
+      laneDragRef.current = null;
       setHoveredDropTarget('');
     };
 
@@ -477,8 +509,8 @@ export default function HierarchyBuilderClient({
   );
 
   const nodes = useMemo(
-    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes),
-    [activeNodeCodes, bundleEdges, customPositions, nodeIndex, productSpecifications, resourceSpecifications, serviceResourceEdges, serviceSpecifications],
+    () => buildNodeCards(productSpecifications, serviceSpecifications, resourceSpecifications, nodeIndex, bundleEdges, serviceResourceEdges, customPositions, activeNodeCodes, laneLayout),
+    [activeNodeCodes, bundleEdges, customPositions, laneLayout, nodeIndex, productSpecifications, resourceSpecifications, serviceResourceEdges, serviceSpecifications],
   );
 
   const nodeLookup = useMemo(() => new Map(nodes.map((node) => [node.code, node])), [nodes]);
@@ -556,12 +588,14 @@ export default function HierarchyBuilderClient({
       rootNodeCodes: new Set(rootNodeCodes),
       removedNodeCodes: new Set(removedNodeCodes),
       customPositions: deepCloneValue(customPositions) || {},
+      laneLayout: { ...laneLayout },
     };
     const optimisticEdges = cloneEdges(nextEdges);
     const optimisticSelectedEdgeId = options.selectedEdgeId ?? selectedEdgeId;
     const optimisticRoots = new Set(options.rootNodeCodes ?? rootNodeCodes);
     const optimisticRemoved = new Set(options.removedNodeCodes ?? removedNodeCodes);
     const optimisticPositions = options.customPositions ?? customPositions;
+    const optimisticLaneLayout = options.laneLayout ?? laneLayout;
 
     setSaving(true);
     setSaveError('');
@@ -570,6 +604,7 @@ export default function HierarchyBuilderClient({
     setRootNodeCodes(optimisticRoots);
     setRemovedNodeCodes(optimisticRemoved);
     setCustomPositions(optimisticPositions);
+    setLaneLayout(optimisticLaneLayout);
     if (optimisticSelectedEdgeId !== undefined) setSelectedEdgeId(optimisticSelectedEdgeId);
 
     try {
@@ -587,6 +622,7 @@ export default function HierarchyBuilderClient({
             rootNodeCodes: [...optimisticRoots],
             removedNodeCodes: [...optimisticRemoved],
             customPositions: optimisticPositions,
+            laneLayout: optimisticLaneLayout,
           },
         }),
       });
@@ -603,15 +639,10 @@ export default function HierarchyBuilderClient({
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      setEdges(previousState.edges);
-      setSelectedEdgeId(previousState.selectedEdgeId);
-      setRootNodeCodes(previousState.rootNodeCodes);
-      setRemovedNodeCodes(previousState.removedNodeCodes);
-      setCustomPositions(previousState.customPositions);
       setSaveError(message);
       setToastTone('error');
-      setToastMessage(`Change rolled back: ${message}`);
-      return false;
+      setToastMessage(`Saved locally, but backend persistence failed: ${message}`);
+      return true;
     } finally {
       setSaving(false);
     }
@@ -822,10 +853,11 @@ export default function HierarchyBuilderClient({
   }
 
   function resetToDefault() {
-    void persist(initialGraphEdges, { selectedEdgeId: initialGraphEdges[0]?.id || '', rootNodeCodes: buildInitialRootNodeCodes(initialGraphEdges, productSpecifications), removedNodeCodes: new Set(), customPositions: {} });
+    void persist(initialGraphEdges, { selectedEdgeId: initialGraphEdges[0]?.id || '', rootNodeCodes: buildInitialRootNodeCodes(initialGraphEdges, productSpecifications), removedNodeCodes: new Set(), customPositions: {}, laneLayout: DEFAULT_LANE_LAYOUT });
     setRootNodeCodes(buildInitialRootNodeCodes(initialGraphEdges, productSpecifications));
     setRemovedNodeCodes(new Set());
     setCustomPositions({});
+    setLaneLayout(DEFAULT_LANE_LAYOUT);
   }
 
   function handleNodePointerDown(event, node) {
@@ -842,8 +874,19 @@ export default function HierarchyBuilderClient({
       width: node.width,
       height: node.height,
       scale: fitScale,
-      boundsWidth: logicalBounds.width,
-      boundsHeight: logicalBounds.height,
+      boundsWidth: Math.max(logicalBounds.width, CANVAS_WIDTH * 2),
+      boundsHeight: Math.max(logicalBounds.height, CANVAS_HEIGHT * 2),
+    };
+  }
+
+  function handleLanePointerDown(event, key) {
+    event.preventDefault();
+    event.stopPropagation();
+    laneDragRef.current = {
+      key,
+      startClientX: event.clientX,
+      startValue: laneLayout[key],
+      scale: fitScale || 1,
     };
   }
 
@@ -892,8 +935,8 @@ export default function HierarchyBuilderClient({
       const localX = (event.clientX - rect.left) / fitScale;
       const localY = (event.clientY - rect.top) / fitScale;
       dropPoint = {
-        targetX: Math.max(24, Math.min(logicalBounds.width - PRODUCT_NODE_WIDTH - 24, localX - PRODUCT_NODE_WIDTH * 0.2)),
-        targetY: Math.max(24, Math.min(logicalBounds.height - PRODUCT_NODE_HEIGHT - 24, localY - PRODUCT_NODE_HEIGHT * 0.5)),
+        targetX: Math.max(0, localX - PRODUCT_NODE_WIDTH * 0.2),
+        targetY: Math.max(0, localY - PRODUCT_NODE_HEIGHT * 0.5),
       };
     }
 
@@ -927,6 +970,7 @@ export default function HierarchyBuilderClient({
     const saved = await applyRelationshipChange(relationModal.parent, relationModal.child, {
       ...relationModal,
       customPositions: nextPositions,
+      laneLayout,
     });
     if (saved) {
       closeRelationBuilder();
@@ -1148,7 +1192,7 @@ export default function HierarchyBuilderClient({
                       </div>
                       <div className={styles.inlineActions}>
                         <Button onClick={updateSelectedBundleEdge} loading={saving}>Save edge</Button>
-                        <Button variant="danger" onClick={() => setDeleteTarget({ kind: 'edge', edge: selectedEdge })}>Delete edge</Button>
+                        <Button variant="danger" onClick={() => { const childNode = nodeLookup.get(selectedEdge.child); if (childNode) setDeleteTarget({ kind: 'node', node: childNode, incomingEdge: selectedEdge }); }}>Remove child from structure</Button>
                       </div>
                     </>
                   ) : null}
@@ -1247,7 +1291,12 @@ export default function HierarchyBuilderClient({
               if (!event.currentTarget.contains(event.relatedTarget)) setIsCanvasDropActive(false);
             }}
             onDrop={(event) => openDropModalFromEvent(event)}
-            style={{ minHeight: `${stageHeight}px` }}
+            style={{
+              minHeight: `${stageHeight}px`,
+              '--studio-product-lane-left': `${laneLayout.productX}px`,
+              '--studio-service-lane-left': `${laneLayout.serviceX}px`,
+              '--studio-resource-lane-left': `${laneLayout.resourceX}px`,
+            }}
           >
             <div
               className={styles.canvasStage}
@@ -1262,9 +1311,9 @@ export default function HierarchyBuilderClient({
                 ))}
               </svg>
 
-              <div className={styles.laneLabel} style={{ left: 'var(--studio-product-lane-left)' }}>Products</div>
-              <div className={styles.laneLabel} style={{ left: 'var(--studio-service-lane-left)' }}>Services</div>
-              <div className={styles.laneLabel} style={{ left: 'var(--studio-resource-lane-left)' }}>Resources</div>
+              <button type="button" className={styles.laneLabel} style={{ left: `${laneLayout.productX}px` }} onPointerDown={(event) => handleLanePointerDown(event, 'productX')}>Products</button>
+              <button type="button" className={styles.laneLabel} style={{ left: `${laneLayout.serviceX}px` }} onPointerDown={(event) => handleLanePointerDown(event, 'serviceX')}>Services</button>
+              <button type="button" className={styles.laneLabel} style={{ left: `${laneLayout.resourceX}px` }} onPointerDown={(event) => handleLanePointerDown(event, 'resourceX')}>Resources</button>
 
               {nodes.map((node) => {
                 const incomingEdge = getIncomingEdges(edges, node.code)[0] || null;
