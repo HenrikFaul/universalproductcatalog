@@ -6,7 +6,8 @@ import CharacteristicsManagerClient from './CharacteristicsManagerClient';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
-  const catalog = await resolveCatalogBySlug(params.slug);
+  const { slug } = await params;
+  const catalog = await resolveCatalogBySlug(slug);
   if (!catalog) {
     return { title: 'Characteristic manager | Universal Product Catalog' };
   }
@@ -14,7 +15,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function CatalogCharacteristicsPage({ params }) {
-  const catalog = await resolveCatalogBySlug(params.slug);
+  const { slug } = await params;
+  const catalog = await resolveCatalogBySlug(slug);
   if (!catalog) notFound();
 
   return (

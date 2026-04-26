@@ -5,7 +5,8 @@ import { resolveCatalogBySlug } from '../../lib/catalogPersistence';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
-  const catalog = await resolveCatalogBySlug(params.slug);
+  const { slug } = await params;
+  const catalog = await resolveCatalogBySlug(slug);
   if (!catalog) {
     return { title: 'Catalog not found | Universal Product Catalog' };
   }
@@ -13,7 +14,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function CatalogDetailsPage({ params }) {
-  const catalog = await resolveCatalogBySlug(params.slug);
+  const { slug } = await params;
+  const catalog = await resolveCatalogBySlug(slug);
   if (!catalog) notFound();
 
   return (

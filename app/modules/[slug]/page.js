@@ -6,16 +6,18 @@ export function generateStaticParams() {
   return modules.map((module) => ({ slug: module.slug }));
 }
 
-export function generateMetadata({ params }) {
-  const module = getModuleBySlug(params.slug);
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const module = getModuleBySlug(slug);
   if (!module) {
     return { title: 'Module not found | Universal Product Catalog' };
   }
   return { title: `${module.title} | Universal Product Catalog` };
 }
 
-export default function ModuleDetailsPage({ params }) {
-  const module = getModuleBySlug(params.slug);
+export default async function ModuleDetailsPage({ params }) {
+  const { slug } = await params;
+  const module = getModuleBySlug(slug);
 
   if (!module) {
     notFound();

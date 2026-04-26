@@ -6,8 +6,9 @@ export function generateStaticParams() {
   return getIndustrySummaries().map((industry) => ({ slug: industry.slug }));
 }
 
-export function generateMetadata({ params }) {
-  const industry = getIndustryDetailsBySlug(params.slug);
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const industry = getIndustryDetailsBySlug(slug);
   if (!industry) {
     return { title: 'Industry not found | Universal Product Catalog' };
   }
@@ -20,8 +21,9 @@ function formatValue(value) {
   return String(value);
 }
 
-export default function IndustryDetailsPage({ params }) {
-  const industry = getIndustryDetailsBySlug(params.slug);
+export default async function IndustryDetailsPage({ params }) {
+  const { slug } = await params;
+  const industry = getIndustryDetailsBySlug(slug);
 
   if (!industry) {
     notFound();

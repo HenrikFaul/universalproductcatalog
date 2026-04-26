@@ -6,9 +6,10 @@ export const metadata = {
   title: 'Create catalog | Universal Product Catalog',
 };
 
-export default function NewCatalogPage({ searchParams }) {
+export default async function NewCatalogPage({ searchParams }) {
   const templates = getCatalogTemplates();
-  const initialSlug = typeof searchParams.industry === 'string' ? searchParams.industry : templates[0].slug;
+  const resolvedSearchParams = await searchParams;
+  const initialSlug = typeof resolvedSearchParams?.industry === 'string' ? resolvedSearchParams.industry : templates[0].slug;
 
   return (
     <main className="page-shell">

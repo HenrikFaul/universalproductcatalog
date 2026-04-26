@@ -6,7 +6,8 @@ import HierarchyBuilderClient from './HierarchyBuilderClient';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
-  const catalog = await resolveCatalogBySlug(params.slug);
+  const { slug } = await params;
+  const catalog = await resolveCatalogBySlug(slug);
   if (!catalog) {
     return { title: 'Hierarchy builder | Universal Product Catalog' };
   }
@@ -14,7 +15,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function CatalogHierarchyPage({ params }) {
-  const catalog = await resolveCatalogBySlug(params.slug);
+  const { slug } = await params;
+  const catalog = await resolveCatalogBySlug(slug);
   if (!catalog) notFound();
 
   return (
