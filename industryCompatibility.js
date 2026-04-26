@@ -1,30 +1,21 @@
-function toScaledInt(value, scale = 100) {
-  return Math.round(Number(value) * scale);
+const FORBIDDEN_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+
+export function sanitizeDynamicAttributes(payload) {
+  if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new Error('dynamic_attributes must be a JSON object');
+  }
+
+  for (const key of Object.keys(payload)) {
+    if (FORBIDDEN_KEYS.has(key)) {
+      throw new Error(`forbidden key: ${key}`);
+    }
+  }
+  return payload;
 }
 
-export function calculateColdChainPrice({ distanceKm, ratePerKm, weightKg, ratePerKg, tempMultiplier = 1, fuelMultiplier = 1 }) {
-  const base = (Number(distanceKm) * Number(ratePerKm)) + (Number(weightKg) * Number(ratePerKg));
-  return Number((base * Number(tempMultiplier) * Number(fuelMultiplier)).toFixed(4));
-}
-
-export function calculateBreweryNetPrice({ volumeKg, marketIndexPrice, alphaPct, alphaBasePct, volumeDiscount = 1 }) {
-  const qualityModifier = 1 + ((Number(alphaPct) - Number(alphaBasePct)) / 100);
-  const net = Number(volumeKg) * (Number(marketIndexPrice) * qualityModifier) * Number(volumeDiscount);
-  return Number(net.toFixed(4));
-}
-
-export function lookupOpticalGridPrice({ sphereSPH, cylinderCYL, matrix }) {
-  const sph = toScaledInt(sphereSPH);
-  const cyl = toScaledInt(cylinderCYL);
-
-  const row = (matrix || []).find((entry) => {
-    const sphMin = toScaledInt(entry.sphMin);
-    const sphMax = toScaledInt(entry.sphMax);
-    const cylMin = toScaledInt(entry.cylMin);
-    const cylMax = toScaledInt(entry.cylMax);
-    return sph >= sphMin && sph <= sphMax && cyl >= cylMin && cyl <= cylMax;
-  });
-
-  if (!row) throw new Error('No price matrix row for given SPH/CYL range');
-  return Number(row.price);
+export function canMutateJson(user, action) {
+  if (!user?.roles) return false;
+  const isCatalogAdmin = user.roles.includes('catalog_admin');
+  const isWriter = user.roles.includes('catalog_writer');
+  return isCatalogAdmin || (isWriter && action === 'update');
 }

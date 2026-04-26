@@ -1,33 +1,57 @@
-# Merge notes
+.dyn-form {
+  width: min(100%, 720px);
+  display: grid;
+  gap: 12px;
+}
 
-This package merges:
-- `universalproductcatalog-main.zip`
-- `universalproductcatalog-codex-implement-epc-lifecycle-with-effective-dating.zip`
-- `universalproductcatalog-codex-implement-epc-lifecycle-with-effective-dating-laz7ik.zip`
+.group {
+  border: 1px solid #8993a4;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
 
-## Merge strategy
-- Kept the `main` branch as the base.
-- Merged in functional additions from the Codex branches.
-- Preserved `main`-only Next.js app shell files:
-  - `app/globals.css`
-  - `app/layout.js`
-  - `app/page.js`
-  - `next.config.mjs`
-  - `PACKAGE_JSON_REQUIRED_PATCH.md`
-  - `UPLOAD_AND_VALIDATE.md`
-  - `package-lock.json`
-- Kept the `main` package scripts/dependencies so the app remains buildable as a Next.js project.
-- Updated `package.json` version to `2.4.0` to reflect the newer functional delivery.
+.group h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
 
-## Functional additions merged in
-- TMF620 API scaffolding
-- Extended DDL for effective dating, resource/service specs, BOM, validation JSON, GIST/GIN indexing
-- Extended pricing engine (flat/per-unit/tiered/attribute-based)
-- Decision-matrix price book selection
-- Rules engine additions including `ELIGIBILITY`, working memory, latency reporting
-- Schema UI engine additions
-- Industry payloads + compatibility validation
-- Updated changelog / validation checklist / lessons learned from the newer Codex branch
+.group-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
 
-## Verification
-- `npm test` executed successfully after merge: 9/9 tests passed.
+.field {
+  display: grid;
+  gap: 4px;
+  color: #111;
+}
+
+.field-error {
+  color: #8f0019;
+  font-weight: 700;
+}
+
+select,
+input,
+button {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #4d596e;
+  border-radius: 8px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+input[aria-invalid='true'],
+select[aria-invalid='true'] {
+  border-color: #8f0019;
+  outline: 2px solid rgba(143, 0, 25, 0.2);
+}
+
+@media (min-width: 768px) {
+  .group-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "universalproductcatalog",
+  "version": "2.4.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  }
+}

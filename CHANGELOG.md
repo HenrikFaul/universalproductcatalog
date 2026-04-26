@@ -1,83 +1,128 @@
-# Changelog
+function evaluateEligibility(rule, hasSource, context, errors) {
+  const payload = rule.condition_payload || {};
 
-## [3.7.0] - 2026-04-26
-- Added catalog-specific deep clone endpoint and UI action that generates a unique slug/catalog code and remaps internal TMF620 product/offering/service/resource references through an ID map.
-- Added Blueprint JSON import UX in the catalog builder with client-side schema validation for catalog/product/characteristic sections and automatic conflict-safe persistence via unique slug generation.
-- Removed global Hierarchy Studio navigation and added catalog-local tabs on overview, hierarchy and characteristic pages.
-- Reworked Hierarchy Studio palette into default-collapsed accordion groups for Products, Services, Resources and Characteristics with count badges and subtle category backgrounds.
-- Fixed hierarchy state synchronization by applying immutable optimistic graph updates, persisting service/resource mappings, confirming server state and rolling back failed mutations with a visible toast.
+  if (!hasSource) return;
 
-## [3.6.0] - 2026-04-26
-- Reworked the main layout and catalog builder into a light Enterprise SaaS UI theme.
-- Removed dark card/hero/input backgrounds that caused unreadable contrast.
-- Added responsive grid safeguards, sticky builder sidebar overflow control and accessible focus/hover states.
-- Kept backend, persistence, data and API behavior unchanged; UI-only CSS/token update.
+  if (typeof payload.minAge === 'number' && typeof context.customerAge === 'number' && context.customerAge < payload.minAge) {
+    errors.push({ code: 'ELIGIBILITY_DENIED', source: rule.source_offering_id, target: rule.target_offering_id });
+    return;
+  }
 
-## [2.4.0] - 2026-04-25
-- Added 6 industry payload examples (Telecom, Automotive, Banking, Logistics, Brewery, Optics).
-- Added cross-industry compatibility validator for biological and physical conflicts.
+  const netIncome = Number(context.netIncome ?? 0);
+  const existingLoans = Number(context.existingLoanPayments ?? 0);
+  const pmt = Number(context.calculatedPmt ?? 0);
+  const jtmLimit = Number(payload.jtmLimit ?? payload.maxDebtToIncomeRatio ?? 0);
+  if (jtmLimit > 0 && netIncome > 0) {
+    const debtRatio = (existingLoans + pmt) / netIncome;
+    if (debtRatio > jtmLimit) {
+      errors.push({
+        code: payload.errorCode || 'DECLINE_REASON_JTM_LIMIT',
+        source: rule.source_offering_id,
+        target: rule.target_offering_id,
+        details: { debtRatio, jtmLimit }
+      });
+    }
+  }
+}
 
-## [2.3.0] - 2026-04-25
-- Extended rules engine with working-memory tracking and ELIGIBILITY rule type.
-- Added latency reporting for event-driven rule evaluation.
+function evaluateRequires(rule, hasSource, hasTarget, errors, requiredAdditions) {
+  if (!hasSource) return;
 
-## [2.2.0] - 2026-04-25
-- Extended pricing model to support FLAT_FEE, PER_UNIT, TIERED and ATTRIBUTE_BASED methods.
-- Added decision-matrix price book selection and waterfall override chaining.
+  if (!hasTarget) {
+    errors.push({ code: 'REQUIRES_MISSING', source: rule.source_offering_id, target: rule.target_offering_id });
+  }
 
-## [2.1.0] - 2026-04-25
-- Added UUID defaults and GIN/GIST indexing enhancements in DDL.
-- Added schema-driven UI field filtering (`configurable`) and validation extraction.
+  const autoAdds = rule.condition_payload?.autoAdd;
+  if (Array.isArray(autoAdds)) {
+    for (const offeringId of autoAdds) requiredAdditions.add(offeringId);
+  }
+}
 
-## [2.0.0] - 2026-04-25
-- Added TMF620-inspired headless API scaffolding and inheritance chain helpers.
-- Added specification/resource/service model separation and BOM cardinality schema.
+function evaluateExcludes(rule, hasSource, hasTarget, context, errors, disabled) {
+  if (!hasSource) return;
 
-## [1.3.0] - 2026-04-25
-- Added lifecycle/effective-dating helpers (`valid_from` / `valid_to`) and major/minor version operations.
-- Extended schema to ensure soft-delete and context-date query compatibility.
-- Added edge-case notes for time-travel and version overlap protection.
+  disabled.add(rule.target_offering_id);
+  const payload = rule.condition_payload || {};
 
-## [1.2.0] - 2026-04-25
-- Added event-driven rules engine supporting REQUIRES, EXCLUDES and CONSTRAINS semantics.
-- Added UI integration hooks for disabled states and error rendering.
+  if (payload.requiresContextMatch && payload.contextKey) {
+    const value = context[payload.contextKey];
+    const expected = payload.equals;
+    if (value !== expected) return;
+  }
 
-## [1.1.0] - 2026-04-25
-- Added secure AST-based formula evaluator for attribute-based pricing.
-- Added price books and override waterfall resolution.
-- Added performance and regression coverage for pricing flow.
+  if (hasTarget) {
+    errors.push({
+      code: payload.errorCode || 'EXCLUDES_CONFLICT',
+      source: rule.source_offering_id,
+      target: rule.target_offering_id,
+      message: payload.message
+    });
+  }
+}
 
-## [1.0.0] - 2026-04-25
-- Implemented EPC core relational schema with JSONB dynamic attributes.
-- Implemented dynamic grouped form renderer with loading/empty/error states.
-- Added security helpers for dynamic JSON mutation and payload sanitization.
+function evaluateConstrains(rule, hasSource, hasTarget, context, errors, actions) {
+  if (!hasSource) return;
 
-## [3.5.0] - 2026-04-25
-- Added InsurTech risk-profile payload and underwriting helpers for C00-C97 decline and referral flow.
-- Added actuarial premium computation helper with runtime biometric multipliers.
+  const payload = rule.condition_payload || {};
 
-## [3.4.0] - 2026-04-25
-- Added optical prescription payload and precise (scaled-integer) grid pricing lookup utility.
-- Strengthened dynamic form accessibility with 44px tap targets and higher-contrast error states.
+  if (hasTarget) {
+    const maxQty = payload.maxQty;
+    const sourceQty = payload.sourceQty;
+    if (typeof maxQty === 'number' && typeof sourceQty === 'number' && sourceQty > maxQty) {
+      errors.push({ code: 'CONSTRAINT_VIOLATION', source: rule.source_offering_id, target: rule.target_offering_id });
+    }
+  }
 
-## [3.3.0] - 2026-04-25
-- Added brewery payload for `SPEC-HOPS-PELLETS` and AST-aligned net-price formula helper.
-- Added tests for shelf-life/quality-oriented vertical pricing behavior.
+  if (typeof payload.maxWeightKg === 'number' && typeof context.totalWeightKg === 'number' && context.totalWeightKg > payload.maxWeightKg) {
+    actions.push({
+      code: payload.actionCode || 'ADDITIONAL_TRUCK_ALLOCATION',
+      source: rule.source_offering_id,
+      recommendedUnits: Math.ceil(context.totalWeightKg / payload.maxWeightKg)
+    });
+  }
+}
 
-## [3.2.0] - 2026-04-25
-- Added logistics payload for refrigerated cargo and ABP helper for distance/weight/temp/fuel multipliers.
-- Extended rules engine with constraint action outputs for truck-allocation recommendations.
+export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event, workingMemory = new Map(), context = {} }) {
+  const start = performance.now();
+  const selected = new Set(selectedOfferingIds);
+  const impacted = rules.filter((rule) => rule.event_scope === event && (!changedNodeId || rule.source_offering_id === changedNodeId));
 
-## [3.1.0] - 2026-04-25
-- Added mortgage helper functions for PMT annuity calculation, LTV ratio, and conditional premium account fee waiver.
-- Extended rules engine for JTM eligibility hard-stop and REQUIRES auto-add output handling.
-- Added EPC bundle metadata for home-buyer, cold-chain, brewery, optics, and life/health policy bundles.
+  const errors = [];
+  const disabled = new Set();
+  const requiredAdditions = new Set();
+  const actions = [];
 
-## [3.8.0] - 2026-04-26
-- Reworked Hierarchy Studio spatial layout so the Structure Palette sits directly beside the visual canvas instead of above it, using a full-width catalog-specific page shell and a two-column grid optimized for laptop viewports.
-- Changed the visual graph to render only active hierarchy/root nodes instead of every catalog definition, preventing detached orphan nodes from staying on the canvas after relationship or subtree removal.
-- Added node action bars with dedicated destructive remove and relationship settings controls, including propagation-safe click handling so node dragging/selection is not accidentally triggered.
-- Added safe node-removal confirmation flow that removes the selected node and descendants from the visual hierarchy, cleans related edges, clears custom positions, and leaves catalog definitions available in the palette for later reuse.
-- Added relationship manager modal for moving nodes to root level or re-parenting them to valid TMF620-compatible parents while preventing product bundle cycles.
-- Hardened drag-and-drop relationship creation with canvas drop highlighting, immutable relationship upsert, automatic modal close on success, rollback-safe custom positions, and success/error toast feedback.
-- Persisted Hierarchy Studio visual state (`rootNodeCodes`, `removedNodeCodes`, `customPositions`) into catalog metadata so removals and root placements survive reloads when Supabase persistence is enabled.
+  for (const rule of impacted) {
+    const cacheKey = `${event}:${rule.id || `${rule.source_offering_id}->${rule.target_offering_id}`}`;
+    workingMemory.set(cacheKey, { ts: Date.now(), source: rule.source_offering_id, target: rule.target_offering_id });
+
+    const hasSource = selected.has(rule.source_offering_id);
+    const hasTarget = selected.has(rule.target_offering_id);
+
+    if (rule.rule_type === 'ELIGIBILITY') {
+      evaluateEligibility(rule, hasSource, context, errors);
+    }
+
+    if (rule.rule_type === 'REQUIRES') {
+      evaluateRequires(rule, hasSource, hasTarget, errors, requiredAdditions);
+    }
+
+    if (rule.rule_type === 'EXCLUDES') {
+      evaluateExcludes(rule, hasSource, hasTarget, context, errors, disabled);
+    }
+
+    if (rule.rule_type === 'CONSTRAINS') {
+      evaluateConstrains(rule, hasSource, hasTarget, context, errors, actions);
+    }
+  }
+
+  const elapsedMs = performance.now() - start;
+  return {
+    errors,
+    disabled: [...disabled],
+    requiredAdditions: [...requiredAdditions],
+    actions,
+    latencyMs: elapsedMs,
+    workingMemorySize: workingMemory.size
+  };
+}

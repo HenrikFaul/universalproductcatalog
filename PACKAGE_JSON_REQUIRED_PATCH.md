@@ -1,31 +1,24 @@
-# Required package.json patch
-
-Do not overwrite your existing package.json blindly.
-Keep every existing script and dependency, but make sure these entries exist.
-
-## scripts
-
-```json
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "test": "node --test"
+[
+  {
+    "attribute_key": "network.speed",
+    "display_name": "Internet speed",
+    "value_type": "ENUM",
+    "ui_component": "select",
+    "ui_group": "Connectivity",
+    "options": [
+      { "value": "100", "label": "100 Mbps" },
+      { "value": "1000", "label": "1 Gbps" }
+    ]
+  },
+  {
+    "attribute_key": "network.term",
+    "display_name": "Contract term",
+    "value_type": "ENUM",
+    "ui_component": "radio",
+    "ui_group": "Commercial",
+    "options": [
+      { "value": "12", "label": "12 months" },
+      { "value": "24", "label": "24 months" }
+    ]
   }
-}
-```
-
-## dependencies
-
-```json
-{
-  "dependencies": {
-    "next": "^16.2.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  }
-}
-```
-
-If npm installed a different compatible React version, keep the installed version from your package-lock.json.
+]
