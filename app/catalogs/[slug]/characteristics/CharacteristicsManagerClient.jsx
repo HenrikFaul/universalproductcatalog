@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Button from '../../../../../components/ui/Button';
-import Input from '../../../../../components/ui/Input';
-import Modal from '../../../../../components/ui/Modal';
-import Card from '../../../../../components/ui/Card';
+import Button from '../../../../components/ui/Button';
+import Input from '../../../../components/ui/Input';
+import Modal from '../../../../components/ui/Modal';
+import Card from '../../../../components/ui/Card';
 import styles from './CharacteristicsManagerClient.module.css';
 
 const VALUE_TYPES = ['string', 'number', 'boolean', 'json', 'enum', 'array'];

@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Button from '../../../../../components/ui/Button';
-import Card from '../../../../../components/ui/Card';
-import Input from '../../../../../components/ui/Input';
-import Modal from '../../../../../components/ui/Modal';
+import Button from '../../../../components/ui/Button';
+import Card from '../../../../components/ui/Card';
+import Input from '../../../../components/ui/Input';
+import Modal from '../../../../components/ui/Modal';
 import styles from './HierarchyBuilderClient.module.css';
 
 function normalizeEdge(edge) {
