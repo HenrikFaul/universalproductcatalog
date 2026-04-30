@@ -1,6 +1,7 @@
 import './globals.css';
 import './styles/design-system.css';
 import Link from 'next/link';
+import AppNav from './components/AppNav';
 
 export const metadata = {
   title: 'Universal Product Catalog',
@@ -18,7 +19,7 @@ function UpcLogoMark({ compact = false }) {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="hu">
+    <html lang="en">
       <body>
         <div className="app-frame">
           <aside className="app-sidebar">
@@ -26,12 +27,7 @@ export default function RootLayout({ children }) {
               <UpcLogoMark />
               <span className="app-brand-text"><strong>UPC</strong><small>Product Catalog</small></span>
             </Link>
-            <nav className="app-nav" aria-label="Main navigation">
-              <Link href="/"><span className="app-nav-icon">▦</span> Dashboard</Link>
-              <Link href="/catalogs"><span className="app-nav-icon">▤</span> Catalogs</Link>
-              <Link href="/modules"><span className="app-nav-icon">◈</span> Modules</Link>
-              <Link href="/industries"><span className="app-nav-icon">◎</span> Industries</Link>
-            </nav>
+            <AppNav />
             <div className="app-sidebar-panel">
               <span className="sidebar-panel-label">Intelligent Product Management</span>
               <strong>Configure. Govern. Orchestrate.</strong>
@@ -43,7 +39,7 @@ export default function RootLayout({ children }) {
                 <UpcLogoMark compact />
                 <div><span>Universal Product Catalog</span><strong>Enterprise catalog brain for configurable products</strong></div>
               </div>
-              <div className="topbar-actions"><span className="topbar-chip topbar-chip--blue">TMF 620</span><span className="topbar-chip topbar-chip--emerald">Live design system</span></div>
+              <div className="topbar-actions"><span className="topbar-chip topbar-chip--blue">TMF 620</span><span className="topbar-chip topbar-chip--emerald">EPC compliant</span></div>
             </header>
             {children}
           </div>
