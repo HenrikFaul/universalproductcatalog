@@ -1,0 +1,28 @@
+{
+  "productSpecifications": [
+    {
+      "id": "spec-1",
+      "name": "Generic Product",
+      "characteristics": [
+        {
+          "name": "speed",
+          "type": "number"
+        }
+      ]
+    }
+  ],
+  "productOfferings": [
+    {
+      "id": "offer-1",
+      "name": "Generic Offer",
+      "specRef": "spec-1"
+    }
+  ],
+  "productInventory": [
+    {
+      "id": "inv-1",
+      "status": "active",
+      "offeringRef": "offer-1"
+    }
+  ]
+}
