@@ -170,3 +170,16 @@ export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event
 ### Verification
 - Static file review completed for the modified route, persistence helper and React entity manager files.
 - Full Next.js build was not executed in the sandbox because the uploaded repo state does not include installed `node_modules` / `next` runtime binaries.
+
+## 2026-04-30 — Entity CRUD frontend refactor and catalog overview spacing fix
+
+### Changed
+- Refactored the existing-catalog entity manager into a clearer workspace with summary cards, entity-type tabs, searchable record list and a form editor for Product Specification, Product Offering and Product/Product Inventory.
+- Expanded the Product Offering editor with status, specification reference, valid-for, sale type, channel, price summary, sellable flag, description and pricing JSON fields.
+- Expanded the Product/Product Inventory editor with offering/specification references, lifecycle status, product type, serial/service identifiers, place, related party, billing account and characteristic-values JSON.
+- Reworked the catalog overview page to remove cramped wide-table-first presentation, fix the duplicated section markup, add direct management CTAs for specs/offerings/products, and use responsive record cards for offerings and product inventory.
+- Added responsive CSS safeguards to prevent horizontal page collapse from long EPC codes, dense tables and nested cards.
+
+### Verification
+- Static JSX/CSS review completed for the modified catalog overview and entity manager files.
+- Full Next.js build was not executed in the sandbox because the uploaded repo state does not include installed `node_modules` / `next` runtime binaries.

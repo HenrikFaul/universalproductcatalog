@@ -1104,3 +1104,198 @@ html, body {
 .starter-template-table-wrap { border: 1px solid var(--border); padding: 1rem; }
 @media (max-width: 1180px) { .dashboard-hero,.dashboard-grid,.kpi-board { grid-template-columns: repeat(2,minmax(0,1fr)); } .module-strip,.dashboard-metric-row { grid-template-columns: 1fr; } .industry-row { grid-template-columns: 2.5rem 1fr; } .industry-row .tag-row,.industry-row .text-link { grid-column: 2; } }
 @media (max-width: 860px) { .app-sidebar-panel,.app-topbar { position: static; } .app-sidebar-panel { margin-top: 1rem; } .dashboard-hero,.dashboard-grid,.kpi-board { grid-template-columns: 1fr; } .topbar-actions { display: none; } }
+
+/* EPC entity-management frontend refactor patch: breathable layout, no horizontal page collapse. */
+.catalog-detail-page {
+  max-width: 1360px;
+}
+
+.catalog-hero-refined .section-title {
+  max-width: 1050px;
+}
+
+.catalog-local-tabs {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.relaxed-grid {
+  gap: 1.25rem;
+}
+
+.entity-overview-grid,
+.responsive-card-table {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.entity-overview-card,
+.responsive-record-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+  padding: 1.15rem;
+}
+
+.entity-overview-card h3,
+.responsive-record-card strong {
+  color: var(--text);
+  margin: 0;
+}
+
+.entity-overview-card p:not(.eyebrow) {
+  color: var(--muted-strong);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin: 0.65rem 0 0;
+}
+
+.compact-record-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+
+.compact-record {
+  align-items: center;
+  background: #f8fbff;
+  border: 1px solid var(--border);
+  border-radius: 0.95rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 0.8rem;
+}
+
+.compact-record strong,
+.compact-record span {
+  display: block;
+  min-width: 0;
+}
+
+.compact-record strong {
+  font-size: 0.95rem;
+}
+
+.compact-record span {
+  color: var(--muted-strong);
+  font-size: 0.82rem;
+  margin-top: 0.25rem;
+}
+
+.compact-tree-list {
+  margin-top: 0.85rem;
+  max-height: 30rem;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.overflow-safe-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.responsive-card-table {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.responsive-record-card {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.responsive-record-card header {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.responsive-record-card dl {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.responsive-record-card dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.responsive-record-card dd {
+  color: var(--text);
+  margin: 0.15rem 0 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.constrained-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.constrained-table-scroll .catalog-table {
+  min-width: 760px;
+}
+
+.decomposition-table {
+  margin-top: 1rem;
+}
+
+.decomposition-table code + code {
+  margin-left: 0.35rem;
+}
+
+.code-preview {
+  background: #f8fbff;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  color: #1e293b;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin: 1rem 0 0;
+  max-height: 24rem;
+  overflow: auto;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 1100px) {
+  .entity-overview-grid,
+  .responsive-card-table {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid.catalog-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .app-content {
+    padding-inline: 1rem;
+  }
+
+  .stats-grid.catalog-stats,
+  .detail-grid,
+  .responsive-record-card dl,
+  .compact-record {
+    grid-template-columns: 1fr;
+  }
+
+  .responsive-record-card header {
+    display: grid;
+  }
+
+  .section-heading-row {
+    display: grid;
+  }
+}
