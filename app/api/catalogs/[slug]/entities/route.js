@@ -1,69 +1,66 @@
-import { NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
+import { NextResponse } from 'next/server';
+import {
+  getPersistenceDiagnostics,
+  resolveCatalogBySlug,
+  updatePersistedEntities,
+} from '../../../../lib/catalogPersistence';
 
-const DATA_PATH = path.join(process.cwd(), "data/catalogs.json")
+export const dynamic = 'force-dynamic';
 
-function load() {
-  return JSON.parse(fs.readFileSync(DATA_PATH, "utf-8"))
-}
+export async function GET(_request, { params }) {
+  try {
+    const { slug } = await params;
+    const catalog = await resolveCatalogBySlug(slug);
+    if (!catalog) {
+      return NextResponse.json({ ok: false, error: 'Catalog not found' }, { status: 404 });
+    }
 
-function save(data) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2))
-}
-
-export async function POST(req, { params }) {
-  const { slug } = params
-  const body = await req.json()
-
-  const data = load()
-  const catalog = data.find(c => c.slug === slug)
-
-  if (!catalog) {
-    return NextResponse.json({ error: "Catalog not found" }, { status: 404 })
+    return NextResponse.json({
+      ok: true,
+      item: {
+        productSpecifications: catalog.productSpecifications || [],
+        serviceSpecifications: catalog.serviceSpecifications || [],
+        resourceSpecifications: catalog.resourceSpecifications || [],
+        productOfferings: catalog.productOfferings || [],
+        productInventory: catalog.productInventory || [],
+        products: catalog.productInventory || [],
+        catalogCategories: catalog.metadata?.catalogGrouping?.catalogCategories || [],
+        offeringCategories: catalog.metadata?.catalogGrouping?.offeringCategories || [],
+      },
+      diagnostics: getPersistenceDiagnostics(),
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
   }
-
-  const { type, entity } = body
-
-  if (!catalog[type]) catalog[type] = []
-
-  catalog[type].push(entity)
-
-  save(data)
-
-  return NextResponse.json({ ok: true })
 }
 
-export async function PUT(req, { params }) {
-  const { slug } = params
-  const body = await req.json()
+export async function PUT(request, { params }) {
+  try {
+    const payload = await request.json();
+    const { slug } = await params;
+    const updated = await updatePersistedEntities(slug, payload || {});
 
-  const data = load()
-  const catalog = data.find(c => c.slug === slug)
-
-  const { type, entity } = body
-
-  catalog[type] = catalog[type].map(e =>
-    e.id === entity.id ? entity : e
-  )
-
-  save(data)
-
-  return NextResponse.json({ ok: true })
-}
-
-export async function DELETE(req, { params }) {
-  const { slug } = params
-  const body = await req.json()
-
-  const data = load()
-  const catalog = data.find(c => c.slug === slug)
-
-  const { type, id } = body
-
-  catalog[type] = catalog[type].filter(e => e.id !== id)
-
-  save(data)
-
-  return NextResponse.json({ ok: true })
+    return NextResponse.json({
+      ok: true,
+      item: {
+        productSpecifications: updated.productSpecifications || [],
+        serviceSpecifications: updated.serviceSpecifications || [],
+        resourceSpecifications: updated.resourceSpecifications || [],
+        productOfferings: updated.productOfferings || [],
+        productInventory: updated.productInventory || [],
+        products: updated.productInventory || [],
+        catalogCategories: updated.metadata?.catalogGrouping?.catalogCategories || [],
+        offeringCategories: updated.metadata?.catalogGrouping?.offeringCategories || [],
+      },
+      diagnostics: getPersistenceDiagnostics(),
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
+  }
 }

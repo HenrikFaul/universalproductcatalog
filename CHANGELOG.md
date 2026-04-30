@@ -155,3 +155,18 @@ export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event
 ### Verification
 - `node --test --test-reporter=spec tests/epc.test.js` reported 17/17 passing tests before the local process was terminated by timeout due to an existing non-exiting test process behavior.
 - `npm run build` could not run in the extracted sandbox because `next` is not installed in `node_modules`.
+
+## 2026-04-30 — Existing catalog entity management UI
+
+### Added
+- Added a dedicated existing-catalog Entity Manager page at `/catalogs/[slug]/entities` for managing Product Specification, Product Offering and Product/Product Inventory records after a catalog has already been created.
+- Added form-based create, edit and remove flows for Product Specifications, Product Offerings and Product instances using the EPC default entity fields already introduced in `app/lib/epcEntityDefinitions.js`.
+- Added Product Inventory round-trip support to the catalog entities API response and persistence update payload so product instances remain metadata-backed when no dedicated `product_inventory` database column exists.
+- Added navigation links from catalog overview, hierarchy and characteristic screens to the new entity manager.
+
+### Changed
+- Existing catalog entity persistence now updates product specifications, product offerings and product inventory together in one non-destructive payload, preserving the previously separated EPC model layers.
+
+### Verification
+- Static file review completed for the modified route, persistence helper and React entity manager files.
+- Full Next.js build was not executed in the sandbox because the uploaded repo state does not include installed `node_modules` / `next` runtime binaries.

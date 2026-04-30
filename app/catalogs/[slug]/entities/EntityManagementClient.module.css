@@ -1,0 +1,196 @@
+.managerShell {
+  display: grid;
+  gap: 1rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summaryCard :global(.ds-card__content) {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.summaryValue {
+  color: var(--color-ink-strong, #0f2347);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.summaryLabel {
+  color: var(--color-text-muted, #54627a);
+  font-size: 0.85rem;
+}
+
+.notice,
+.error {
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+}
+
+.notice {
+  background: #e7fff4;
+  border: 1px solid #9ce8c8;
+  color: #04724d;
+}
+
+.error {
+  background: #fff0f0;
+  border: 1px solid #ffb3b3;
+  color: #a61b1b;
+}
+
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tab,
+.activeTab {
+  border: 1px solid var(--color-border, #d5e0ef);
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0.65rem 1rem;
+}
+
+.tab {
+  background: #fff;
+  color: var(--color-text, #15233d);
+}
+
+.activeTab {
+  background: #e8fff5;
+  border-color: #74ddb9;
+  color: #057653;
+}
+
+.grid {
+  align-items: start;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+  gap: 1rem;
+}
+
+.entityList {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 62vh;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.entityRow {
+  align-items: flex-start;
+  background: #f8fbff;
+  border: 1px solid var(--color-border, #d5e0ef);
+  border-radius: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.85rem;
+}
+
+.entityRow strong,
+.entityRow code,
+.entityRow p {
+  display: block;
+}
+
+.entityRow code {
+  background: #edf5fb;
+  border: 1px solid #d4e4f2;
+  border-radius: 0.45rem;
+  color: #2a516f;
+  font-size: 0.72rem;
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.35rem;
+  width: fit-content;
+}
+
+.entityRow p {
+  color: var(--color-text-muted, #54627a);
+  font-size: 0.86rem;
+  margin: 0.45rem 0 0;
+}
+
+.rowActions,
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.formActions {
+  margin-top: 1rem;
+}
+
+.emptyState {
+  background: #f8fbff;
+  border: 1px dashed #aac1d8;
+  border-radius: 1rem;
+  color: var(--color-text-muted, #54627a);
+  padding: 1rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.field,
+.wideField,
+.checkboxField {
+  color: var(--color-text, #15233d);
+  display: grid;
+  font-size: 0.82rem;
+  font-weight: 800;
+  gap: 0.35rem;
+}
+
+.field select,
+.wideField textarea {
+  background: #fff;
+  border: 1px solid var(--color-border, #d5e0ef);
+  border-radius: 0.75rem;
+  color: var(--color-text, #15233d);
+  font: inherit;
+  font-weight: 600;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.8rem;
+}
+
+.field select[multiple] {
+  min-height: 7rem;
+}
+
+.wideField {
+  grid-column: 1 / -1;
+}
+
+.wideField textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.checkboxField {
+  align-content: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 920px) {
+  .summaryGrid,
+  .grid,
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

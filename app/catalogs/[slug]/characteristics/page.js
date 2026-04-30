@@ -41,6 +41,7 @@ export default async function CatalogCharacteristicsPage({ params }) {
 
       <nav className="catalog-local-tabs" aria-label="Catalog sections">
         <Link href={`/catalogs/${catalog.slug}`} className="catalog-local-tab">Overview</Link>
+        <Link href={`/catalogs/${catalog.slug}/entities`} className="catalog-local-tab">Entities</Link>
         <Link href={`/catalogs/${catalog.slug}/hierarchy`} className="catalog-local-tab">Hierarchy Studio</Link>
         <Link href={`/catalogs/${catalog.slug}/characteristics`} className="catalog-local-tab active">Characteristics</Link>
       </nav>

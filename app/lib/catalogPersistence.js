@@ -438,18 +438,31 @@ export async function updatePersistedEntities(slug, payload = {}) {
   if (payload.resourceSpecifications !== undefined) {
     patch.resource_specifications = ensureArray(payload.resourceSpecifications);
   }
+  const nextMetadata = { ...(existing.metadata || {}) };
+
   if (payload.productOfferings !== undefined) {
     patch.product_offerings = ensureArray(payload.productOfferings);
   }
+  if (payload.productInventory !== undefined || payload.products !== undefined) {
+    const nextInventory = ensureArray(payload.productInventory ?? payload.products);
+    nextMetadata.productInventory = nextInventory;
+    nextMetadata.products = nextInventory;
+  }
   if (payload.catalogCategories !== undefined || payload.offeringCategories !== undefined) {
-    patch.metadata = {
-      ...(existing.metadata || {}),
-      catalogGrouping: {
-        catalogCategories: ensureArray(payload.catalogCategories),
-        offeringCategories: ensureArray(payload.offeringCategories),
-        updatedAt: new Date().toISOString(),
-      },
+    nextMetadata.catalogGrouping = {
+      ...(existing.metadata?.catalogGrouping || {}),
+      catalogCategories: ensureArray(payload.catalogCategories),
+      offeringCategories: ensureArray(payload.offeringCategories),
+      updatedAt: new Date().toISOString(),
     };
+  }
+  if (
+    payload.productInventory !== undefined ||
+    payload.products !== undefined ||
+    payload.catalogCategories !== undefined ||
+    payload.offeringCategories !== undefined
+  ) {
+    patch.metadata = nextMetadata;
   }
 
   const rows = await supabaseRest(`${TABLE_NAME}?slug=eq.${encodeURIComponent(slug)}`, {
