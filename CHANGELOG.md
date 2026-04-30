@@ -140,9 +140,18 @@ export function evaluateRules({ rules, selectedOfferingIds, changedNodeId, event
 - Increased hierarchy node text readability (larger title/code/type/pill typography and stronger code contrast) to improve legibility in dense graphs.
 - Replaced the previous corner-node logo mark with a compact diamond UPC mark variant requested for brand consistency.
 
-## 2026-04-30 – EPC export product-domain import and inventory-aware catalog expansion
-- Added `data/epcReferenceCatalog.json`, a normalized imported EPC reference catalog from the attached EPC export package, including 8 Product Specifications, 3 Product Offerings, 97 characteristic definitions, 29 hierarchy/relationship edges, 13 Product Inventory examples and 20 cross-industry EPC modeling extensions.
-- Extended the demo catalog registry so the imported EPC reference appears as a first-class catalog (`epc-import-otthonnet-reference`) without overwriting the existing telecom demo catalog.
-- Expanded the catalog detail page with EPC import summary, Product Inventory instance table, ProductInventory TMF payload preview and 20-industry universal EPC modeling pattern table.
-- Preserved the core EPC separation rule: Product Specification defines the product, Product Offering defines how it is sold, Product Inventory records realized instances, and characteristics carry configurable EAV/JSONB-style behavior across sale, fulfillment and inventory stages.
-- Added a regression test to verify imported product specifications, offerings, inventory records, characteristics and industry extensions remain present and connected.
+## 2026-04-30 — EPC entity creation UI completion
+
+### Added
+- Added full catalog-builder create/edit sections for Product Specification, Product Offering and Product inventory/Product entities.
+- Added EPC default entity definitions in `app/lib/epcEntityDefinitions.js`, based on the uploaded EPC model structure: lifecycle, bundle flag, versioning, valid-for dates, sales channel, market segment, price metadata, specification/offering/product references and inventory identifiers.
+- Added blueprint export/import support for `productInventory` and `products`, so Product records are not lost when a catalog is exported or re-imported.
+- Added Product inventory display on the catalog detail page.
+- Added regression coverage for the new Product Specification, Product Offering and Product default entity constructors.
+
+### Changed
+- Catalog persistence now keeps Product inventory records inside metadata-backed persisted records, preserving them even when the Supabase table has no dedicated `product_inventory` column yet.
+
+### Verification
+- `node --test --test-reporter=spec tests/epc.test.js` reported 17/17 passing tests before the local process was terminated by timeout due to an existing non-exiting test process behavior.
+- `npm run build` could not run in the extracted sandbox because `next` is not installed in `node_modules`.

@@ -103,6 +103,7 @@ export function createCatalogRecordFromBlueprint(blueprint, template) {
   const serviceSpecifications = ensureArray(blueprint.serviceSpecifications);
   const resourceSpecifications = ensureArray(blueprint.resourceSpecifications);
   const characteristicDefinitions = ensureArray(blueprint.characteristics || blueprint.characteristicDefinitions);
+  const productInventory = ensureArray(blueprint.productInventory || blueprint.products);
   const primarySpec =
     productSpecifications[0] ||
     { code: `${catalogCode}_SPEC`, name: `${catalogTitle} Root Product`, category: 'ProductSpecification' };
@@ -160,6 +161,7 @@ export function createCatalogRecordFromBlueprint(blueprint, template) {
     serviceSpecifications,
     resourceSpecifications,
     characteristicDefinitions,
+    productInventory,
     hierarchy,
     serviceMapping,
     tmf620Examples: blueprint.tmf620Examples || buildDefaultTmFExamples(
@@ -192,6 +194,7 @@ function rowToCatalog(row) {
     serviceSpecifications: ensureArray(row.service_specifications),
     resourceSpecifications: ensureArray(row.resource_specifications),
     characteristicDefinitions: ensureArray(row.characteristic_definitions),
+    productInventory: ensureArray(row.metadata?.productInventory || row.metadata?.products),
     hierarchy: ensureArray(row.hierarchy),
     serviceMapping: ensureArray(row.service_mapping),
     tmf620Examples: row.tmf620_examples || {
@@ -220,7 +223,7 @@ function catalogToRow(catalog) {
     hierarchy: ensureArray(catalog.hierarchy),
     service_mapping: ensureArray(catalog.serviceMapping),
     tmf620_examples: catalog.tmf620Examples || {},
-    metadata: catalog.metadata || {},
+    metadata: { ...(catalog.metadata || {}), productInventory: ensureArray(catalog.productInventory || catalog.metadata?.productInventory), products: ensureArray(catalog.productInventory || catalog.metadata?.products) },
   };
 }
 

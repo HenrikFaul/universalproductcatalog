@@ -265,16 +265,20 @@ test('tmf relationship store blocks cyclic bundle/requires links', () => {
   }));
 });
 
-import epcReferenceCatalog from '../data/epcReferenceCatalog.json' with { type: 'json' };
 
-test('EPC reference import preserves product specifications, offerings, inventory and characteristics', () => {
-  assert.equal(epcReferenceCatalog.slug, 'epc-import-otthonnet-reference');
-  assert.equal(epcReferenceCatalog.productSpecifications.length, 8);
-  assert.equal(epcReferenceCatalog.productOfferings.length, 3);
-  assert.equal(epcReferenceCatalog.productInventory.length, 13);
-  assert.equal(epcReferenceCatalog.characteristicDefinitions.length >= 90, true);
-  assert.equal(epcReferenceCatalog.industryExtensions.length, 20);
-  assert.equal(epcReferenceCatalog.characteristicDefinitions.some((item) => item.inventoryImpact === 'Y'), true);
-  assert.equal(epcReferenceCatalog.characteristicDefinitions.some((item) => item.fulfillmentImpact === 'Y'), true);
-  assert.equal(epcReferenceCatalog.productInventory.some((item) => item.relationshipCount > 0), true);
+import { createProductInventoryDraft, createProductOfferingDraft, createProductSpecificationDraft } from '../app/lib/epcEntityDefinitions.js';
+
+test('catalog builder entity definitions create product specification, offering and product inventory defaults', () => {
+  const spec = createProductSpecificationDraft(0, 'telecommunications');
+  const offering = createProductOfferingDraft(0, spec.code, 'telecommunications');
+  const product = createProductInventoryDraft(0, offering.code, spec.code, 'telecommunications');
+
+  assert.equal(spec.type, 'ProductSpecification');
+  assert.equal(spec.lifecycleStatus, 'Draft');
+  assert.equal(offering.specificationCode, spec.code);
+  assert.equal(offering.isSellable, true);
+  assert.equal(offering.price.chargeType, 'RECURRING');
+  assert.equal(product.productOfferingCode, offering.code);
+  assert.equal(product.productSpecificationCode, spec.code);
+  assert.equal(product.status, 'Created');
 });

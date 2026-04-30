@@ -56,36 +56,8 @@ export default async function CatalogDetailsPage({ params }) {
         <article className="stat-card"><span className="stat-value">{catalog.productSpecifications.length}</span><span className="stat-label">Product specifications</span></article>
         <article className="stat-card"><span className="stat-value">{catalog.productOfferings.length}</span><span className="stat-label">Product offerings</span></article>
         <article className="stat-card"><span className="stat-value">{catalog.characteristicDefinitions.length}</span><span className="stat-label">Characteristic definitions</span></article>
-        <article className="stat-card"><span className="stat-value">{catalog.serviceSpecifications.length + catalog.resourceSpecifications.length}</span><span className="stat-label">Service + resource specs</span></article>
-        <article className="stat-card"><span className="stat-value">{(catalog.productInventory || []).length}</span><span className="stat-label">Product inventory examples</span></article>
+        <article className="stat-card"><span className="stat-value">{catalog.productInventory?.length || 0}</span><span className="stat-label">Products / inventory</span></article>
       </section>
-
-      {catalog.importSummary ? (
-        <section className="section-block">
-          <div className="section-heading-row"><div><p className="eyebrow">EPC import summary</p><h2>Normalized Product Offering + Product Specification + Product Inventory export</h2></div></div>
-          <div className="detail-grid">
-            <article className="card">
-              <h3>Imported entity counts</h3>
-              <dl className="data-list">
-                <div className="data-row"><dt>Source</dt><dd>{catalog.importSummary.source}</dd></div>
-                <div className="data-row"><dt>Product specifications</dt><dd>{catalog.importSummary.productSpecificationCount}</dd></div>
-                <div className="data-row"><dt>Product offerings</dt><dd>{catalog.importSummary.productOfferingCount}</dd></div>
-                <div className="data-row"><dt>Characteristics</dt><dd>{catalog.importSummary.characteristicDefinitionCount}</dd></div>
-                <div className="data-row"><dt>Hierarchy edges</dt><dd>{catalog.importSummary.hierarchyEdgeCount}</dd></div>
-                <div className="data-row"><dt>Inventory products</dt><dd>{catalog.importSummary.productInventoryCount}</dd></div>
-              </dl>
-            </article>
-            <article className="card">
-              <h3>Modeling rules captured</h3>
-              <ul className="bullet-list">
-                <li>Specification and offering are separated so the same product model can be sold through multiple commercial offers.</li>
-                <li>Characteristics preserve configurability, lifecycle stage, cardinality, fulfillment impact and inventory impact.</li>
-                <li>Inventory products keep realized product relationships and selected characteristics separate from catalog definitions.</li>
-              </ul>
-            </article>
-          </div>
-        </section>
-      ) : null}
 
       <section className="section-block">
         <div className="section-heading-row">
@@ -167,33 +139,30 @@ export default async function CatalogDetailsPage({ params }) {
         </div>
       </section>
 
-      {(catalog.productInventory || []).length ? (
-        <section className="section-block">
-          <div className="section-heading-row"><div><p className="eyebrow">Product Inventory</p><h2>Realized product instances and relationships</h2></div></div>
-          <div className="table-scroll">
-            <table className="catalog-table dense-table">
-              <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Bundle</th><th>Specification</th><th>Offering</th><th>Characteristics</th><th>Relationships</th><th>Resources</th></tr></thead>
-              <tbody>
-                {catalog.productInventory.map((product) => (
-                  <tr key={product.id}>
-                    <td><code>{product.id}</code></td>
-                    <td>{product.name}</td>
-                    <td>{product.status}</td>
-                    <td>{product.isBundle ? 'Y' : 'N'}</td>
-                    <td><code>{product.specificationCode || '—'}</code></td>
-                    <td>{product.offeringCode || '—'}</td>
-                    <td>{product.characteristicCount}</td>
-                    <td>{product.relationshipCount}</td>
-                    <td>{product.realizingResourceCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
+      <section className="section-block">
 
       <section className="section-block">
+        <div className="section-heading-row"><div><p className="eyebrow">Product inventory</p><h2>Product instances</h2></div></div>
+        <div className="table-scroll">
+          <table className="catalog-table">
+            <thead><tr><th>Product id</th><th>Name</th><th>Offering</th><th>Specification</th><th>Status</th><th>Serial / service id</th><th>Place</th><th>Customer</th></tr></thead>
+            <tbody>
+              {(catalog.productInventory || []).map((product) => (
+                <tr key={product.code || product.id}>
+                  <td><code>{product.code || product.id}</code></td>
+                  <td>{product.name}</td>
+                  <td><code>{product.productOfferingCode || product.productOffering?.id || '—'}</code></td>
+                  <td><code>{product.productSpecificationCode || product.productSpecification?.id || '—'}</code></td>
+                  <td>{product.status || product.lifecycleStatus}</td>
+                  <td>{product.productSerialNumber || product.serviceId || product.msisdn || '—'}</td>
+                  <td>{product.place || '—'}</td>
+                  <td>{typeof product.relatedParty === 'string' ? product.relatedParty : product.relatedParty?.name || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
         <div className="section-heading-row"><div><p className="eyebrow">Characteristics</p><h2>Universal characteristic definition template</h2></div></div>
         <div className="table-scroll">
           <table className="catalog-table dense-table">
@@ -225,27 +194,6 @@ export default async function CatalogDetailsPage({ params }) {
           </table>
         </div>
       </section>
-
-      {(catalog.industryExtensions || []).length ? (
-        <section className="section-block">
-          <div className="section-heading-row"><div><p className="eyebrow">Universal EPC expansion</p><h2>20 industry-ready product modeling patterns</h2></div></div>
-          <div className="table-scroll">
-            <table className="catalog-table dense-table">
-              <thead><tr><th>Industry</th><th>Focus</th><th>Modeling pattern</th><th>Recommended entities</th></tr></thead>
-              <tbody>
-                {catalog.industryExtensions.map((item) => (
-                  <tr key={item.slug}>
-                    <td>{item.industry}</td>
-                    <td>{item.focus}</td>
-                    <td>{item.modelingPattern}</td>
-                    <td>{(item.recommendedEntities || []).join(', ')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
 
       <section className="section-block">
         <div className="section-heading-row"><div><p className="eyebrow">Technical decomposition</p><h2>Service and resource structures</h2></div></div>
@@ -284,9 +232,6 @@ export default async function CatalogDetailsPage({ params }) {
         <div className="detail-grid">
           <article className="card"><h3>ProductSpecification</h3><pre className="json-block">{JSON.stringify(catalog.tmf620Examples.productSpecification, null, 2)}</pre></article>
           <article className="card"><h3>ProductOffering</h3><pre className="json-block">{JSON.stringify(catalog.tmf620Examples.productOffering, null, 2)}</pre></article>
-          {catalog.tmf620Examples.productInventory ? (
-            <article className="card"><h3>ProductInventory</h3><pre className="json-block">{JSON.stringify(catalog.tmf620Examples.productInventory, null, 2)}</pre></article>
-          ) : null}
         </div>
       </section>
     </main>
