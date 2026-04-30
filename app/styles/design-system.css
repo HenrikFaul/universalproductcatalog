@@ -87,11 +87,12 @@ body {
 
 .ds-button--danger {
   background: var(--color-danger);
+  box-shadow: 0 10px 22px hsl(354 72% 52% / 0.18);
   color: white;
 }
 
 .ds-button--danger:hover:not(:disabled) {
-  filter: brightness(1.05);
+  background: hsl(354 72% 44%);
 }
 
 .ds-button--sm {
@@ -321,10 +322,13 @@ body {
 }
 
 .ds-modal__footer {
+  border-top: 1px solid var(--color-border-subtle);
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
   justify-content: flex-end;
+  padding-top: var(--space-4);
+  margin-top: calc(-1 * var(--space-1));
 }
 
 @media (max-width: 48rem) {
