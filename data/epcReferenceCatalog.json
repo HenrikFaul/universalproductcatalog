@@ -1,28 +1,4123 @@
 {
+  "slug": "epc-import-otthonnet-reference",
+  "title": "EPC import reference catalog — OtthonNet / telecom product domain",
+  "industry": "Telecom / Universal EPC reference",
+  "tmfVersion": "TMF620/TMF637-style imported structure",
+  "sourceKind": "EPC export import",
+  "description": "Imported and normalized EPC reference catalog based on the attached product offering, product specification and product inventory exports. It keeps specification, offering, inventory, characteristic, service and resource concerns separated for universal UPC modeling.",
+  "catalog": {
+    "code": "UPC-EPC-IMPORT-OTTHONNET",
+    "version": "1.0.0",
+    "validFor": "Imported export snapshot / open-ended",
+    "businessDomains": [
+      "Fixed broadband",
+      "Mobile identity",
+      "CPE/device inventory",
+      "Commercial discounts",
+      "Universal EPC metamodel"
+    ]
+  },
   "productSpecifications": [
     {
-      "id": "spec-1",
-      "name": "Generic Product",
-      "characteristics": [
-        {
-          "name": "speed",
-          "type": "number"
-        }
-      ]
+      "code": "PS_WiredInternet",
+      "id": "436GZaU3RPeRN2SMTdau6A",
+      "name": "Wired Internet",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Bundle",
+      "isBundle": true,
+      "lastUpdate": "2026-03-26T20:10:13.282Z",
+      "characteristicCount": 4,
+      "inventoryCharacteristicCount": 2,
+      "fulfillmentCharacteristicCount": 1,
+      "configurableStages": [
+        "acceptance",
+        "fulfillment",
+        "inventory",
+        "quotation",
+        "sale"
+      ],
+      "summary": "Imported EPC specification with 4 characteristics, 7 bundled children and 0 relationships."
+    },
+    {
+      "code": "PS_SimCard",
+      "id": "cwzOrgOBRhu3wCtfGKsqBg",
+      "name": "SIM test",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Resource-backed specification",
+      "isBundle": false,
+      "lastUpdate": "2026-03-20T15:49:56.944Z",
+      "characteristicCount": 5,
+      "inventoryCharacteristicCount": 3,
+      "fulfillmentCharacteristicCount": 4,
+      "configurableStages": [
+        "acceptance",
+        "fulfillment",
+        "inventory",
+        "quotation",
+        "sale"
+      ],
+      "summary": "Imported EPC specification with 5 characteristics, 0 bundled children and 3 relationships."
+    },
+    {
+      "code": "PS_Discount",
+      "id": "I1BUUB0ZRLqYeo8HrBehaw",
+      "name": "Discount",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Atomic specification",
+      "isBundle": false,
+      "lastUpdate": "2026-03-24T13:29:47.166Z",
+      "characteristicCount": 5,
+      "inventoryCharacteristicCount": 2,
+      "fulfillmentCharacteristicCount": 0,
+      "configurableStages": [],
+      "summary": "Imported EPC specification with 5 characteristics, 0 bundled children and 0 relationships."
+    },
+    {
+      "code": "PS_Cpe_ZXHN_F6745",
+      "id": "pLxPUWKrR2ifwfZzpUFC2w",
+      "name": "ZXHN F6745",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Atomic specification",
+      "isBundle": false,
+      "lastUpdate": "2026-03-26T20:10:13.281Z",
+      "characteristicCount": 29,
+      "inventoryCharacteristicCount": 4,
+      "fulfillmentCharacteristicCount": 2,
+      "configurableStages": [
+        "acceptance",
+        "fulfillment",
+        "inventory",
+        "quotation",
+        "sale"
+      ],
+      "summary": "Imported EPC specification with 29 characteristics, 0 bundled children and 1 relationships."
+    },
+    {
+      "code": "PS_PhoneNumber",
+      "id": "q2nK0Ii_T2e-H4iEvNl2UQ",
+      "name": "Phone number",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Resource-backed specification",
+      "isBundle": false,
+      "lastUpdate": "2026-03-20T15:49:56.941Z",
+      "characteristicCount": 4,
+      "inventoryCharacteristicCount": 3,
+      "fulfillmentCharacteristicCount": 3,
+      "configurableStages": [
+        "acceptance",
+        "fulfillment",
+        "inventory",
+        "quotation",
+        "sale"
+      ],
+      "summary": "Imported EPC specification with 4 characteristics, 0 bundled children and 3 relationships."
+    },
+    {
+      "code": "PS_Stb",
+      "id": "QSmZ2uK0RWCLYUP9dRNghA",
+      "name": "Set-Top-Box",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Bundle",
+      "isBundle": true,
+      "lastUpdate": "2026-03-24T13:29:59.709Z",
+      "characteristicCount": 30,
+      "inventoryCharacteristicCount": 4,
+      "fulfillmentCharacteristicCount": 1,
+      "configurableStages": [
+        "acceptance",
+        "fulfillment",
+        "inventory",
+        "quotation",
+        "sale"
+      ],
+      "summary": "Imported EPC specification with 30 characteristics, 1 bundled children and 8 relationships."
+    },
+    {
+      "code": "PS_InternetPlanBundle",
+      "id": "SjcyRCHWQduCBq0W_jaKLw",
+      "name": "Internet Plan",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Bundle",
+      "isBundle": true,
+      "lastUpdate": "2026-03-26T20:10:01.821Z",
+      "characteristicCount": 0,
+      "inventoryCharacteristicCount": 0,
+      "fulfillmentCharacteristicCount": 0,
+      "configurableStages": [],
+      "summary": "Imported EPC specification with 0 characteristics, 3 bundled children and 0 relationships."
+    },
+    {
+      "code": "PS_WiredAccess",
+      "id": "sSeJszURReCCVF1wyV-6BA",
+      "name": "Wired Access",
+      "type": "ProductSpecificationExt",
+      "lifecycle": "Offered",
+      "version": "1",
+      "businessModel": "Telecom EPC / fixed-mobile bundle",
+      "category": "Bundle",
+      "isBundle": true,
+      "lastUpdate": "2026-03-26T20:09:55.055Z",
+      "characteristicCount": 20,
+      "inventoryCharacteristicCount": 7,
+      "fulfillmentCharacteristicCount": 6,
+      "configurableStages": [
+        "acceptance",
+        "fulfillment",
+        "inventory",
+        "quotation",
+        "sale"
+      ],
+      "summary": "Imported EPC specification with 20 characteristics, 3 bundled children and 0 relationships."
     }
   ],
   "productOfferings": [
     {
-      "id": "offer-1",
-      "name": "Generic Offer",
-      "specRef": "spec-1"
+      "code": "Pq98GniMSh-da7VOvmCDew",
+      "id": "Pq98GniMSh-da7VOvmCDew",
+      "name": "PO_InternetAnywherePaid",
+      "caption": "Internet Anywhere (Paid)",
+      "description": "Lorem ipsum",
+      "isBundle": false,
+      "isSellable": false,
+      "status": "Launched",
+      "version": "1",
+      "validFor": "2025-05-31T22:00:00.000Z",
+      "specificationCode": "PS_InternetAnywhere",
+      "channels": [
+        "mobileapp",
+        "backoffice",
+        "voicecall",
+        "webshop",
+        "retail"
+      ],
+      "priceSummary": "1 imported price rows",
+      "termSummary": "2 term rows",
+      "rawPriceTypes": [
+        "ProductOfferingPriceRef"
+      ]
+    },
+    {
+      "code": "VC9Iw51STtKkZJzI8413FQ",
+      "id": "VC9Iw51STtKkZJzI8413FQ",
+      "name": "PO_PhoneNumber",
+      "caption": "Phone Number",
+      "description": "Lorem ipsum",
+      "isBundle": false,
+      "isSellable": false,
+      "status": "Launched",
+      "version": "1",
+      "validFor": "2025-05-31T22:00:00.000Z",
+      "specificationCode": "PS_PhoneNumber",
+      "channels": [
+        "mobileapp",
+        "backoffice",
+        "voicecall",
+        "webshop",
+        "retail"
+      ],
+      "priceSummary": "Price not included in export",
+      "termSummary": "1 term rows",
+      "rawPriceTypes": []
+    },
+    {
+      "code": "dFpHh3yWSCeMz9TFb21F9Q",
+      "id": "dFpHh3yWSCeMz9TFb21F9Q",
+      "name": "PO_Descriptions",
+      "caption": "[TEMPLATE] Offer descriptions",
+      "description": null,
+      "isBundle": false,
+      "isSellable": false,
+      "status": "Launched",
+      "version": "1",
+      "validFor": "2025-05-31T22:00:00.000Z",
+      "specificationCode": "—",
+      "channels": [
+        "mobileapp",
+        "backoffice",
+        "voicecall",
+        "webshop",
+        "retail"
+      ],
+      "priceSummary": "Price not included in export",
+      "termSummary": "1 term rows",
+      "rawPriceTypes": []
+    }
+  ],
+  "characteristicDefinitions": [
+    {
+      "appliesTo": "PS_WiredInternet",
+      "id": "-VR8JtKRSyqj-ecop5t-4g",
+      "name": "madId",
+      "displayName": "MAD ID",
+      "valueType": "String",
+      "presence": "mandatoryForSale",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "sale",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "MAD ID (mandatoryForSale) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredInternet",
+      "id": "Wy4tShKFTKWMMnvcKQNjCA",
+      "name": "initialSalesChannel",
+      "displayName": "Initial Sales Channel",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "hidden",
+      "defaultValue": "property(\"orderCreatedInSalesChannel\").as(\"SalesChannel\").property(\"name\").orElse(\"unknown\")",
+      "allowedValues": [
+        "property(\"orderCreatedInSalesChannel\").as(\"SalesChannel\").property(\"name\").orElse(\"unknown\")"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Initial Sales Channel (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredInternet",
+      "id": "zcdyN2kOS3utQQLJGlb-Ug",
+      "name": "subscriptionID",
+      "displayName": "Subscription ID",
+      "valueType": "String",
+      "presence": "mandatoryForSale",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Subscription ID (mandatoryForSale) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredInternet",
+      "id": "b4aakW1cTmqQ6CisuwvlIw",
+      "name": "terminationBusinessReason",
+      "displayName": "Termination Business reason",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "hidden",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Termination Business reason (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_SimCard",
+      "id": "GF947WB5S9SfZ13JL_WeYA",
+      "name": "resourceSpecName",
+      "displayName": "Resource spec name",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "SimCard",
+      "allowedValues": [
+        "SimCard"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "Y",
+      "interpretation": "Resource spec name (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_SimCard",
+      "id": "xrZulnmRTt2CdfsdzEh90g",
+      "name": "simCardType",
+      "displayName": "SIM card type",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "SIM card type (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_SimCard",
+      "id": "t22_N-UeR6SQuEf_k8d1_w",
+      "name": "imsi",
+      "displayName": "IMSI",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "IMSI (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_SimCard",
+      "id": "XVOjGjcPT8WigcfuQ9PeVw",
+      "name": "iccId",
+      "displayName": "ICCID",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "ICCID (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_SimCard",
+      "id": "qOAcpK60QliurzFOj7fefA",
+      "name": "simMaterialCode",
+      "displayName": "SIM Material Code",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Lorem ipsum",
+      "allowedValues": [
+        "Lorem ipsum"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "SIM Material Code (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Discount",
+      "id": "Whl8Bn0PTeiZ1LlPjntHrA",
+      "name": "eventType",
+      "displayName": "Event type",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Event type (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Discount",
+      "id": "FaURyQBES3O188f1JokKdA",
+      "name": "daysToExpire",
+      "displayName": "Days to expire",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Days to expire (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Discount",
+      "id": "FzFnUQLhTmCZjLpTfioIxA",
+      "name": "pilmCampaignWf",
+      "displayName": "PILM notif  wf ID",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "PILM notif  wf ID (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Discount",
+      "id": "d-hjJuXyQTKASAFLTNu31Q",
+      "name": "pilmEndWf",
+      "displayName": "PILM try end WF ID",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "PILM try end WF ID (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Discount",
+      "id": "qRMxhIIAR6ScQHITt8HOXQ",
+      "name": "pomOrderCategoryWf",
+      "displayName": "POM order category WF",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "POM order category WF (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "F2yUXeU1RJmgGDEIc7Hzjg",
+      "name": "physicalDeviceStatus",
+      "displayName": "Physical Device Status",
+      "valueType": "String",
+      "presence": "mandatoryForSale",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": "underDelivery",
+      "allowedValues": [
+        "underDelivery"
+      ],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Physical Device Status (mandatoryForSale) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "9FiCoimWR32P7TSUdPu2ZA",
+      "name": "physicalDeviceAgentCheck",
+      "displayName": "Physical Device Agent Check",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Physical Device Agent Check (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "dtMpLfCGQhyhYcExOmPKFg",
+      "name": "serialNumber",
+      "displayName": "Unique device identifier",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "Unique device identifier (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "5Eub65TNSxumIZTONtwWnw",
+      "name": "comCoBrand",
+      "displayName": "ComCoBrand",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": "Yettel",
+      "allowedValues": [
+        "Yettel"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "ComCoBrand (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "u9UbcHZ0R5ydQRexBgT3Ag",
+      "name": "modemMode",
+      "displayName": "Modem mode",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "RouterNAT",
+      "allowedValues": [
+        "RouterNAT"
+      ],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "Modem mode (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "05X8VR7wQcGG3mNmsB97ig",
+      "name": "modelId",
+      "displayName": "Model ID",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "ZXHN F6745",
+      "allowedValues": [
+        "ZXHN F6745"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Model ID (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "y6lH9in2SsyldUsaN1sG_g",
+      "name": "modelName",
+      "displayName": "Model Name",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "ZXHN F6745",
+      "allowedValues": [
+        "ZXHN F6745"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Model Name (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "WrxHxJxGS_SMnxjcYmtoAA",
+      "name": "variantName",
+      "displayName": "Variant Name",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Fehér",
+      "allowedValues": [
+        "Fehér"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Variant Name (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "KSohe6KKQviRnwZdosKsYw",
+      "name": "deviceType",
+      "displayName": "Device Type",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "HGW",
+      "allowedValues": [
+        "HGW"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Device Type (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "EZTsRmGfRc2Csi6bhnSHRg",
+      "name": "deviceSubType",
+      "displayName": "Device Sub Type",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "HGW (modem + WiFi router)",
+      "allowedValues": [
+        "HGW (modem + WiFi router)"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Device Sub Type (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "D86L4l9yQFiLh-KS8gP4GA",
+      "name": "deviceCategory",
+      "displayName": "Device Category",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "GPON ONT",
+      "allowedValues": [
+        "GPON ONT"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Device Category (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "Gvuei9rSRTCBdx942hT6jw",
+      "name": "materialCode",
+      "displayName": "Material Code",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "1123840",
+      "allowedValues": [
+        "1123840"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Material Code (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "PgAsbHf1Sf6i_liYQTc9wA",
+      "name": "materialCodeUsedDevice",
+      "displayName": "Material Code (Used Device)",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "E1123840",
+      "allowedValues": [
+        "E1123840"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Material Code (Used Device) (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "ZwNMnKGORP-lP8AgcE9xUw",
+      "name": "manufacturer",
+      "displayName": "Manufacturer",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "ZTE",
+      "allowedValues": [
+        "ZTE"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Manufacturer (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "K0bElaCFQ06q538kJaM5UQ",
+      "name": "filterColor",
+      "displayName": "Colour filter",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Colour filter (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "skeJnl5uSciD9SwbU57Irw",
+      "name": "colorRgbCode",
+      "displayName": "Color RGB code",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "#FFFFFF",
+      "allowedValues": [
+        "#FFFFFF"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Color RGB code (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "9sENoAQkQQSLh9hjeXlvtA",
+      "name": "color",
+      "displayName": "Color",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Fehér",
+      "allowedValues": [
+        "Fehér"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Color (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "L7yB1gcESZmktLQp5E_gFA",
+      "name": "primaryBadge",
+      "displayName": "Primary badge",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Primary badge (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "q0gKgfRSQ0yfl39AOWazQw",
+      "name": "offerBadge",
+      "displayName": "Offer badge",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Offer badge (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "7USxs0ovSlagVP4C4HBeHg",
+      "name": "weight",
+      "displayName": "Weight",
+      "valueType": "Integer",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "600",
+      "allowedValues": [
+        "600"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Weight (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "O_N9VafZQXaaO5am5I7Nug",
+      "name": "size",
+      "displayName": "Size",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "150x210x41",
+      "allowedValues": [
+        "150x210x41"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Size (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "EaDP55iXTP2yLfLx8-bZ3w",
+      "name": "wifiGeneration",
+      "displayName": "Wi-Fi generation",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Wi-Fi 7",
+      "allowedValues": [
+        "Wi-Fi 7"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Wi-Fi generation (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "FCd2mjygTai9VNpRy-eFgA",
+      "name": "wifiIEEEProtocol",
+      "displayName": "Wi-Fi IEEE protocol",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "4 x 4 802.11b/g/n/ax/be Wi-Fi @ 2.4 GHz, 4 x 4 802.11a/n/ac/ax/be Wi-Fi @ 5 GHz",
+      "allowedValues": [
+        "4 x 4 802.11b/g/n/ax/be Wi-Fi @ 2.4 GHz, 4 x 4 802.11a/n/ac/ax/be Wi-Fi @ 5 GHz"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Wi-Fi IEEE protocol (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "rfesHKq6RY6dnm7nT0BqRg",
+      "name": "maxDownloadSpeed",
+      "displayName": "Max. download speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "7200",
+      "allowedValues": [
+        "7200"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Max. download speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "KZrvYWFZSEioAy_hklxQ7w",
+      "name": "maxUploadSpeed",
+      "displayName": "Max. upload speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "1244",
+      "allowedValues": [
+        "1244"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Max. upload speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "84l9CguYQwmSJgrEJEOybQ",
+      "name": "noOfDevices",
+      "displayName": "Number of devices that can be connected",
+      "valueType": "Integer",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "4",
+      "allowedValues": [
+        "4"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Number of devices that can be connected (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "QlnTN6PjSNytCWgfhR93WA",
+      "name": "bluetooth",
+      "displayName": "Bluetooth",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "n/a",
+      "allowedValues": [
+        "n/a"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Bluetooth (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "kS-EJO06QbWkOxtm4OmyZw",
+      "name": "externalStorageCapability",
+      "displayName": "Storage Capability",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "n/a",
+      "allowedValues": [
+        "n/a"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Storage Capability (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Cpe_ZXHN_F6745",
+      "id": "9if2SMhpRfOU8AkB3th3zw",
+      "name": "basicAccessories",
+      "displayName": "Basic Accessories",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "ZTE F6745 Gpon Home Gateway eszköz, 2A power adapter, Ethernet kábel (1,5 méter), Használati útmutató (magyar, angol), Használati és biztonsági tájékoztató",
+      "allowedValues": [
+        "ZTE F6745 Gpon Home Gateway eszköz, 2A power adapter, Ethernet kábel (1,5 méter), Használati útmutató (magyar, angol), Használati és biztonsági tájékoztató"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Basic Accessories (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_PhoneNumber",
+      "id": "GF947WB5S9SfZ13JL_WeYA",
+      "name": "resourceSpecName",
+      "displayName": "Resource spec name",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "PhoneNumber",
+      "allowedValues": [
+        "PhoneNumber"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "Y",
+      "interpretation": "Resource spec name (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_PhoneNumber",
+      "id": "0legFaOBQTeYRMpyS-srPQ",
+      "name": "msisdnCategory",
+      "displayName": "MSISDN Category",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "MSISDN Category (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_PhoneNumber",
+      "id": "gGkTztPOTBiK5my2k6wH-w",
+      "name": "msisdn",
+      "displayName": "MSISDN",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "sale",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "MSISDN (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_PhoneNumber",
+      "id": "ufLbovZETGOzVuNEVTI2Ow",
+      "name": "ctn",
+      "displayName": "CTN",
+      "valueType": "String",
+      "presence": "mandatoryForSale",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "sale",
+      "editingBehaviour": "editable",
+      "defaultValue": "123456789",
+      "allowedValues": [
+        "123456789"
+      ],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "CTN (mandatoryForSale) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "Iy2IW89eRJevPusVCHU4eA",
+      "name": "tvBoxMacAddress",
+      "displayName": "TV Box MAC Address",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "TV Box MAC Address (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "0D_NaerhQqmtWz7rKd6cnQ",
+      "name": "tvBoxSerialNumber",
+      "displayName": "TV Box Serial number",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "TV Box Serial number (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "5Eub65TNSxumIZTONtwWnw",
+      "name": "comCoBrand",
+      "displayName": "ComCoBrand",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "editable",
+      "defaultValue": "Yettel",
+      "allowedValues": [
+        "Yettel"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "ComCoBrand (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "05X8VR7wQcGG3mNmsB97ig",
+      "name": "modelId",
+      "displayName": "Model ID",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "ZXV10 B866V2",
+      "allowedValues": [
+        "ZXV10 B866V2"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Model ID (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "y6lH9in2SsyldUsaN1sG_g",
+      "name": "modelName",
+      "displayName": "Model Name",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "ZXV10 B866V2",
+      "allowedValues": [
+        "ZXV10 B866V2"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Model Name (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "WrxHxJxGS_SMnxjcYmtoAA",
+      "name": "variantName",
+      "displayName": "Variant Name",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Fekete",
+      "allowedValues": [
+        "Fekete"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Variant Name (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "KSohe6KKQviRnwZdosKsYw",
+      "name": "deviceType",
+      "displayName": "Device Type",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "TV Box",
+      "allowedValues": [
+        "TV Box"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Device Type (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "EZTsRmGfRc2Csi6bhnSHRg",
+      "name": "deviceSubType",
+      "displayName": "Device Sub Type",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "TV Box",
+      "allowedValues": [
+        "TV Box"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Device Sub Type (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "D86L4l9yQFiLh-KS8gP4GA",
+      "name": "deviceCategory",
+      "displayName": "Device Category",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "n/a",
+      "allowedValues": [
+        "n/a"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Device Category (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "TO_iKoMFStShs0LC4TWnvA",
+      "name": "deviceSubcategory",
+      "displayName": "Device Subcategory",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "n/a",
+      "allowedValues": [
+        "n/a"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Device Subcategory (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "Gvuei9rSRTCBdx942hT6jw",
+      "name": "materialCode",
+      "displayName": "Material Code",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Lorem ipsum",
+      "allowedValues": [
+        "Lorem ipsum"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Material Code (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "PgAsbHf1Sf6i_liYQTc9wA",
+      "name": "materialCodeUsedDevice",
+      "displayName": "Material Code (Used Device)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Lorem ipsum",
+      "allowedValues": [
+        "Lorem ipsum"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Material Code (Used Device) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "ZwNMnKGORP-lP8AgcE9xUw",
+      "name": "manufacturer",
+      "displayName": "Manufacturer",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "ZTE",
+      "allowedValues": [
+        "ZTE"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Manufacturer (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "K0bElaCFQ06q538kJaM5UQ",
+      "name": "filterColor",
+      "displayName": "Colour filter",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Colour filter (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "skeJnl5uSciD9SwbU57Irw",
+      "name": "colorRgbCode",
+      "displayName": "Color RGB code",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "000000",
+      "allowedValues": [
+        "000000"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Color RGB code (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "9sENoAQkQQSLh9hjeXlvtA",
+      "name": "color",
+      "displayName": "Color",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Fekete",
+      "allowedValues": [
+        "Fekete"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Color (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "L7yB1gcESZmktLQp5E_gFA",
+      "name": "primaryBadge",
+      "displayName": "Primary badge",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Primary badge (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "q0gKgfRSQ0yfl39AOWazQw",
+      "name": "offerBadge",
+      "displayName": "Offer badge",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Offer badge (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "7USxs0ovSlagVP4C4HBeHg",
+      "name": "weight",
+      "displayName": "Weight",
+      "valueType": "Integer",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "170",
+      "allowedValues": [
+        "170"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Weight (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "O_N9VafZQXaaO5am5I7Nug",
+      "name": "size",
+      "displayName": "Size",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "100x102.5x29",
+      "allowedValues": [
+        "100x102.5x29"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Size (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "EaDP55iXTP2yLfLx8-bZ3w",
+      "name": "wifiGeneration",
+      "displayName": "Wi-Fi generation",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "Wi-Fi 5",
+      "allowedValues": [
+        "Wi-Fi 5"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Wi-Fi generation (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "FCd2mjygTai9VNpRy-eFgA",
+      "name": "wifiIEEEProtocol",
+      "displayName": "Wi-Fi IEEE protocol",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "IEEE 802.11 b/g/n/ac",
+      "allowedValues": [
+        "IEEE 802.11 b/g/n/ac"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Wi-Fi IEEE protocol (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "rfesHKq6RY6dnm7nT0BqRg",
+      "name": "maxDownloadSpeed",
+      "displayName": "Max. download speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "n/a",
+      "allowedValues": [
+        "n/a"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Max. download speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "KZrvYWFZSEioAy_hklxQ7w",
+      "name": "maxUploadSpeed",
+      "displayName": "Max. upload speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "n/a",
+      "allowedValues": [
+        "n/a"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Max. upload speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "84l9CguYQwmSJgrEJEOybQ",
+      "name": "noOfDevices",
+      "displayName": "Number of devices that can be connected",
+      "valueType": "Integer",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "2",
+      "allowedValues": [
+        "2"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Number of devices that can be connected (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "QlnTN6PjSNytCWgfhR93WA",
+      "name": "bluetooth",
+      "displayName": "Bluetooth",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "5.0",
+      "allowedValues": [
+        "5.0"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Bluetooth (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "kS-EJO06QbWkOxtm4OmyZw",
+      "name": "externalStorageCapability",
+      "displayName": "Storage Capability",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "TRUE",
+      "allowedValues": [
+        "TRUE"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Storage Capability (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "9if2SMhpRfOU8AkB3th3zw",
+      "name": "basicAccessories",
+      "displayName": "Basic Accessories",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "TV Box, Távirányító,2 db AAA elem távirányítóhoz, Tápegység, HDMI kábel (2 méter), AV RCA kábel (2 méter), Ethernet kábel (3 méter), Használati útmutató",
+      "allowedValues": [
+        "TV Box, Távirányító,2 db AAA elem távirányítóhoz, Tápegység, HDMI kábel (2 méter), AV RCA kábel (2 méter), Ethernet kábel (3 méter), Használati útmutató"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Basic Accessories (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "F2yUXeU1RJmgGDEIc7Hzjg",
+      "name": "physicalDeviceStatus",
+      "displayName": "Physical Device Status",
+      "valueType": "String",
+      "presence": "mandatoryForSale",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": "underDelivery",
+      "allowedValues": [
+        "underDelivery"
+      ],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Physical Device Status (mandatoryForSale) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_Stb",
+      "id": "9FiCoimWR32P7TSUdPu2ZA",
+      "name": "physicalDeviceAgentCheck",
+      "displayName": "Physical Device Agent Check",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Physical Device Agent Check (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "0DJsOPUFTmW3FkzCtL5x7w",
+      "name": "accessTechnology",
+      "displayName": "Access Technology",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Access Technology (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "rfesHKq6RY6dnm7nT0BqRg",
+      "name": "maxDownloadSpeed",
+      "displayName": "Max. download speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Max. download speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "KZrvYWFZSEioAy_hklxQ7w",
+      "name": "maxUploadSpeed",
+      "displayName": "Max. upload speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Max. upload speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "NmP8hMvYTUe68sQ1SjJw8w",
+      "name": "connectionSpeedUp",
+      "displayName": "Connection speed Up",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Connection speed Up (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "TS2OnGVhScqoe0gd12BXUg",
+      "name": "connectionSpeedDown",
+      "displayName": "Connection speed Down",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Connection speed Down (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "pqe6Mfs_SLuMoGGugeN5mg",
+      "name": "billingPricePlanCode",
+      "displayName": "Billing Price Plan Code",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "hidden",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Billing Price Plan Code (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "_smf-EzlSpW2-5O1A_neeA",
+      "name": "billingAccountType",
+      "displayName": "Billing Account Type",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "hidden",
+      "defaultValue": "BBI",
+      "allowedValues": [
+        "BBI"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Billing Account Type (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "3-IgCdHwS02xTtXiz0z1xg",
+      "name": "billingProductCode",
+      "displayName": "Billing Product Code",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "hidden",
+      "defaultValue": "GRWH",
+      "allowedValues": [
+        "GRWH"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Billing Product Code (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "sYx63V2tR0GsRV2tjAXdzQ",
+      "name": "billingApplicationType",
+      "displayName": "Billing Application Type",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "hidden",
+      "defaultValue": "BB",
+      "allowedValues": [
+        "BB"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Billing Application Type (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "uWcR_KW8TQOO8cwzx4DyoA",
+      "name": "connectionMediumType",
+      "displayName": "Connection medium type",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": false,
+      "configurableStage": "",
+      "editingBehaviour": "readonly",
+      "defaultValue": "PPPoE",
+      "allowedValues": [
+        "PPPoE"
+      ],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "Connection medium type (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "_ydWr1-hQ3a4rWZWprZ7bQ",
+      "name": "wsFootprint",
+      "displayName": "wsFootprint",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "wsFootprint (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "l8NQxDC1Rx64nd4iaLHp0A",
+      "name": "PPPCredentialUser",
+      "displayName": "PPP credential user",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "PPP credential user (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "SPHbf7ahQJShTcXFxy5PJQ",
+      "name": "PPPCredentialSecret",
+      "displayName": "PPP credential secret",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "PPP credential secret (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "FMPoH_jUSYOpVIauHFBPOw",
+      "name": "agreementId",
+      "displayName": "Agreement ID",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "N",
+      "interpretation": "Agreement ID (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "udOWu9XyR3qVdz8ujwzVSA",
+      "name": "routerWANV4PublicIP",
+      "displayName": "Router WAN public IP",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": "No",
+      "allowedValues": [
+        "No"
+      ],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "Y",
+      "interpretation": "Router WAN public IP (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "m-KbH3GuS_K9oKda4uf-Mw",
+      "name": "guarDownloadSpeed",
+      "displayName": "Guar. download speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Guar. download speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "0w1l_tzwTV2RADN0gLKWZQ",
+      "name": "guarUploadSpeed",
+      "displayName": "Guar. upload speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Guar. upload speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "oPqVSwHRRNmbCa1zjkNdkw",
+      "name": "normalDownloadSpeed",
+      "displayName": "Normal download speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Normal download speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "5oCrlJ_mTuePuUc4A3iENA",
+      "name": "normalUploadSpeed",
+      "displayName": "Normal upload speed (Mbps)",
+      "valueType": "String",
+      "presence": "optional",
+      "presenceMeaning": "Optional or system-derived characteristic",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "quotation, sale, acceptance, fulfillment, inventory",
+      "editingBehaviour": "readonly",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "N",
+      "fulfillmentImpact": "N",
+      "interpretation": "Normal upload speed (Mbps) (optional) imported from EPC productSpecCharacteristic."
+    },
+    {
+      "appliesTo": "PS_WiredAccess",
+      "id": "3Wz5cmBNTQiFoGItFnVrKQ",
+      "name": "vlanId",
+      "displayName": "VLAN ID",
+      "valueType": "String",
+      "presence": "mandatoryForFulfillment",
+      "presenceMeaning": "Mandatory for sale/fulfillment",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "configurable": true,
+      "configurableStage": "acceptance, fulfillment",
+      "editingBehaviour": "editable",
+      "defaultValue": null,
+      "allowedValues": [],
+      "inventoryImpact": "Y",
+      "fulfillmentImpact": "Y",
+      "interpretation": "VLAN ID (mandatoryForFulfillment) imported from EPC productSpecCharacteristic."
+    }
+  ],
+  "hierarchy": [
+    {
+      "parent": "PS_WiredInternet",
+      "child": "PS_InternetPlanBundle",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredInternet",
+      "child": "PS_Cpe_ZXHN_F6745",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredInternet",
+      "child": "PS_Max",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredInternet",
+      "child": "PS_Tv2Play",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredInternet",
+      "child": "PS_YettelAccount",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredInternet",
+      "child": "PS_TvBundle",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredInternet",
+      "child": "PS_ChildrenProtection",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_SimCard",
+      "child": "oZtgQs-JQYexJVopZzB0Iw",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_SimCard",
+      "child": "X80GJTnrQk2YjRljAI9sqw",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_SimCard",
+      "child": "sSeJszURReCCVF1wyV-6BA",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Cpe_ZXHN_F6745",
+      "child": "sSeJszURReCCVF1wyV-6BA",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_PhoneNumber",
+      "child": "oZtgQs-JQYexJVopZzB0Iw",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_PhoneNumber",
+      "child": "X80GJTnrQk2YjRljAI9sqw",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_PhoneNumber",
+      "child": "sSeJszURReCCVF1wyV-6BA",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "PS_Discount",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "4ZPZIKpiTWGgCn-huNmCLA",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "DPt_rY9_RYOFoThTHgX5mw",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "mvWILuc2QRWEzYSYq0usxQ",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "DRLvvcTJRDWBAnkuaJBH3w",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "AScyYJ41TriLWirqvrsObA",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "tg9R-hWORsqq35Vgqmp94w",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "GuIn4n0EQDintvi9lh3PuQ",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_Stb",
+      "child": "d_rrgX9kRi2QaTXSvfHh8g",
+      "relationshipType": "link",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_InternetPlanBundle",
+      "child": "PS_WiredAccess",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_InternetPlanBundle",
+      "child": "PS_SimCard",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_InternetPlanBundle",
+      "child": "PS_PhoneNumber",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredAccess",
+      "child": "PS_Discount",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredAccess",
+      "child": "PS_Discount",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    },
+    {
+      "parent": "PS_WiredAccess",
+      "child": "PS_Discount",
+      "relationshipType": "bundledProductSpecification",
+      "min": 0,
+      "max": null,
+      "defaultQty": 1
+    }
+  ],
+  "serviceSpecifications": [
+    {
+      "code": "SS_BROADBAND_ACCESS",
+      "name": "Broadband access service",
+      "summary": "Activation and assurance service for fixed internet/access products."
+    },
+    {
+      "code": "SS_MOBILE_IDENTITY",
+      "name": "Mobile identity service",
+      "summary": "SIM/MSISDN/phone-number service provisioning."
+    },
+    {
+      "code": "SS_COMMERCIAL_DISCOUNT",
+      "name": "Commercial discount service",
+      "summary": "Commercial discount/loyalty entitlement handling."
+    },
+    {
+      "code": "SS_EPC_FULFILLMENT",
+      "name": "Generic EPC fulfillment service",
+      "summary": "Fallback service mapping for imported EPC products."
+    },
+    {
+      "code": "SS_IPTV_DEVICE",
+      "name": "IPTV device service",
+      "summary": "STB and IPTV device provisioning service."
+    }
+  ],
+  "resourceSpecifications": [
+    {
+      "code": "RS_SIMCARD",
+      "name": "SimCard",
+      "summary": "Realizing resource inferred from PS_SimCard resourceSpecName characteristic."
+    },
+    {
+      "code": "RS_PHONENUMBER",
+      "name": "PhoneNumber",
+      "summary": "Realizing resource inferred from PS_PhoneNumber resourceSpecName characteristic."
+    }
+  ],
+  "usageSpecifications": [
+    {
+      "code": "US_SIMREPLACEMENTEVENT",
+      "name": "simReplacementEvent",
+      "summary": "Usage specification linked from PS_SimCard."
+    },
+    {
+      "code": "US_DEVICEREPLACEMENTEVENT",
+      "name": "deviceReplacementEvent",
+      "summary": "Usage specification linked from PS_Stb."
+    },
+    {
+      "code": "US_EKOMFORTEVENT",
+      "name": "EKomfortEvent",
+      "summary": "Usage specification linked from PS_WiredAccess."
+    },
+    {
+      "code": "US_CANCELLATIONEVENT",
+      "name": "cancellationEvent",
+      "summary": "Usage specification linked from PS_WiredAccess."
+    }
+  ],
+  "serviceMapping": [
+    {
+      "productSpec": "PS_WiredInternet",
+      "serviceSpec": "SS_BROADBAND_ACCESS",
+      "resourceSpecs": []
+    },
+    {
+      "productSpec": "PS_SimCard",
+      "serviceSpec": "SS_MOBILE_IDENTITY",
+      "resourceSpecs": []
+    },
+    {
+      "productSpec": "PS_Discount",
+      "serviceSpec": "SS_COMMERCIAL_DISCOUNT",
+      "resourceSpecs": []
+    },
+    {
+      "productSpec": "PS_Cpe_ZXHN_F6745",
+      "serviceSpec": "SS_EPC_FULFILLMENT",
+      "resourceSpecs": []
+    },
+    {
+      "productSpec": "PS_PhoneNumber",
+      "serviceSpec": "SS_MOBILE_IDENTITY",
+      "resourceSpecs": []
+    },
+    {
+      "productSpec": "PS_Stb",
+      "serviceSpec": "SS_IPTV_DEVICE",
+      "resourceSpecs": []
+    },
+    {
+      "productSpec": "PS_InternetPlanBundle",
+      "serviceSpec": "SS_BROADBAND_ACCESS",
+      "resourceSpecs": []
+    },
+    {
+      "productSpec": "PS_WiredAccess",
+      "serviceSpec": "SS_BROADBAND_ACCESS",
+      "resourceSpecs": []
     }
   ],
   "productInventory": [
     {
-      "id": "inv-1",
-      "status": "active",
-      "offeringRef": "offer-1"
+      "id": "1283e00e-5473-4051-9a23-6509b9a14e5f",
+      "name": "Internet Access - Loyalty Discount",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-03-16T20:03:38.785158+01:00",
+      "specificationCode": "PS_Discount",
+      "offeringCode": null,
+      "relationshipCount": 1,
+      "characteristicCount": 0,
+      "realizingResourceCount": 0,
+      "characteristics": [],
+      "relationships": [
+        {
+          "id": "7b904a0c-2d23-4619-b491-befcc8394bc0",
+          "type": "composite",
+          "relationshipId": "1283e00e-5473-4051-9a23-6509b9a14e5f"
+        }
+      ]
+    },
+    {
+      "id": "1f2140e7-cc1b-44b5-bca1-6e1944ca32ca",
+      "name": "OtthonNet Fiber 1000",
+      "status": "pendingActive",
+      "isBundle": true,
+      "creationDate": null,
+      "specificationCode": "PS_InternetPlanBundle",
+      "offeringCode": null,
+      "relationshipCount": 4,
+      "characteristicCount": 0,
+      "realizingResourceCount": 0,
+      "characteristics": [],
+      "relationships": [
+        {
+          "id": "1f5cd9ce-1fc3-4881-b354-f6438621b7f1",
+          "type": "composite",
+          "relationshipId": "1f2140e7-cc1b-44b5-bca1-6e1944ca32ca"
+        },
+        {
+          "id": "463f5568-364f-4f2c-bbfb-d37f2ab8b683",
+          "type": "component",
+          "relationshipId": "463f5568-364f-4f2c-bbfb-d37f2ab8b683"
+        },
+        {
+          "id": "7b904a0c-2d23-4619-b491-befcc8394bc0",
+          "type": "component",
+          "relationshipId": "7b904a0c-2d23-4619-b491-befcc8394bc0"
+        },
+        {
+          "id": "9f25eed4-d60a-4b56-96cf-82c89fdf6f3a",
+          "type": "component",
+          "relationshipId": "9f25eed4-d60a-4b56-96cf-82c89fdf6f3a"
+        }
+      ]
+    },
+    {
+      "id": "1f5cd9ce-1fc3-4881-b354-f6438621b7f1",
+      "name": "OtthonNet 1000 Optika",
+      "status": "pendingActive",
+      "isBundle": true,
+      "creationDate": "2026-03-16T20:03:37.422794+01:00",
+      "specificationCode": "PS_WiredInternet",
+      "offeringCode": null,
+      "relationshipCount": 2,
+      "characteristicCount": 2,
+      "realizingResourceCount": 0,
+      "characteristics": [
+        {
+          "name": "madId",
+          "value": "TestMadId",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "wsFootprint",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "a3883910-9ba9-4278-85c2-f0d7e5cd7adf",
+          "type": "component",
+          "relationshipId": "a3883910-9ba9-4278-85c2-f0d7e5cd7adf"
+        },
+        {
+          "id": "1f2140e7-cc1b-44b5-bca1-6e1944ca32ca",
+          "type": "component",
+          "relationshipId": "1f2140e7-cc1b-44b5-bca1-6e1944ca32ca"
+        }
+      ]
+    },
+    {
+      "id": "463f5568-364f-4f2c-bbfb-d37f2ab8b683",
+      "name": "Phone Number (Virtual)",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-03-16T20:03:38.301381+01:00",
+      "specificationCode": "PS_PhoneNumber",
+      "offeringCode": null,
+      "relationshipCount": 1,
+      "characteristicCount": 3,
+      "realizingResourceCount": 1,
+      "characteristics": [
+        {
+          "name": "ctn",
+          "value": "181013274",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "msisdnCategory",
+          "value": "Virtual",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "msisdn",
+          "value": "181014078",
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "1f2140e7-cc1b-44b5-bca1-6e1944ca32ca",
+          "type": "composite",
+          "relationshipId": "463f5568-364f-4f2c-bbfb-d37f2ab8b683"
+        }
+      ]
+    },
+    {
+      "id": "7b904a0c-2d23-4619-b491-befcc8394bc0",
+      "name": "Internet Access",
+      "status": "pendingActive",
+      "isBundle": true,
+      "creationDate": "2026-03-16T20:03:38.557526+01:00",
+      "specificationCode": "PS_WiredAccess",
+      "offeringCode": null,
+      "relationshipCount": 4,
+      "characteristicCount": 6,
+      "realizingResourceCount": 0,
+      "characteristics": [
+        {
+          "name": "vlanId",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "wsFootprint",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "billingPricePlanCode",
+          "value": "ONFIX1FI",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "PPPCredentialSecret",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "connectionMediumType",
+          "value": "PPPOE",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "PPPCredentialUser",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "1f2140e7-cc1b-44b5-bca1-6e1944ca32ca",
+          "type": "composite",
+          "relationshipId": "7b904a0c-2d23-4619-b491-befcc8394bc0"
+        },
+        {
+          "id": "1283e00e-5473-4051-9a23-6509b9a14e5f",
+          "type": "component",
+          "relationshipId": "1283e00e-5473-4051-9a23-6509b9a14e5f"
+        },
+        {
+          "id": "9c7466fd-4392-4f52-a0b1-46ad15f84757",
+          "type": "component",
+          "relationshipId": "9c7466fd-4392-4f52-a0b1-46ad15f84757"
+        },
+        {
+          "id": "856087b8-1c2f-4e83-a182-05ff876f4e15",
+          "type": "component",
+          "relationshipId": "856087b8-1c2f-4e83-a182-05ff876f4e15"
+        }
+      ]
+    },
+    {
+      "id": "856087b8-1c2f-4e83-a182-05ff876f4e15",
+      "name": "Internet Access - Try & Buy Discount",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-03-16T20:03:39.291427+01:00",
+      "specificationCode": "PS_Discount",
+      "offeringCode": null,
+      "relationshipCount": 1,
+      "characteristicCount": 0,
+      "realizingResourceCount": 0,
+      "characteristics": [],
+      "relationships": [
+        {
+          "id": "7b904a0c-2d23-4619-b491-befcc8394bc0",
+          "type": "composite",
+          "relationshipId": "856087b8-1c2f-4e83-a182-05ff876f4e15"
+        }
+      ]
+    },
+    {
+      "id": "9c7466fd-4392-4f52-a0b1-46ad15f84757",
+      "name": "Internet Access - Installation Loyalty Discount",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-03-16T20:03:39.043562+01:00",
+      "specificationCode": "PS_Discount",
+      "offeringCode": null,
+      "relationshipCount": 1,
+      "characteristicCount": 0,
+      "realizingResourceCount": 0,
+      "characteristics": [],
+      "relationships": [
+        {
+          "id": "7b904a0c-2d23-4619-b491-befcc8394bc0",
+          "type": "composite",
+          "relationshipId": "9c7466fd-4392-4f52-a0b1-46ad15f84757"
+        }
+      ]
+    },
+    {
+      "id": "9f25eed4-d60a-4b56-96cf-82c89fdf6f3a",
+      "name": "SIM Card (Virtual)",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-03-16T20:03:39.514148+01:00",
+      "specificationCode": "PS_SimCard",
+      "offeringCode": null,
+      "relationshipCount": 1,
+      "characteristicCount": 3,
+      "realizingResourceCount": 1,
+      "characteristics": [
+        {
+          "name": "simCardType",
+          "value": "Virtual",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "imsi",
+          "value": "216012181013274",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "iccId",
+          "value": "8936200001810132740F",
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "1f2140e7-cc1b-44b5-bca1-6e1944ca32ca",
+          "type": "composite",
+          "relationshipId": "9f25eed4-d60a-4b56-96cf-82c89fdf6f3a"
+        }
+      ]
+    },
+    {
+      "id": "a3883910-9ba9-4278-85c2-f0d7e5cd7adf",
+      "name": "ZXHN F6745",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-03-16T20:03:37.813952+01:00",
+      "specificationCode": "PS_Cpe_ZXHN_F6745",
+      "offeringCode": null,
+      "relationshipCount": 1,
+      "characteristicCount": 2,
+      "realizingResourceCount": 0,
+      "characteristics": [
+        {
+          "name": "modemMode",
+          "value": "RouterNAT",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "serialNumber",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "1f5cd9ce-1fc3-4881-b354-f6438621b7f1",
+          "type": "composite",
+          "relationshipId": "a3883910-9ba9-4278-85c2-f0d7e5cd7adf"
+        }
+      ]
+    },
+    {
+      "id": "5d9d6340-19fc-4f96-a0d1-312d5aca0816",
+      "name": "PO_SimCardVirtual",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-04-10T11:58:57.450377+02:00",
+      "specificationCode": "PS_SimCard",
+      "offeringCode": "PO_SimCardVirtual",
+      "relationshipCount": 2,
+      "characteristicCount": 2,
+      "realizingResourceCount": 1,
+      "characteristics": [
+        {
+          "name": "imsi",
+          "value": "216012181014172",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "iccId",
+          "value": "8936200001810141720F",
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "0eab2e05-aae0-4761-b868-ec6261a80c8f",
+          "type": "composite",
+          "relationshipId": "5d9d6340-19fc-4f96-a0d1-312d5aca0816"
+        },
+        {
+          "id": "dcdbfa1b-d915-4d61-b91a-ac26ce0c0401",
+          "type": "linked",
+          "relationshipId": "cwzOrgOBRhu3wCtfGKsqBg.edt5HXJTLE8"
+        }
+      ]
+    },
+    {
+      "id": "944f30f2-ac14-425e-82f4-67f8e5a281f8",
+      "name": "PO_PhoneNumberVirtual",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-04-10T11:58:51.372565+02:00",
+      "specificationCode": "PS_PhoneNumber",
+      "offeringCode": "PO_PhoneNumberVirtual",
+      "relationshipCount": 2,
+      "characteristicCount": 2,
+      "realizingResourceCount": 0,
+      "characteristics": [
+        {
+          "name": "ctn",
+          "value": "181014172",
+          "valueType": "String"
+        },
+        {
+          "name": "msisdn",
+          "value": "36181014172",
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "0eab2e05-aae0-4761-b868-ec6261a80c8f",
+          "type": "composite",
+          "relationshipId": "944f30f2-ac14-425e-82f4-67f8e5a281f8"
+        },
+        {
+          "id": "dcdbfa1b-d915-4d61-b91a-ac26ce0c0401",
+          "type": "linked",
+          "relationshipId": "q2nK0Ii_T2e-H4iEvNl2UQ.GF0kZVZEv1A"
+        }
+      ]
+    },
+    {
+      "id": "d23f1771-4069-4520-bd70-2802deb90713",
+      "name": "PO_Cpe_ZXHN_F6745",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-04-10T11:58:48.929674+02:00",
+      "specificationCode": "PS_Cpe_ZXHN_F6745",
+      "offeringCode": "PO_Cpe_ZXHN_F6745",
+      "relationshipCount": 2,
+      "characteristicCount": 3,
+      "realizingResourceCount": 0,
+      "characteristics": [
+        {
+          "name": "serialNumber",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "physicalDeviceStatus",
+          "value": "underDelivery",
+          "valueType": "String"
+        },
+        {
+          "name": "modemMode",
+          "value": "RouterNAT",
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "09e8a22f-ba55-49e2-8fe6-033889904e3f",
+          "type": "composite",
+          "relationshipId": "d23f1771-4069-4520-bd70-2802deb90713"
+        },
+        {
+          "id": "dcdbfa1b-d915-4d61-b91a-ac26ce0c0401",
+          "type": "linked",
+          "relationshipId": "pLxPUWKrR2ifwfZzpUFC2w.9b5XKEzn4k4"
+        }
+      ]
+    },
+    {
+      "id": "dcdbfa1b-d915-4d61-b91a-ac26ce0c0401",
+      "name": "PO_AccessFiber1000",
+      "status": "pendingActive",
+      "isBundle": true,
+      "creationDate": "2026-04-10T11:58:52.567435+02:00",
+      "specificationCode": "PS_WiredAccess",
+      "offeringCode": "PO_AccessFiber1000",
+      "relationshipCount": 7,
+      "characteristicCount": 7,
+      "realizingResourceCount": 0,
+      "characteristics": [
+        {
+          "name": "vlanId",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "wsFootprint",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "billingPricePlanCode",
+          "value": "ONFIX1FI",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "PPPCredentialSecret",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "connectionMediumType",
+          "value": "PPPoE",
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "PPPCredentialUser",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        },
+        {
+          "name": "agreementId",
+          "value": null,
+          "valueType": "StringCharacteristic"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "0eab2e05-aae0-4761-b868-ec6261a80c8f",
+          "type": "composite",
+          "relationshipId": "dcdbfa1b-d915-4d61-b91a-ac26ce0c0401"
+        },
+        {
+          "id": "c75e6104-148e-427b-8f15-7e3257f4b328",
+          "type": "component",
+          "relationshipId": "c75e6104-148e-427b-8f15-7e3257f4b328"
+        },
+        {
+          "id": "72371031-f65e-446e-bc3c-00a85df2d3c1",
+          "type": "component",
+          "relationshipId": "72371031-f65e-446e-bc3c-00a85df2d3c1"
+        },
+        {
+          "id": "7e2e345a-3cb5-4aea-93f0-c8e2794450ee",
+          "type": "component",
+          "relationshipId": "7e2e345a-3cb5-4aea-93f0-c8e2794450ee"
+        },
+        {
+          "id": "5d9d6340-19fc-4f96-a0d1-312d5aca0816",
+          "type": "linked",
+          "relationshipId": "cwzOrgOBRhu3wCtfGKsqBg.edt5HXJTLE8"
+        },
+        {
+          "id": "944f30f2-ac14-425e-82f4-67f8e5a281f8",
+          "type": "linked",
+          "relationshipId": "q2nK0Ii_T2e-H4iEvNl2UQ.GF0kZVZEv1A"
+        },
+        {
+          "id": "d23f1771-4069-4520-bd70-2802deb90713",
+          "type": "linked",
+          "relationshipId": "pLxPUWKrR2ifwfZzpUFC2w.9b5XKEzn4k4"
+        }
+      ]
     }
-  ]
+  ],
+  "industryExtensions": [
+    {
+      "slug": "telecommunications",
+      "industry": "Telekommunikáció",
+      "focus": "5G mobil-előfizetések, optikai internet, bérelt vonalak és IoT hálózati csomagok",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "automotive-oem",
+      "industry": "Autógyártás és OEM",
+      "focus": "Alváz, motor, extrák, digitális szolgáltatások és konfigurálható jármű-BOM",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "financial-services",
+      "industry": "Pénzügyi szolgáltatások és bank",
+      "focus": "Lakáshitelek, folyószámlacsomagok, hitelkártyák, befektetések",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "logistics",
+      "industry": "Logisztika és szállítmányozás",
+      "focus": "Konténeres szállítás, hűtött raktár, fulfillment és útvonal-árazás",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "brewery-fmcg",
+      "industry": "Sör- és italgyártás",
+      "focus": "Komló, maláta, főzőberendezés és hordós B2B csomagok",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "optics",
+      "industry": "Optika és finommechanika",
+      "focus": "Lencsék, keretek, bevonatok és multifokális konfiguráció",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "health-insurance",
+      "industry": "Egészségügy és biztosítás",
+      "focus": "Ellátáscsomagok, élet- és balesetbiztosítás, kockázati árazás",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "energy-utilities",
+      "industry": "Energiaszektor és közművek",
+      "focus": "Áram, gáz, smart grid és napelem-telepítési szolgáltatások",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "saas-cloud",
+      "industry": "Szoftver, SaaS és felhő",
+      "focus": "IaaS/PaaS erőforrások, sávos licenc és előfizetések",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "industrial-machinery",
+      "industry": "Ipari gépgyártás",
+      "focus": "CNC, gyártósor, alkatrész-BOM és karbantartás",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "media-entertainment",
+      "industry": "Média és szórakoztatóipar",
+      "focus": "Streaming, hirdetési inventory és kampánycsomagok",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "real-estate-facility",
+      "industry": "Kereskedelmi ingatlan",
+      "focus": "Területbérlet, facility management és takarítás",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "travel-airline",
+      "industry": "Légitársaságok és utazás",
+      "focus": "Repülőjegy, poggyász, üléshely, lounge és dinamikus csomag",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "pharma",
+      "industry": "Gyógyszeripar",
+      "focus": "Klinikai kutatás, gyógyszer-disztribúció, kompatibilitás és szavatosság",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "education-edtech",
+      "industry": "Oktatás és e-learning",
+      "focus": "Szemeszter, tantárgy, kredit és vállalati képzés",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "agriculture-agrotech",
+      "industry": "Mezőgazdaság és agrotech",
+      "focus": "Okosfarm IoT, vetőmag, műtrágya és gépbérlés",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "it-hardware",
+      "industry": "IT hardver és rendszerintegráció",
+      "focus": "Szerver rack, adatközpont, hálózat és hűtés",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "security-monitoring",
+      "industry": "Biztonságtechnika és távfelügyelet",
+      "focus": "CCTV, riasztó, telepítés és 0-24 monitoring",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "chemical-industry",
+      "industry": "Vegyipar",
+      "focus": "Vegyszerkeverék, alapanyag, veszélyes áru és környezetvédelmi validáció",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    },
+    {
+      "slug": "events-hospitality",
+      "industry": "Rendezvényszervezés és vendéglátás",
+      "focus": "Terem, eszköz, catering, hosztesz és technikai biztosítás",
+      "modelingPattern": "JSONB/EAV characteristic-first product modeling with AST pricing and RETE/DAG rules",
+      "recommendedEntities": [
+        "ProductSpecification",
+        "ProductOffering",
+        "CharacteristicDefinition",
+        "ProductRelationship",
+        "PriceBook",
+        "Rule",
+        "ProductInventory"
+      ]
+    }
+  ],
+  "importSummary": {
+    "source": "EPC.zip",
+    "productSpecificationCount": 8,
+    "productOfferingCount": 3,
+    "characteristicDefinitionCount": 97,
+    "hierarchyEdgeCount": 29,
+    "productInventoryCount": 13,
+    "industryExtensionCount": 20
+  },
+  "tmf620Examples": {
+    "productSpecification": {
+      "id": "436GZaU3RPeRN2SMTdau6A",
+      "href": "/tmf-api/productCatalogManagement/v2/productSpecification/436GZaU3RPeRN2SMTdau6A",
+      "name": "PS_WiredInternet",
+      "caption": "Wired Internet",
+      "isBundle": true,
+      "lastUpdate": "2026-03-26T20:10:13.282Z",
+      "lifecycleStatus": "Offered",
+      "version": "1",
+      "bundledProductSpecification": [
+        {
+          "id": "SjcyRCHWQduCBq0W_jaKLw",
+          "href": "/tmf-api/productCatalogManagement/v2/productSpecification/SjcyRCHWQduCBq0W_jaKLw",
+          "name": "PS_InternetPlanBundle",
+          "version": "1",
+          "@baseType": "BundledProductSpecification",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationExt.json",
+          "@type": "BundledProductSpecificationExt",
+          "bundledProductSpecificationComponent": {
+            "componentId": "436GZaU3RPeRN2SMTdau6A.vEBsngyjOSg",
+            "componentName": "PS_WiredInternet.CMP_InternetPlan",
+            "componentCaption": "Internet Plan",
+            "numberRelOfferDefault": 1,
+            "numberRelOfferLowerLimit": 1,
+            "numberRelOfferUpperLimit": 1,
+            "@baseType": "BundledProductSpecificationComponent",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationComponentExt.json",
+            "@type": "BundledProductSpecificationComponentExt"
+          }
+        },
+        {
+          "id": "pLxPUWKrR2ifwfZzpUFC2w",
+          "href": "/tmf-api/productCatalogManagement/v2/productSpecification/pLxPUWKrR2ifwfZzpUFC2w",
+          "name": "PS_Cpe_ZXHN_F6745",
+          "version": "1",
+          "@baseType": "BundledProductSpecification",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationExt.json",
+          "@type": "BundledProductSpecificationExt",
+          "bundledProductSpecificationComponent": {
+            "componentId": "436GZaU3RPeRN2SMTdau6A.-sR3QBmRjf0",
+            "componentName": "PS_WiredInternet.CMP_CPE",
+            "componentCaption": "CPE",
+            "numberRelOfferDefault": 1,
+            "numberRelOfferLowerLimit": 1,
+            "numberRelOfferUpperLimit": 1,
+            "@baseType": "BundledProductSpecificationComponent",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationComponentExt.json",
+            "@type": "BundledProductSpecificationComponentExt"
+          }
+        },
+        {
+          "id": "BvgPazVJQUO0e3vSK9ik-A",
+          "href": "/tmf-api/productCatalogManagement/v2/productSpecification/BvgPazVJQUO0e3vSK9ik-A",
+          "name": "PS_Max",
+          "version": "1",
+          "@baseType": "BundledProductSpecification",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationExt.json",
+          "@type": "BundledProductSpecificationExt",
+          "bundledProductSpecificationComponent": {
+            "componentId": "436GZaU3RPeRN2SMTdau6A.XiPdvZWzmeA",
+            "componentName": "PS_WiredInternet.CMP_Max",
+            "componentCaption": "Max",
+            "numberRelOfferDefault": 0,
+            "numberRelOfferLowerLimit": 0,
+            "numberRelOfferUpperLimit": 1,
+            "@baseType": "BundledProductSpecificationComponent",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationComponentExt.json",
+            "@type": "BundledProductSpecificationComponentExt"
+          }
+        },
+        {
+          "id": "FheF7UyiQVOKewTUD6Poww",
+          "href": "/tmf-api/productCatalogManagement/v2/productSpecification/FheF7UyiQVOKewTUD6Poww",
+          "name": "PS_Tv2Play",
+          "version": "1",
+          "@baseType": "BundledProductSpecification",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationExt.json",
+          "@type": "BundledProductSpecificationExt",
+          "bundledProductSpecificationComponent": {
+            "componentId": "436GZaU3RPeRN2SMTdau6A.4i5WZFMZGzc",
+            "componentName": "PS_WiredInternet.CMP_Tv2Play",
+            "componentCaption": "TV2Play",
+            "numberRelOfferDefault": 0,
+            "numberRelOfferLowerLimit": 0,
+            "numberRelOfferUpperLimit": 1,
+            "@baseType": "BundledProductSpecificationComponent",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationComponentExt.json",
+            "@type": "BundledProductSpecificationComponentExt"
+          }
+        },
+        {
+          "id": "DfVKi86xTbGyqnlHGs-o_g",
+          "href": "/tmf-api/productCatalogManagement/v2/productSpecification/DfVKi86xTbGyqnlHGs-o_g",
+          "name": "PS_YettelAccount",
+          "version": "1",
+          "@baseType": "BundledProductSpecification",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationExt.json",
+          "@type": "BundledProductSpecificationExt",
+          "bundledProductSpecificationComponent": {
+            "componentId": "436GZaU3RPeRN2SMTdau6A.Jkcvct7HC3E",
+            "componentName": "PS_WiredInternet.CMP_YettelAccount",
+            "componentCaption": "Yettel Account",
+            "numberRelOfferDefault": 0,
+            "numberRelOfferLowerLimit": 0,
+            "numberRelOfferUpperLimit": 1,
+            "@baseType": "BundledProductSpecificationComponent",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationComponentExt.json",
+            "@type": "BundledProductSpecificationComponentExt"
+          }
+        },
+        {
+          "id": "N_JzPi7eQXmon2BbPkntKQ",
+          "href": "/tmf-api/productCatalogManagement/v2/productSpecification/N_JzPi7eQXmon2BbPkntKQ",
+          "name": "PS_TvBundle",
+          "version": "1",
+          "@baseType": "BundledProductSpecification",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationExt.json",
+          "@type": "BundledProductSpecificationExt",
+          "bundledProductSpecificationComponent": {
+            "componentId": "436GZaU3RPeRN2SMTdau6A.gwlHUrZMWNI",
+            "componentName": "PS_WiredInternet.CMP_TvBundle",
+            "componentCaption": "TV Plan",
+            "numberRelOfferDefault": 0,
+            "numberRelOfferLowerLimit": 0,
+            "numberRelOfferUpperLimit": 1,
+            "@baseType": "BundledProductSpecificationComponent",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationComponentExt.json",
+            "@type": "BundledProductSpecificationComponentExt"
+          }
+        },
+        {
+          "id": "xpx6Ba6_TQayjm7rTDPaUA",
+          "href": "/tmf-api/productCatalogManagement/v2/productSpecification/xpx6Ba6_TQayjm7rTDPaUA",
+          "name": "PS_ChildrenProtection",
+          "version": "1",
+          "@baseType": "BundledProductSpecification",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationExt.json",
+          "@type": "BundledProductSpecificationExt",
+          "bundledProductSpecificationComponent": {
+            "componentId": "436GZaU3RPeRN2SMTdau6A.A1Q51lcyZhY",
+            "componentName": "PS_WiredInternet.CMP_ChildrenProtection",
+            "componentCaption": "Children Protection",
+            "numberRelOfferDefault": 0,
+            "numberRelOfferLowerLimit": 0,
+            "numberRelOfferUpperLimit": 1,
+            "@baseType": "BundledProductSpecificationComponent",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/BundledProductSpecificationComponentExt.json",
+            "@type": "BundledProductSpecificationComponentExt"
+          }
+        }
+      ],
+      "productSpecCharacteristic": [
+        {
+          "id": "-VR8JtKRSyqj-ecop5t-4g",
+          "name": "madId",
+          "valueType": "String",
+          "configurable": true,
+          "configurableStage": [
+            "sale"
+          ],
+          "editingAbility": "editable",
+          "presence": "mandatoryForSale",
+          "minCardinality": 1,
+          "maxCardinality": 1,
+          "characteristicValueSpecification": [
+            {
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "CharacteristicSpecificationUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/CharacteristicSpecificationUseExt.json",
+          "@type": "CharacteristicSpecificationUseExt",
+          "characteristicSpecification": {
+            "id": "-VR8JtKRSyqj-ecop5t-4g",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/-VR8JtKRSyqj-ecop5t-4g",
+            "name": "madId",
+            "caption": "MAD ID",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "usedInSolutionDesign": false,
+          "mandatoryForSolutionDesign": false,
+          "forProductInventory": true,
+          "forFulfillment": true
+        },
+        {
+          "id": "Wy4tShKFTKWMMnvcKQNjCA",
+          "name": "initialSalesChannel",
+          "valueType": "String",
+          "configurable": true,
+          "configurableStage": [
+            "quotation",
+            "sale",
+            "acceptance",
+            "fulfillment",
+            "inventory"
+          ],
+          "editingAbility": "hidden",
+          "presence": "optional",
+          "minCardinality": 0,
+          "maxCardinality": 1,
+          "characteristicValueSpecification": [
+            {
+              "valueType": "String",
+              "value": "property(\"orderCreatedInSalesChannel\").as(\"SalesChannel\").property(\"name\").orElse(\"unknown\")",
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "CharacteristicSpecificationUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/CharacteristicSpecificationUseExt.json",
+          "@type": "CharacteristicSpecificationUseExt",
+          "characteristicSpecification": {
+            "id": "Wy4tShKFTKWMMnvcKQNjCA",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/Wy4tShKFTKWMMnvcKQNjCA",
+            "name": "initialSalesChannel",
+            "caption": "Initial Sales Channel",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "usedInSolutionDesign": false,
+          "mandatoryForSolutionDesign": false,
+          "forProductInventory": false,
+          "forFulfillment": false
+        },
+        {
+          "id": "zcdyN2kOS3utQQLJGlb-Ug",
+          "name": "subscriptionID",
+          "valueType": "String",
+          "configurable": true,
+          "configurableStage": [
+            "quotation",
+            "sale",
+            "acceptance",
+            "fulfillment",
+            "inventory"
+          ],
+          "editingAbility": "editable",
+          "presence": "mandatoryForSale",
+          "minCardinality": 1,
+          "maxCardinality": 1,
+          "characteristicValueSpecification": [
+            {
+              "valueType": "String",
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "CharacteristicSpecificationUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/CharacteristicSpecificationUseExt.json",
+          "@type": "CharacteristicSpecificationUseExt",
+          "characteristicSpecification": {
+            "id": "zcdyN2kOS3utQQLJGlb-Ug",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/zcdyN2kOS3utQQLJGlb-Ug",
+            "name": "subscriptionID",
+            "caption": "Subscription ID",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "usedInSolutionDesign": false,
+          "mandatoryForSolutionDesign": false,
+          "forProductInventory": true,
+          "forFulfillment": false
+        },
+        {
+          "id": "b4aakW1cTmqQ6CisuwvlIw",
+          "name": "terminationBusinessReason",
+          "valueType": "String",
+          "configurable": true,
+          "configurableStage": [
+            "quotation",
+            "sale",
+            "acceptance",
+            "fulfillment",
+            "inventory"
+          ],
+          "editingAbility": "hidden",
+          "presence": "optional",
+          "minCardinality": 0,
+          "maxCardinality": 1,
+          "characteristicValueSpecification": [
+            {
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "CharacteristicSpecificationUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/CharacteristicSpecificationUseExt.json",
+          "@type": "CharacteristicSpecificationUseExt",
+          "characteristicSpecification": {
+            "id": "b4aakW1cTmqQ6CisuwvlIw",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/b4aakW1cTmqQ6CisuwvlIw",
+            "name": "terminationBusinessReason",
+            "caption": "Termination Business reason",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "usedInSolutionDesign": false,
+          "mandatoryForSolutionDesign": false,
+          "forProductInventory": false,
+          "forFulfillment": false
+        }
+      ],
+      "relatedParty": [
+        {
+          "partyOrPartyRole": {
+            "id": "8DUtlcQ9TRicWU1tNu1ovg.tlifxqsNyCw",
+            "href": "/tmf-api/partyRoleManagement/v2/partyRole/8DUtlcQ9TRicWU1tNu1ovg.tlifxqsNyCw",
+            "name": "YHU",
+            "@baseType": "PartyRefOrPartyRoleRef",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/PartyRoleRef.json",
+            "@referredType": "Vendor",
+            "partyId": "8DUtlcQ9TRicWU1tNu1ovg",
+            "partyName": "YHU",
+            "@type": "PartyRoleRef"
+          },
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/RelatedPartyRefOrPartyRoleRef.json",
+          "@type": "RelatedPartyRefOrPartyRoleRef"
+        }
+      ],
+      "@baseType": "ProductSpecification",
+      "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductSpecificationExt.json",
+      "@type": "ProductSpecificationExt",
+      "businessRules": [
+        {
+          "id": "436GZaU3RPeRN2SMTdau6A.MWgLhIWkgiU",
+          "name": "PS_WiredInternet.rule1s",
+          "condition": "(exists(component(\"CMP_Max\", true)) and exists(component(\"CMP_TvBundle\", true).component(\"CMP_HBO\", true)))",
+          "actions": [
+            "raise error"
+          ]
+        },
+        {
+          "id": "436GZaU3RPeRN2SMTdau6A.3eA6J76PqlE",
+          "name": "PS_WiredInternet.rule2s",
+          "condition": "(exists(component(\"CMP_Tv2Play\", true)) and exists(component(\"CMP_TvBundle\", true).component(\"CMP_Tv2PlayFree\", true)))",
+          "actions": [
+            "raise error"
+          ]
+        }
+      ],
+      "template": false,
+      "productType": "GenericService",
+      "main": false,
+      "businessModel": "Subscription",
+      "serialNumberPrefix": "PROD",
+      "canBeSecret": false,
+      "requiresQuotation": false,
+      "sellSeparately": true,
+      "installationAddressAndAvailability": "InstallationAddressAndAlwaysAvailable",
+      "stockAvailability": "NoStockManagement",
+      "activationMode": "OnFulfillmentDate",
+      "activationPresence": "MandatoryForOrderFinalization",
+      "fulfillmentType": "Standard",
+      "manualFulfillmentConfirmation": false,
+      "skipProductSynchronizationToBS": false
+    },
+    "productOffering": {
+      "id": "Pq98GniMSh-da7VOvmCDew",
+      "href": "/tmf-api/productCatalogManagement/v2/productOffering/Pq98GniMSh-da7VOvmCDew",
+      "description": "Lorem ipsum",
+      "isBundle": false,
+      "isSellable": false,
+      "lastUpdate": "2026-03-16T13:57:01.660Z",
+      "lifecycleStatus": "Launched",
+      "name": "PO_InternetAnywherePaid",
+      "caption": "Internet Anywhere (Paid)",
+      "version": "1",
+      "category": [
+        {
+          "id": "gdvTMvGqTtaWi6eM5Y4FrA.n178I2-N8qE",
+          "href": "/tmf-api/productCatalogManagement/v2/category/gdvTMvGqTtaWi6eM5Y4FrA.n178I2-N8qE",
+          "name": "catHomeNet.HomeNet",
+          "caption": "HomeNet",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/CategoryRef.json",
+          "@type": "CategoryRef",
+          "@referredType": "CategoryExt"
+        },
+        {
+          "id": "gdvTMvGqTtaWi6eM5Y4FrA.XhqSi9ahxqY",
+          "href": "/tmf-api/productCatalogManagement/v2/category/gdvTMvGqTtaWi6eM5Y4FrA.XhqSi9ahxqY",
+          "name": "catHomeNet.Addon",
+          "caption": "Addon",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/CategoryRef.json",
+          "@type": "CategoryRef",
+          "@referredType": "CategoryExt"
+        }
+      ],
+      "channel": [
+        {
+          "id": "x-7FBLIzRRSAGdNO_e5gUg",
+          "href": "/bss-api/marketSales/v2/salesChannel/x-7FBLIzRRSAGdNO_e5gUg",
+          "name": "mobileapp",
+          "caption": "Mobileapp",
+          "@schemaLocation": "/swagger/api-docs/marketsales-rest-api-v2/SalesChannelRef.json",
+          "@type": "SalesChannelRef",
+          "@referredType": "SalesChannel"
+        },
+        {
+          "id": "urgj7wEvQ5Kf-zu1zACCjQ",
+          "href": "/bss-api/marketSales/v2/salesChannel/urgj7wEvQ5Kf-zu1zACCjQ",
+          "name": "backoffice",
+          "caption": "Backoffice",
+          "@schemaLocation": "/swagger/api-docs/marketsales-rest-api-v2/SalesChannelRef.json",
+          "@type": "SalesChannelRef",
+          "@referredType": "SalesChannel"
+        },
+        {
+          "id": "URq8rCsPSx6d2-qf9M3qwQ",
+          "href": "/bss-api/marketSales/v2/salesChannel/URq8rCsPSx6d2-qf9M3qwQ",
+          "name": "voicecall",
+          "caption": "Voicecall",
+          "@schemaLocation": "/swagger/api-docs/marketsales-rest-api-v2/SalesChannelRef.json",
+          "@type": "SalesChannelRef",
+          "@referredType": "SalesChannel"
+        },
+        {
+          "id": "ys_N8p6wSJymvSIPzobQnQ",
+          "href": "/bss-api/marketSales/v2/salesChannel/ys_N8p6wSJymvSIPzobQnQ",
+          "name": "webshop",
+          "caption": "Webshop",
+          "@schemaLocation": "/swagger/api-docs/marketsales-rest-api-v2/SalesChannelRef.json",
+          "@type": "SalesChannelRef",
+          "@referredType": "SalesChannel"
+        },
+        {
+          "id": "XgAC7fMOTqur993_3dCJWw",
+          "href": "/bss-api/marketSales/v2/salesChannel/XgAC7fMOTqur993_3dCJWw",
+          "name": "retail",
+          "caption": "Retail",
+          "@schemaLocation": "/swagger/api-docs/marketsales-rest-api-v2/SalesChannelRef.json",
+          "@type": "SalesChannelRef",
+          "@referredType": "SalesChannel"
+        }
+      ],
+      "marketSegment": [
+        {
+          "id": "2eR3oC7RRBSjvVHXSMSnqg",
+          "href": "/bss-api/marketSales/v2/marketSegment/2eR3oC7RRBSjvVHXSMSnqg",
+          "name": "individualResident",
+          "caption": "Individual Customers (Residents)",
+          "@schemaLocation": "/swagger/api-docs/marketsales-rest-api-v2/MarketSegmentRef.json",
+          "@type": "MarketSegmentRef",
+          "@referredType": "MarketSegment"
+        },
+        {
+          "id": "T5LxQvfcTRG82ibw6BoxQg",
+          "href": "/bss-api/marketSales/v2/marketSegment/T5LxQvfcTRG82ibw6BoxQg",
+          "name": "individualForeigner",
+          "caption": "Individual Customers (Foreigners)",
+          "@schemaLocation": "/swagger/api-docs/marketsales-rest-api-v2/MarketSegmentRef.json",
+          "@type": "MarketSegmentRef",
+          "@referredType": "MarketSegment"
+        }
+      ],
+      "prodSpecCharValueUse": [
+        {
+          "configurable": true,
+          "configurableStage": [
+            "quotation",
+            "sale",
+            "acceptance",
+            "fulfillment",
+            "inventory"
+          ],
+          "editingAbility": "readonly",
+          "presence": "optional",
+          "maxCardinality": 1,
+          "minCardinality": 0,
+          "name": "offerDescription2",
+          "valueType": "String",
+          "productSpecCharacteristicValue": [
+            {
+              "valueType": "String",
+              "value": "Lorem ipsum",
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "ProductSpecificationCharacteristicValueUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductSpecificationCharacteristicValueUseExt.json",
+          "@type": "ProductSpecificationCharacteristicValueUseExt",
+          "value": "Lorem ipsum",
+          "characteristicSpecification": {
+            "id": "7bqd7IOKQbKtuR91ObcooQ",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/7bqd7IOKQbKtuR91ObcooQ",
+            "name": "offerDescription2",
+            "caption": "Description 2",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "forProductInventory": false,
+          "forFulfillment": true
+        },
+        {
+          "configurable": true,
+          "configurableStage": [
+            "quotation",
+            "sale",
+            "acceptance",
+            "fulfillment",
+            "inventory"
+          ],
+          "editingAbility": "readonly",
+          "presence": "optional",
+          "maxCardinality": 1,
+          "minCardinality": 0,
+          "name": "longDescription",
+          "valueType": "String",
+          "productSpecCharacteristicValue": [
+            {
+              "valueType": "String",
+              "value": "Lorem ipsum",
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "ProductSpecificationCharacteristicValueUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductSpecificationCharacteristicValueUseExt.json",
+          "@type": "ProductSpecificationCharacteristicValueUseExt",
+          "value": "Lorem ipsum",
+          "characteristicSpecification": {
+            "id": "sD0yEbhaTO-Ubng5TCmmGg",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/sD0yEbhaTO-Ubng5TCmmGg",
+            "name": "longDescription",
+            "caption": "Long description",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "forProductInventory": false,
+          "forFulfillment": true
+        },
+        {
+          "configurable": true,
+          "configurableStage": [
+            "quotation",
+            "sale",
+            "acceptance",
+            "fulfillment",
+            "inventory"
+          ],
+          "editingAbility": "readonly",
+          "presence": "optional",
+          "maxCardinality": 1,
+          "minCardinality": 0,
+          "name": "recommendedOffer",
+          "valueType": "Boolean",
+          "productSpecCharacteristicValue": [
+            {
+              "valueType": "Boolean",
+              "value": "true",
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "ProductSpecificationCharacteristicValueUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductSpecificationCharacteristicValueUseExt.json",
+          "@type": "ProductSpecificationCharacteristicValueUseExt",
+          "value": "true",
+          "characteristicSpecification": {
+            "id": "MoRl7wWZRx-UMAhJKNMk4A",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/MoRl7wWZRx-UMAhJKNMk4A",
+            "name": "recommendedOffer",
+            "caption": "Recommended offer",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "forProductInventory": false,
+          "forFulfillment": true
+        },
+        {
+          "configurable": true,
+          "configurableStage": [
+            "acceptance",
+            "fulfillment"
+          ],
+          "editingAbility": "hidden",
+          "presence": "mandatoryForFulfillment",
+          "maxCardinality": 1,
+          "minCardinality": 1,
+          "name": "dataPlan",
+          "valueType": "String",
+          "productSpecCharacteristicValue": [
+            {
+              "valueType": "String",
+              "value": "PlanAnywhere",
+              "@baseType": "CharacteristicValueSpecification",
+              "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/StringCharacteristicValueSpecification.json",
+              "@type": "StringCharacteristicValueSpecification"
+            }
+          ],
+          "@baseType": "ProductSpecificationCharacteristicValueUse",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductSpecificationCharacteristicValueUseExt.json",
+          "@type": "ProductSpecificationCharacteristicValueUseExt",
+          "value": "PlanAnywhere",
+          "characteristicSpecification": {
+            "id": "5EbI5bdRTFWQdC1AAmhE9w",
+            "href": "/tmf-api/productCatalogManagement/v2/characteristicSpecification/5EbI5bdRTFWQdC1AAmhE9w",
+            "name": "dataPlan",
+            "caption": "Data Plan",
+            "version": "1"
+          },
+          "restrictedByAvailabilityCheck": false,
+          "requiredByAvailabilityCheck": false,
+          "forProductInventory": false,
+          "forFulfillment": true
+        }
+      ],
+      "productOfferingPrice": [
+        {
+          "id": "Pq98GniMSh-da7VOvmCDew.a1iDPdBWS3-Sn-EotDhclQ",
+          "href": "/tmf-api/productCatalogManagement/v2/productOfferingPrice/Pq98GniMSh-da7VOvmCDew.a1iDPdBWS3-Sn-EotDhclQ",
+          "name": "PO_InternetAnywherePaid.saleCharge",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductOfferingPriceRef.json",
+          "@type": "ProductOfferingPriceRef",
+          "@referredType": "ProductOfferingPriceExt"
+        }
+      ],
+      "productOfferingTerm": [
+        {
+          "name": "Commitment period from bundle",
+          "@baseType": "ProductOfferingTerm",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/CommitmentPeriodFromBundle.json",
+          "@type": "CommitmentPeriodFromBundle"
+        },
+        {
+          "name": "30 days",
+          "duration": {
+            "amount": 30,
+            "units": "day"
+          },
+          "@baseType": "ProductOfferingTerm",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/FixedRenewalPeriod.json",
+          "@type": "FixedRenewalPeriod"
+        }
+      ],
+      "productSpecification": {
+        "id": "u-YIGlLkTlaDE11ZkoZbIQ",
+        "href": "/tmf-api/productCatalogManagement/v2/productSpecification/u-YIGlLkTlaDE11ZkoZbIQ",
+        "name": "PS_InternetAnywhere",
+        "caption": "OtthonNet Anywhere",
+        "version": "1",
+        "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductSpecificationRef.json",
+        "@type": "ProductSpecificationRef",
+        "@referredType": "ProductSpecificationExt"
+      },
+      "validFor": {
+        "startDateTime": "2025-05-31T22:00:00.000Z"
+      },
+      "validForConversion": {
+        "startDateTime": "2025-05-31T22:00:00.000Z"
+      },
+      "@baseType": "ProductOffering",
+      "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductOfferingExt.json",
+      "relatedParty": [
+        {
+          "partyOrPartyRole": {
+            "id": "8DUtlcQ9TRicWU1tNu1ovg.tlifxqsNyCw",
+            "href": "/tmf-api/partyRoleManagement/v2/partyRole/8DUtlcQ9TRicWU1tNu1ovg.tlifxqsNyCw",
+            "name": "YHU",
+            "@baseType": "PartyRefOrPartyRoleRef",
+            "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/PartyRoleRef.json",
+            "@referredType": "Vendor",
+            "partyId": "8DUtlcQ9TRicWU1tNu1ovg",
+            "partyName": "YHU",
+            "@type": "PartyRoleRef"
+          },
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/RelatedPartyRefOrPartyRoleRef.json",
+          "@type": "RelatedPartyRefOrPartyRoleRef"
+        }
+      ],
+      "@type": "ProductOfferingExt",
+      "subscription": {
+        "startDateTime": "2025-05-31T22:00:00.000Z"
+      },
+      "promotionalType": "PriceList",
+      "inheritance": [
+        {
+          "id": "dFpHh3yWSCeMz9TFb21F9Q",
+          "href": "/tmf-api/productCatalogManagement/v2/productOffering/dFpHh3yWSCeMz9TFb21F9Q",
+          "name": "PO_Descriptions",
+          "version": "1",
+          "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/ProductOfferingRef.json",
+          "@type": "ProductOfferingRef",
+          "@referredType": "ProductOfferingExt"
+        }
+      ],
+      "activationMode": "OnFulfillmentDate",
+      "saleType": {
+        "name": "NewSale",
+        "newSaleAllowed": true,
+        "crossSaleAllowed": false
+      },
+      "requiresServiceAgreement": false,
+      "requiresFrameAgreement": false,
+      "priority": 0,
+      "billFrom": {
+        "caption": "Fulfillment date",
+        "@baseType": "BillFrom",
+        "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/FulfillmentDate.json",
+        "@type": "FulfillmentDate"
+      },
+      "billTo": {
+        "caption": "Default date",
+        "@baseType": "BillTo",
+        "@schemaLocation": "/swagger/api-docs/TMF620-ProductCatalog-v2.swagger/DefaultDate.json",
+        "@type": "DefaultDate"
+      }
+    },
+    "productInventory": {
+      "id": "1283e00e-5473-4051-9a23-6509b9a14e5f",
+      "name": "Internet Access - Loyalty Discount",
+      "status": "pendingActive",
+      "isBundle": false,
+      "creationDate": "2026-03-16T20:03:38.785158+01:00",
+      "specificationCode": "PS_Discount",
+      "offeringCode": null,
+      "relationshipCount": 1,
+      "characteristicCount": 0,
+      "realizingResourceCount": 0,
+      "characteristics": [],
+      "relationships": [
+        {
+          "id": "7b904a0c-2d23-4619-b491-befcc8394bc0",
+          "type": "composite",
+          "relationshipId": "1283e00e-5473-4051-9a23-6509b9a14e5f"
+        }
+      ]
+    }
+  }
 }
